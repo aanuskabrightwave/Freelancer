@@ -1,0 +1,40 @@
+from pydantic import BaseModel, Field, ConfigDict
+from typing import List, Optional
+from datetime import datetime
+from app.schemas.workspace import WorkspaceFileResponse
+
+
+class DeliveryFileOut(BaseModel):
+    id: int
+    delivery_id: int
+    workspace_file_id: int
+    workspace_file: Optional[WorkspaceFileResponse] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DeliveryResponse(BaseModel):
+    id: int
+    booking_id: int
+    workspace_id: int
+    delivery_type: str
+    version: int
+    title: str
+    message: Optional[str] = None
+    status: str
+    submitted_by_user_id: int
+    submitted_at: datetime
+    approved_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+    
+    delivery_files: List[DeliveryFileOut] = []
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DeliveryCreatePayload(BaseModel):
+    delivery_type: str = Field("PREVIEW", description="PREVIEW or FINAL")
+    title: str = Field(..., min_length=2, max_length=255)
+    message: Optional[str] = None
+    file_ids: List[int] = Field(default_factory=list)
