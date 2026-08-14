@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 interface DashboardHeaderProps {
   title: string;
@@ -11,6 +12,7 @@ export default function DashboardHeader({ title, role }: DashboardHeaderProps) {
     <header className="h-16 border-b border-[var(--border)] bg-[var(--card)] px-6 flex items-center justify-between">
       <h1 className="text-xl font-bold text-[var(--foreground)]">{title}</h1>
       <div className="flex items-center gap-4">
+        <NotificationBell />
         <span className="text-xs uppercase px-2.5 py-0.5 rounded-full font-semibold bg-blue-900/30 text-blue-400 border border-blue-800">
           {role}
         </span>

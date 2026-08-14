@@ -4,7 +4,8 @@ from app.api.v1.endpoints import (
     health, auth, freelancers, freelancer_services, services, bookings,
     messages, client_bookings, freelancer_bookings, availability,
     workspace, messaging, deliveries, revisions,
-    payments, freelancer_earnings, payouts, payment_webhooks
+    payments, freelancer_earnings, payouts, payment_webhooks,
+    reviews, favourites, notifications, admin_management
 )
 
 api_router = APIRouter()
@@ -28,42 +29,33 @@ api_router.include_router(payments.router, tags=["Payments"])
 api_router.include_router(freelancer_earnings.router, tags=["Freelancer Earnings"])
 api_router.include_router(payouts.router, tags=["Payouts"])
 api_router.include_router(payment_webhooks.router, tags=["Payment Webhooks"])
+api_router.include_router(reviews.router, tags=["Reviews & Ratings"])
+api_router.include_router(favourites.router, tags=["Favourites"])
+api_router.include_router(notifications.router, tags=["Notifications"])
 
 
 # Register placeholder routes for planned modules
 placeholder_router = APIRouter()
 
-@placeholder_router.get("/users", tags=["Users Placeholder"])
+@placeholder_router.get("/users", tags=["Placeholder"])
 async def users_placeholder():
     return {"message": "Users endpoints will be implemented in a future module"}
 
-@placeholder_router.get("/clients", tags=["Clients Placeholder"])
+@placeholder_router.get("/clients", tags=["Placeholder"])
 async def clients_placeholder():
     return {"message": "Client profiles will be implemented in a future module"}
 
-@placeholder_router.get("/projects", tags=["Projects Placeholder"])
+@placeholder_router.get("/projects", tags=["Placeholder"])
 async def projects_placeholder():
     return {"message": "Projects endpoints will be implemented in a future module"}
 
-@placeholder_router.get("/proposals", tags=["Proposals Placeholder"])
+@placeholder_router.get("/proposals", tags=["Placeholder"])
 async def proposals_placeholder():
     return {"message": "Proposals endpoints will be implemented in a future module"}
 
-@placeholder_router.get("/payments", tags=["Payments Placeholder"])
+@placeholder_router.get("/payments", tags=["Placeholder"])
 async def payments_placeholder():
     return {"message": "Payments endpoints will be implemented in a future module"}
 
-@placeholder_router.get("/reviews", tags=["Reviews Placeholder"])
-async def reviews_placeholder():
-    return {"message": "Reviews endpoints will be implemented in a future module"}
-
-@placeholder_router.get("/notifications", tags=["Notifications Placeholder"])
-async def notifications_placeholder():
-    return {"message": "Notifications endpoints will be implemented in a future module"}
-
-@placeholder_router.get("/admin", tags=["Admin Placeholder"])
-async def admin_placeholder():
-    return {"message": "Admin endpoints will be implemented in a future module"}
-
-
+api_router.include_router(admin_management.router, prefix="/admin", tags=["Admin Management"])
 api_router.include_router(placeholder_router)

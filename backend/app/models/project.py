@@ -15,7 +15,7 @@ class Project(Base):
     city = Column(String(100), nullable=True)
     state = Column(String(100), nullable=True)
     country = Column(String(100), nullable=True)
-    status = Column(String(50), default="OPEN", nullable=False)  # OPEN, AWARDED, COMPLETED, CANCELLED
+    status = Column(String(50), default="OPEN", nullable=False, index=True)  # OPEN, AWARDED, COMPLETED, CANCELLED
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)

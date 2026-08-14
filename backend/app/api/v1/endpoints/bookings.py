@@ -105,3 +105,17 @@ def reject_reschedule_request(
     db: Session = Depends(get_db)
 ):
     return BookingService.respond_reschedule(db, current_user, id, request_id, accept=False)
+
+
+from app.services.dispute_service import DisputeService
+from app.schemas.admin import DisputeCreatePayload, DisputeOut
+
+@router.post("/bookings/{id}/disputes", response_model=DisputeOut, status_code=status.HTTP_201_CREATED, summary="Open a dispute on a booking")
+def open_booking_dispute(
+    id: int,
+    payload: DisputeCreatePayload,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    return DisputeService.open_dispute(db, current_user, id, payload.reason, payload.description)
+

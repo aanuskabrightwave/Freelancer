@@ -7,8 +7,10 @@ from app.core.config import settings
 # Create SQLAlchemy engine
 engine = create_engine(
     settings.database_url,
-    pool_pre_ping=True,  # checks connection before executing queries
-    pool_recycle=3600,   # recycles connections after 1 hour to prevent timeout disconnects
+    pool_pre_ping=True,
+    pool_recycle=settings.DB_POOL_RECYCLE,
+    pool_size=settings.DB_POOL_SIZE,
+    max_overflow=settings.DB_MAX_OVERFLOW,
 )
 
 # Create SessionLocal sessionmaker

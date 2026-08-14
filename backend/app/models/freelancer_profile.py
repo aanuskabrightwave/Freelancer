@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, Numeric, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, Numeric, String, Text, Float, func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -20,8 +20,10 @@ class FreelancerProfession(str, enum.Enum):
 class VerificationStatus(str, enum.Enum):
     NOT_SUBMITTED = "NOT_SUBMITTED"
     PENDING = "PENDING"
+    UNDER_REVIEW = "UNDER_REVIEW"
     VERIFIED = "VERIFIED"
     REJECTED = "REJECTED"
+    RESUBMISSION_REQUIRED = "RESUBMISSION_REQUIRED"
 
 
 class FreelancerProfile(Base):
@@ -31,11 +33,11 @@ class FreelancerProfile(Base):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
     
     professional_title = Column(String(120), nullable=False)
-    primary_profession = Column(Enum(FreelancerProfession), nullable=False)
+    primary_profession = Column(Enum(FreelancerProfession), nullable=False, index=True)
     bio = Column(Text, nullable=False)
     experience_years = Column(Integer, nullable=False)
 
-    city = Column(String(100), nullable=False)
+    city = Column(String(100), nullable=False, index=True)
     state = Column(String(100), nullable=False)
     country = Column(String(100), nullable=False)
 
@@ -53,6 +55,10 @@ class FreelancerProfile(Base):
     profile_completion_percentage = Column(Integer, default=0, nullable=False)
     verification_status = Column(Enum(VerificationStatus), default=VerificationStatus.NOT_SUBMITTED, nullable=False)
     is_profile_public = Column(Boolean, default=False, nullable=False)
+
+    average_rating = Column(Float, nullable=True)
+    review_count = Column(Integer, default=0, nullable=False)
+    completed_jobs_count = Column(Integer, default=0, nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(

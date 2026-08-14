@@ -123,8 +123,11 @@ class PayoutService:
                 detail="Payout bank account details not configured or verified."
             )
 
-        summary = LedgerRepository.get_freelancer_summary(db, profile.id)
-        available_balance = summary["available"]
+        available_entries = db.query(LedgerEntry).filter(
+            LedgerEntry.freelancer_profile_id == profile.id,
+            LedgerEntry.status == "AVAILABLE"
+        ).with_for_update().all()
+        available_balance = sum(entry.amount for entry in available_entries)
 
         min_payout = PayoutService.get_minimum_payout_amount()
         
@@ -189,4 +192,28 @@ class PayoutService:
         LedgerRepository.create(db, ledger_data)
 
         db.commit()
+
+        # Trigger payout processed notification to freelancer
+        try:
+            from app.services.notification_service import NotificationService
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=user.id,
+                event_code="PAYOUT_PROCESSED",
+                title="Payout Processed",
+                message=f"A payout of ₹{int(payout_amount):,} has been processed successfully.",
+                action_url="/freelancer/earnings/payouts",
+                entity_type="payout",
+                entity_id=payout.id,
+                deduplication_key=f"payout:{payout.id}:processed:freelancer:{user.id}",
+                payload_meta={
+                    "payout_number": payout.payout_number,
+                    "amount": str(int(payout_amount)),
+                    "payout_id": payout.id
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("payout_service").exception("Payout notification failed")
+
         return payout

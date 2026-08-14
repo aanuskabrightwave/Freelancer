@@ -100,6 +100,33 @@ class MessagingService:
         # Automatically mark as read for sender
         MessageRepository.update_read_marker(db, conversation.id, user.id, db_message.id)
 
+        # Trigger notification to recipient
+        try:
+            from app.services.notification_service import NotificationService
+            recipient_id = booking.client_id if user.id != booking.client_id else booking.freelancer.user_id
+            
+            payload = {
+                "sender_name": user.full_name,
+                "text_preview": content[:100] + ("..." if len(content) > 100 else ""),
+                "booking_id": booking.id,
+                "role": "client" if recipient_id == booking.client_id else "freelancer"
+            }
+            
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=recipient_id,
+                event_code="MESSAGE_RECEIVED",
+                title="New Message",
+                message=f"{user.full_name} sent you a message: {payload['text_preview']}",
+                action_url=f"/client/bookings/{booking.id}/workspace" if recipient_id == booking.client_id else f"/freelancer/bookings/{booking.id}/workspace",
+                entity_type="message",
+                entity_id=db_message.id,
+                payload_meta=payload
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("messaging_service").exception("Message notification failed")
+
         return db_message
 
     @staticmethod

@@ -95,6 +95,10 @@ class DeliveryService:
 
         # Log timeline event & transition booking state
         actor_name = user.full_name
+        event_code = None
+        title_notif = None
+        msg_notif = None
+
         if dtype == DeliveryType.FINAL:
             booking.status = BookingStatus.DELIVERY_PENDING
             db.commit()
@@ -107,6 +111,9 @@ class DeliveryService:
                 title=f"Final Delivery Version {next_ver} Submitted",
                 description=f"{actor_name} submitted final delivery: {title}. Booking status changed to DELIVERY_PENDING."
             )
+            event_code = "FINAL_DELIVERY_SUBMITTED"
+            title_notif = "Final Delivery Ready"
+            msg_notif = f"Your final Wedding Photography delivery is ready for review."
         else:
             event_t = WorkspaceEventType.PREVIEW_SUBMITTED
             WorkspaceService.log_workspace_event(
@@ -117,8 +124,44 @@ class DeliveryService:
                 title=f"Preview Version {next_ver} Uploaded",
                 description=f"{actor_name} shared preview copy: {title}"
             )
+            # Check if this is a revision submission
+            from app.models.revision import RevisionRequest, RevisionStatus
+            has_revision = db.query(RevisionRequest).filter(
+                RevisionRequest.booking_id == booking.id,
+                RevisionRequest.status == RevisionStatus.OPEN
+            ).first()
+            if has_revision or next_ver > 1:
+                event_code = "REVISION_SUBMITTED"
+                title_notif = "Revision Submitted"
+                msg_notif = f"A revised preview version {next_ver} was submitted for booking '{booking.booking_number}'."
+            else:
+                event_code = "DELIVERY_PREVIEW_SUBMITTED"
+                title_notif = "Delivery Preview Ready"
+                msg_notif = f"A preview delivery draft version {next_ver} was uploaded for booking '{booking.booking_number}'."
 
         db.commit()
+
+        # Trigger notification
+        try:
+            from app.services.notification_service import NotificationService
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=booking.client_id,
+                event_code=event_code,
+                title=title_notif,
+                message=msg_notif,
+                action_url=f"/client/bookings/{booking.id}/workspace",
+                entity_type="delivery",
+                entity_id=delivery.id,
+                payload_meta={
+                    "booking_id": booking.id,
+                    "booking_number": booking.booking_number
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("delivery_service").exception("Delivery notification failed")
+
         return delivery
 
     @staticmethod
@@ -198,6 +241,29 @@ class DeliveryService:
         )
 
         db.commit()
+
+        # Trigger notification
+        try:
+            from app.services.notification_service import NotificationService
+            freelancer_profile = FreelancerRepository.get_profile_by_id(db, booking.freelancer_profile_id)
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=freelancer_profile.user_id,
+                event_code="REVISION_REQUESTED",
+                title="Revision Requested",
+                message=f"The client requested changes on your preview submission for '{booking.booking_number}'.",
+                action_url=f"/freelancer/bookings/{booking.id}/workspace",
+                entity_type="revision_request",
+                entity_id=rev_req.id,
+                payload_meta={
+                    "booking_id": booking.id,
+                    "booking_number": booking.booking_number
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("delivery_service").exception("Revision request notification failed")
+
         return rev_req
 
     @staticmethod

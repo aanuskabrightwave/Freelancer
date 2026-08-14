@@ -1,16 +1,16 @@
-import os
 import hmac
 import hashlib
 from typing import Dict, Any
 from decimal import Decimal
 from app.services.payments.base import PaymentProvider
+from app.core.config import settings
 
 
 class RazorpayProvider(PaymentProvider):
     def __init__(self):
-        self.key_id = os.getenv("RAZORPAY_KEY_ID", "rzp_test_mockkeyid123")
-        self.key_secret = os.getenv("RAZORPAY_KEY_SECRET", "mocksecret123")
-        self.webhook_secret = os.getenv("RAZORPAY_WEBHOOK_SECRET", "mockwebhooksecret123")
+        self.key_id = settings.RAZORPAY_KEY_ID
+        self.key_secret = settings.RAZORPAY_KEY_SECRET
+        self.webhook_secret = settings.RAZORPAY_WEBHOOK_SECRET
 
     @staticmethod
     def to_paise(amount: Decimal) -> int:

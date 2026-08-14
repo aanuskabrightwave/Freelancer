@@ -46,7 +46,7 @@ def upgrade():
     op.add_column('messages', sa.Column('is_edited', sa.Boolean(), server_default='0', nullable=False))
     op.add_column('messages', sa.Column('is_deleted', sa.Boolean(), server_default='0', nullable=False))
     op.alter_column('messages', 'message_text', existing_type=sa.Text(), nullable=True) # allow null text for file type messages
-    op.create_foreign_key('fk_messages_reply_to_message_id', 'messages', 'messages', ['reply_to_message_id'], ['id'], ondelete='SET_NULL')
+    op.create_foreign_key('fk_messages_reply_to_message_id', 'messages', 'messages', ['reply_to_message_id'], ['id'], ondelete='SET NULL')
     op.create_index(op.f('ix_messages_reply_to_message_id'), 'messages', ['reply_to_message_id'], unique=False)
 
     # 4. Create conversation_participants
@@ -60,7 +60,7 @@ def upgrade():
         sa.Column('joined_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.ForeignKeyConstraint(['conversation_id'], ['conversations.id'], ondelete='CASCADE'),
         sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['last_read_message_id'], ['messages.id'], ondelete='SET_NULL'),
+        sa.ForeignKeyConstraint(['last_read_message_id'], ['messages.id'], ondelete='SET NULL'),
         sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_conversation_participants_conversation_id'), 'conversation_participants', ['conversation_id'], unique=False)
@@ -206,7 +206,7 @@ def upgrade():
         sa.Column('description', sa.Text(), nullable=True),
         sa.Column('metadata_json', sa.JSON(), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
-        sa.ForeignKeyConstraint(['actor_user_id'], ['users.id'], ondelete='SET_NULL'),
+        sa.ForeignKeyConstraint(['actor_user_id'], ['users.id'], ondelete='SET NULL'),
         sa.ForeignKeyConstraint(['workspace_id'], ['booking_workspaces.id'], ondelete='CASCADE'),
         sa.PrimaryKeyConstraint('id')
     )

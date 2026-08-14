@@ -23,7 +23,7 @@ export default function LoginPage() {
     setError(null);
 
     if (!identifier.trim()) {
-      setError("Email or Phone Number is required.");
+      setError("Login ID, Email or Phone Number is required.");
       return;
     }
     if (!password) {
@@ -66,7 +66,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-semibold text-slate-300 mb-1">
-                Email or Phone Number
+                Login ID, Email or Phone Number
               </label>
               <input
                 type="text"
@@ -76,7 +76,7 @@ export default function LoginPage() {
                   if (error) setError(null);
                 }}
                 className="w-full px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
-                placeholder="email@example.com or 9876543210"
+                placeholder="username, email@example.com, or 9876543210"
                 required
               />
             </div>

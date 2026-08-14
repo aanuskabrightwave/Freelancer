@@ -32,8 +32,8 @@ def get_my_profile(
     db: Session = Depends(get_db)
 ):
     profile = FreelancerService.get_my_profile(db, current_user)
-    # Include user's full name dynamically
     profile.full_name = current_user.full_name
+    profile.trust_badges = [fb.badge.code for fb in profile.badges if fb.is_active]
     return profile
 
 
@@ -45,6 +45,7 @@ def create_profile(
 ):
     profile = FreelancerService.create_freelancer_profile(db, current_user, profile_in.model_dump())
     profile.full_name = current_user.full_name
+    profile.trust_badges = [fb.badge.code for fb in profile.badges if fb.is_active]
     return profile
 
 
@@ -58,6 +59,7 @@ def update_profile(
         db, current_user, profile_in.model_dump(exclude_unset=True)
     )
     profile.full_name = current_user.full_name
+    profile.trust_badges = [fb.badge.code for fb in profile.badges if fb.is_active]
     return profile
 
 
@@ -69,6 +71,7 @@ def associate_skills(
 ):
     profile = FreelancerService.set_skills(db, current_user, request.skill_ids)
     profile.full_name = current_user.full_name
+    profile.trust_badges = [fb.badge.code for fb in profile.badges if fb.is_active]
     return profile
 
 
@@ -193,13 +196,34 @@ def list_public_freelancers(
     page_size: int = Query(20, ge=1, le=100),
     profession: Optional[str] = Query(None),
     city: Optional[str] = Query(None),
+    sort: Optional[str] = Query(None, description="rating_desc, completion_desc"),
     db: Session = Depends(get_db)
 ):
-    profiles = FreelancerRepository.get_all_public_profiles(
-        db, page, page_size, profession, city
-    )
+    # Retrieve profiles matching filters
+    query = db.query(FreelancerProfile).filter(FreelancerProfile.is_profile_public == True)
+    
+    if profession:
+        query = query.filter(FreelancerProfile.primary_profession == profession.upper())
+    if city:
+        query = query.filter(FreelancerProfile.city.like(f"%{city.strip()}%"))
+
+    # Sorting options
+    if sort == "rating_desc":
+        # Sort by average_rating, fallback to review volume, then completion
+        query = query.order_by(
+            FreelancerProfile.average_rating.desc(),
+            FreelancerProfile.review_count.desc(),
+            FreelancerProfile.profile_completion_percentage.desc()
+        )
+    else:
+        query = query.order_by(FreelancerProfile.profile_completion_percentage.desc())
+
+    offset = (page - 1) * page_size
+    profiles = query.offset(offset).limit(page_size).all()
+
     for p in profiles:
         p.full_name = p.user.full_name
+        p.trust_badges = [fb.badge.code for fb in p.badges if fb.is_active]
     return profiles
 
 
@@ -212,4 +236,5 @@ def get_public_freelancer_detail(id: int, db: Session = Depends(get_db)):
             detail="Public freelancer profile not found."
         )
     profile.full_name = profile.user.full_name
+    profile.trust_badges = [fb.badge.code for fb in profile.badges if fb.is_active]
     return profile

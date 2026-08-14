@@ -153,4 +153,28 @@ class RefundService:
 
         db.commit()
         db.refresh(refund)
+
+        # Trigger refund processed notification to client
+        try:
+            from app.services.notification_service import NotificationService
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=payment.client_id,
+                event_code="REFUND_PROCESSED",
+                title="Refund Processed",
+                message=f"A refund of ₹{int(amount):,} has been processed for booking '{payment.booking.booking_number}'.",
+                action_url=f"/client/bookings/{payment.booking_id}",
+                entity_type="refund",
+                entity_id=refund.id,
+                deduplication_key=f"refund:{refund.id}:processed:client:{payment.client_id}",
+                payload_meta={
+                    "booking_number": payment.booking.booking_number,
+                    "amount": str(int(amount)),
+                    "booking_id": payment.booking_id
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("refund_service").exception("Refund notification failed")
+
         return refund

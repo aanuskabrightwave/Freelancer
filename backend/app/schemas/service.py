@@ -163,6 +163,9 @@ class ServiceOut(BaseModel):
     travel_available: bool
     travel_fee: Optional[Decimal]
 
+    average_rating: Optional[float] = None
+    review_count: int = 0
+
     created_at: datetime
     updated_at: datetime
 
@@ -197,6 +200,9 @@ class PublicServiceOut(BaseModel):
     service_radius_km: Optional[int]
     travel_available: bool
     travel_fee: Optional[Decimal]
+
+    average_rating: Optional[float] = None
+    review_count: int = 0
 
     freelancer: Optional[FreelancerSummary] = None
     packages: List[PackageOut] = []

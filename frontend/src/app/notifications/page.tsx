@@ -1,0 +1,217 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { Bell, CheckSquare, ChevronLeft, ChevronRight, Inbox, Loader2 } from "lucide-react";
+import Container from "@/components/ui/Container";
+import PageHeader from "@/components/ui/PageHeader";
+import NotificationItem from "@/components/notifications/NotificationItem";
+import { NotificationItemData, notificationService } from "@/services/notification.service";
+import LoadingState from "@/components/common/LoadingState";
+
+type TypeFilter = "ALL" | "BOOKING" | "MESSAGE" | "PAYMENT" | "DELIVERY" | "REVIEW" | "PROPOSAL";
+
+export default function NotificationsPage() {
+  const [notifications, setNotifications] = useState<NotificationItemData[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
+  const [unreadOnly, setUnreadOnly] = useState<boolean>(false);
+  const [typeFilter, setTypeFilter] = useState<TypeFilter>("ALL");
+  const [hasMore, setHasMore] = useState<boolean>(true);
+  const pageSize = 15;
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const filterVal = typeFilter === "ALL" ? undefined : typeFilter;
+      const res = await notificationService.getNotifications(page, pageSize, unreadOnly, filterVal);
+      setNotifications(res);
+      setHasMore(res.length === pageSize);
+    } catch (err) {
+      console.error("Failed to load notifications", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, [page, unreadOnly, typeFilter]);
+
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationService.markAllRead();
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    } catch (err) {
+      console.error("Failed to mark all read", err);
+    }
+  };
+
+  const handleItemMarkedRead = (id: number) => {
+    setNotifications(prev =>
+      prev.map(n => (n.id === id ? { ...n, is_read: true } : n))
+    );
+  };
+
+  // Grouping notifications helper
+  const getGroupedNotifications = () => {
+    const today: NotificationItemData[] = [];
+    const yesterday: NotificationItemData[] = [];
+    const earlier: NotificationItemData[] = [];
+
+    const now = new Date();
+    const todayStr = now.toDateString();
+    
+    const yesterdayDate = new Date();
+    yesterdayDate.setDate(now.getDate() - 1);
+    const yesterdayStr = yesterdayDate.toDateString();
+
+    notifications.forEach(n => {
+      const nDate = new Date(n.created_at);
+      const nDateStr = nDate.toDateString();
+
+      if (nDateStr === todayStr) {
+        today.push(n);
+      } else if (nDateStr === yesterdayStr) {
+        yesterday.push(n);
+      } else {
+        earlier.push(n);
+      }
+    });
+
+    return { today, yesterday, earlier };
+  };
+
+  const { today, yesterday, earlier } = getGroupedNotifications();
+  const filterTabs: { label: string; value: TypeFilter }[] = [
+    { label: "All", value: "ALL" },
+    { label: "Bookings", value: "BOOKING" },
+    { label: "Messages", value: "MESSAGE" },
+    { label: "Payments", value: "PAYMENT" },
+    { label: "Deliveries", value: "DELIVERY" },
+    { label: "Reviews", value: "REVIEW" },
+    { label: "Proposals", value: "PROPOSAL" }
+  ];
+
+  return (
+    <Container className="py-8">
+      <div className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <PageHeader
+            title="Notification Center"
+            description="Manage your project alerts, booking updates, workspace messages, and transactional updates."
+          />
+          <div className="flex items-center gap-3">
+            {/* Unread Only Toggle */}
+            <button
+              onClick={() => { setUnreadOnly(!unreadOnly); setPage(1); }}
+              className={`px-4 py-2 border rounded-xl text-xs font-bold transition ${
+                unreadOnly 
+                  ? "bg-indigo-500 border-indigo-500 text-white" 
+                  : "bg-white/5 border-white/5 text-white/60 hover:text-white"
+              }`}
+            >
+              Unread Only
+            </button>
+            {/* Mark All Read */}
+            <button
+              onClick={handleMarkAllRead}
+              className="flex items-center gap-1.5 px-4 py-2 bg-white/5 border border-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-white transition"
+            >
+              <CheckSquare className="w-4 h-4 text-indigo-400" />
+              Mark All Read
+            </button>
+          </div>
+        </div>
+
+        {/* Filters Grid */}
+        <div className="flex flex-wrap gap-2 pb-2 border-b border-white/5">
+          {filterTabs.map(tab => (
+            <button
+              key={tab.value}
+              onClick={() => { setTypeFilter(tab.value); setPage(1); }}
+              className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition ${
+                typeFilter === tab.value
+                  ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
+                  : "text-slate-400 hover:text-white border border-transparent"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Content */}
+        {loading ? (
+          <LoadingState message="Fetching notifications..." />
+        ) : notifications.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 bg-white/[0.01] border border-white/5 rounded-3xl text-center p-6">
+            <Inbox className="w-16 h-16 text-white/10 mb-4" />
+            <h3 className="font-bold text-lg text-white mb-2">No notifications yet</h3>
+            <p className="text-sm text-white/40 max-w-sm">
+              Important project status changes, booking invites, payment captures, and deliveries will show up here.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-8">
+            {/* Today Group */}
+            {today.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-black uppercase text-indigo-400/80 tracking-wider">Today</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {today.map(n => (
+                    <NotificationItem key={n.id} notification={n} onMarkRead={handleItemMarkedRead} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Yesterday Group */}
+            {yesterday.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-black uppercase text-slate-400/80 tracking-wider">Yesterday</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {yesterday.map(n => (
+                    <NotificationItem key={n.id} notification={n} onMarkRead={handleItemMarkedRead} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Earlier Group */}
+            {earlier.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-xs font-black uppercase text-slate-500/80 tracking-wider">Earlier</h3>
+                <div className="grid grid-cols-1 gap-3">
+                  {earlier.map(n => (
+                    <NotificationItem key={n.id} notification={n} onMarkRead={handleItemMarkedRead} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Pagination Controls */}
+            <div className="flex items-center justify-between border-t border-white/5 pt-6">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage(prev => Math.max(1, prev - 1))}
+                className="flex items-center gap-1.5 px-4 py-2 border border-white/5 bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 rounded-xl text-xs font-bold text-white transition"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Previous Page
+              </button>
+              <span className="text-xs text-white/50">Page {page}</span>
+              <button
+                disabled={!hasMore}
+                onClick={() => setPage(prev => prev + 1)}
+                className="flex items-center gap-1.5 px-4 py-2 border border-white/5 bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 rounded-xl text-xs font-bold text-white transition"
+              >
+                Next Page
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </Container>
+  );
+}

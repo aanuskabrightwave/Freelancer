@@ -2,11 +2,12 @@ import os
 import uuid
 import shutil
 from fastapi import UploadFile, HTTPException, status
+from app.core.config import settings
 
-UPLOAD_DIR = os.getenv("UPLOAD_DIR", "/app/uploads")
-MAX_IMAGE_SIZE = int(os.getenv("MAX_IMAGE_UPLOAD_MB", "10")) * 1024 * 1024  # default 10MB
-MAX_DOCUMENT_SIZE = int(os.getenv("MAX_DOCUMENT_UPLOAD_MB", "20")) * 1024 * 1024  # default 20MB
-MAX_VIDEO_SIZE = int(os.getenv("MAX_VIDEO_UPLOAD_MB", "100")) * 1024 * 1024  # default 100MB
+UPLOAD_DIR = os.path.normpath(settings.UPLOAD_STORAGE_PATH)
+MAX_IMAGE_SIZE = settings.MAX_IMAGE_UPLOAD_MB * 1024 * 1024
+MAX_DOCUMENT_SIZE = settings.MAX_DOCUMENT_UPLOAD_MB * 1024 * 1024
+MAX_VIDEO_SIZE = settings.MAX_VIDEO_UPLOAD_MB * 1024 * 1024
 
 ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_VIDEO_TYPES = {"video/mp4", "video/mpeg", "video/ogg", "video/webm", "video/quicktime"}
@@ -28,8 +29,16 @@ class StorageService:
         Validates and saves an uploaded file locally.
         Returns the relative URL path of the saved file.
         """
-        # Ensure directories exist
-        target_dir = os.path.join(UPLOAD_DIR, subfolder)
+        # Ensure directories exist and prevent traversal
+        clean_subfolder = os.path.normpath(subfolder).replace("..", "").lstrip("/\\")
+        target_dir = os.path.normpath(os.path.join(UPLOAD_DIR, clean_subfolder))
+        
+        if not target_dir.startswith(UPLOAD_DIR):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Directory traversal detected in subfolder argument."
+            )
+            
         os.makedirs(target_dir, exist_ok=True)
 
         # Validate MIME type & sizes

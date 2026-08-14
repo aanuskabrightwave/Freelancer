@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import { useAuth } from "@/context/AuthContext";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 export default function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -35,6 +36,7 @@ export default function Navbar() {
         <div className="flex items-center gap-4">
           {isAuthenticated && user ? (
             <>
+              <NotificationBell />
               <span className="text-sm font-medium text-[var(--foreground)]">
                 Hi, {user.full_name.split(" ")[0]}
               </span>

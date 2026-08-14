@@ -8,6 +8,7 @@ class UserBase(BaseModel):
     full_name: str = Field(..., min_length=2, max_length=100)
     email: EmailStr
     phone: str = Field(...)
+    login_id: Optional[str] = Field(None, min_length=3, max_length=50)
 
     @field_validator("phone")
     @classmethod
@@ -49,6 +50,7 @@ class UserUpdate(BaseModel):
     full_name: Optional[str] = Field(None, min_length=2, max_length=100)
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
+    login_id: Optional[str] = None
     password: Optional[str] = Field(None, min_length=8)
     is_active: Optional[bool] = None
     is_verified: Optional[bool] = None
@@ -69,6 +71,7 @@ class UserOut(BaseModel):
     full_name: str
     email: EmailStr
     phone: str
+    login_id: Optional[str] = None
     role: UserRole
     is_verified: bool
     is_active: bool
@@ -85,7 +88,7 @@ class UserRegisterResponse(BaseModel):
 
 # Login Schemas
 class LoginRequest(BaseModel):
-    identifier: str = Field(..., description="Email or phone number")
+    identifier: str = Field(..., description="Email, phone number, or login ID")
     password: str = Field(...)
 
 

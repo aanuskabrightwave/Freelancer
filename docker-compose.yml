@@ -48,7 +48,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: deps
     container_name: creative_marketplace_frontend
+    command: npm run dev
     restart: always
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}

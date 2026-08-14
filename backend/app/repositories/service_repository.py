@@ -177,7 +177,12 @@ class ServiceRepository:
         min_price: Optional[float] = None,
         max_price: Optional[float] = None
     ) -> List[Service]:
-        query = db.query(Service).filter(Service.status == ServiceStatus.PUBLISHED)
+        from sqlalchemy.orm import joinedload
+        from app.models.freelancer_profile import FreelancerProfile
+
+        query = db.query(Service).options(
+            joinedload(Service.freelancer_profile).joinedload(FreelancerProfile.user)
+        ).filter(Service.status == ServiceStatus.PUBLISHED)
         
         if category_id:
             query = query.filter(Service.category_id == category_id)

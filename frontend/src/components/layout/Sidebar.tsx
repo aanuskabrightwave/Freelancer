@@ -17,6 +17,7 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
       { name: "Messages", href: "/client/messages" },
       { name: "Payments", href: "/client/payments" },
       { name: "Favourites", href: "/client/favourites" },
+      { name: "Reviews", href: "/client/reviews" },
       { name: "Settings", href: "/client/settings" },
     ],
     freelancer: [
@@ -30,21 +31,16 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
       { name: "Messages", href: "/freelancer/messages" },
       { name: "Earnings", href: "/freelancer/earnings" },
       { name: "Availability", href: "/freelancer/availability" },
+      { name: "Reviews", href: "/freelancer/reviews" },
       { name: "Settings", href: "/freelancer/settings" },
     ],
     admin: [
       { name: "Dashboard", href: "/admin/dashboard" },
       { name: "Users", href: "/admin/users" },
-      { name: "Freelancers", href: "/admin/freelancers" },
-      { name: "Clients", href: "/admin/clients" },
-      { name: "Projects", href: "/admin/projects" },
-      { name: "Bookings", href: "/admin/bookings" },
-      { name: "Payments", href: "/admin/payments" },
-      { name: "Disputes", href: "/admin/disputes" },
-      { name: "Categories", href: "/admin/categories" },
-      { name: "Reviews", href: "/admin/reviews" },
       { name: "Verification", href: "/admin/verification" },
+      { name: "Disputes", href: "/admin/disputes" },
       { name: "Settings", href: "/admin/settings" },
+      { name: "Audit Logs", href: "/admin/audit" }
     ]
   };
 

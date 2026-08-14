@@ -1,6 +1,6 @@
 from decimal import Decimal
 from typing import Optional, Any, List
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from datetime import datetime, date, time
 from app.models.booking import BookingStatus, BookingSourceType
 
@@ -65,6 +65,15 @@ class PackageSummaryOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ReviewSummaryOut(BaseModel):
+    id: int
+    overall_rating: int
+    comment: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class BookingResponse(BaseModel):
     id: int
     booking_number: str
@@ -118,5 +127,13 @@ class BookingResponse(BaseModel):
     client: Optional[UserSummaryOut] = None
     service: Optional[ServiceSummaryOut] = None
     package: Optional[PackageSummaryOut] = None
+    review: Optional[ReviewSummaryOut] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+    @field_validator("review", mode="before")
+    @classmethod
+    def handle_review_list_or_empty(cls, v: Any) -> Any:
+        if isinstance(v, list):
+            return v[0] if len(v) > 0 else None
+        return v

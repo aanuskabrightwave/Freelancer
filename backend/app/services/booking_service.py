@@ -186,6 +186,32 @@ class BookingService:
             is_system=True
         )
 
+        # Trigger notification
+        try:
+            from app.services.notification_service import NotificationService
+            client_user = db.query(User).filter(User.id == client_id).first()
+            client_name = client_user.full_name if client_user else "Client"
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=freelancer_profile.user_id,
+                event_code="BOOKING_REQUESTED",
+                title="New Booking Request",
+                message=f"{client_name} wants to book your package '{service.title}' for {scheduled_date_val.strftime('%Y-%m-%d')}.",
+                action_url=f"/freelancer/bookings/{new_booking.id}",
+                entity_type="booking",
+                entity_id=new_booking.id,
+                payload_meta={
+                    "service_title": service.title,
+                    "client_name": client_name,
+                    "agreed_amount": str(package.price),
+                    "scheduled_date": scheduled_date_val.strftime('%Y-%m-%d'),
+                    "booking_id": new_booking.id
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("booking_service").exception("Booking notification failed")
+
         return new_booking
 
     @staticmethod
@@ -276,6 +302,29 @@ class BookingService:
         )
         
         db.commit()
+
+        # Trigger notification
+        try:
+            from app.services.notification_service import NotificationService
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=freelancer_profile.user_id,
+                event_code="PROPOSAL_ACCEPTED",
+                title="Proposal Accepted",
+                message=f"Your proposal for project '{project.title}' has been accepted.",
+                action_url=f"/freelancer/bookings/{new_booking.id}",
+                entity_type="booking",
+                entity_id=new_booking.id,
+                payload_meta={
+                    "project_title": project.title,
+                    "budget": str(proposal.proposed_amount),
+                    "booking_id": new_booking.id
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("booking_service").exception("Proposal accept notification failed")
+
         return new_booking
 
     @staticmethod
@@ -418,6 +467,77 @@ class BookingService:
             is_system=True
         )
 
+        # Trigger status change notification
+        try:
+            from app.services.notification_service import NotificationService
+            freelancer_id = freelancer_profile.user_id
+            
+            # Map status change events
+            event_code = None
+            title = None
+            msg_body = None
+            recipient_id = None
+            action_url = None
+            meta = {
+                "booking_id": updated_booking.id,
+                "booking_number": updated_booking.booking_number,
+                "freelancer_name": freelancer_profile.user.full_name if freelancer_profile and freelancer_profile.user else "Freelancer",
+                "scheduled_date": updated_booking.scheduled_date.strftime('%Y-%m-%d')
+            }
+            
+            if new_status == BookingStatus.CONFIRMED:
+                event_code = "BOOKING_CONFIRMED"
+                title = "Booking Confirmed"
+                recipient_id = updated_booking.client_id
+                action_url = f"/client/bookings/{updated_booking.id}"
+                msg_body = f"{meta['freelancer_name']} accepted your booking request."
+            elif new_status == BookingStatus.REJECTED:
+                event_code = "BOOKING_REJECTED"
+                title = "Booking Request Update"
+                recipient_id = updated_booking.client_id
+                action_url = f"/client/bookings"
+                msg_body = f"Your booking request was declined by the provider."
+            elif new_status == BookingStatus.IN_PROGRESS:
+                event_code = "BOOKING_STARTED"
+                title = "Your Booking has Started"
+                recipient_id = updated_booking.client_id
+                action_url = f"/client/bookings/{updated_booking.id}/workspace"
+                msg_body = f"Your booking '{updated_booking.booking_number}' has been started by the provider."
+                meta["role"] = "client"
+            elif new_status == BookingStatus.COMPLETED:
+                event_code = "BOOKING_COMPLETED"
+                title = "Booking Completed Successfully"
+                recipient_id = freelancer_id
+                action_url = f"/freelancer/bookings/{updated_booking.id}"
+                msg_body = f"The client marked booking '{updated_booking.booking_number}' as completed."
+                meta["role"] = "freelancer"
+            elif new_status == BookingStatus.CANCELLED:
+                event_code = "BOOKING_CANCELLED"
+                title = "Booking Cancellation Notice"
+                # Notify the OTHER party
+                recipient_id = freelancer_id if is_client else updated_booking.client_id
+                action_url = f"/client/bookings/{updated_booking.id}" if recipient_id == updated_booking.client_id else f"/freelancer/bookings/{updated_booking.id}"
+                msg_body = f"Booking '{updated_booking.booking_number}' was cancelled."
+                meta["cancelled_by"] = "Client" if is_client else "Freelancer"
+                meta["reason"] = cancellation_reason or "Not provided"
+                meta["role"] = "client" if recipient_id == updated_booking.client_id else "freelancer"
+
+            if event_code:
+                NotificationService.dispatch(
+                    db=db,
+                    recipient_id=recipient_id,
+                    event_code=event_code,
+                    title=title,
+                    message=msg_body,
+                    action_url=action_url,
+                    entity_type="booking",
+                    entity_id=updated_booking.id,
+                    payload_meta=meta
+                )
+        except Exception as e:
+            import logging
+            logging.getLogger("booking_service").exception("Booking status change notification failed")
+
         return updated_booking
 
     @staticmethod
@@ -488,6 +608,32 @@ class BookingService:
             text=msg_text,
             is_system=True
         )
+
+        # Trigger reschedule requested notification
+        try:
+            from app.services.notification_service import NotificationService
+            recipient_id = booking.client_id if is_freelancer else freelancer_profile.user_id
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=recipient_id,
+                event_code="BOOKING_RESCHEDULE_REQUESTED",
+                title="Reschedule Requested for Booking",
+                message=f"{'Freelancer' if is_freelancer else 'Client'} proposed a reschedule for booking '{booking.booking_number}'.",
+                action_url=f"/client/bookings/{booking.id}" if recipient_id == booking.client_id else f"/freelancer/bookings/{booking.id}",
+                entity_type="reschedule_request",
+                entity_id=resched_req.id,
+                payload_meta={
+                    "booking_id": booking.id,
+                    "booking_number": booking.booking_number,
+                    "proposed_date": new_date.strftime('%Y-%m-%d'),
+                    "proposed_time": new_start_time.strftime('%H:%M'),
+                    "reason": reason or "",
+                    "role": "client" if recipient_id == booking.client_id else "freelancer"
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("booking_service").exception("Reschedule request notification failed")
 
         return resched_req
 
@@ -565,5 +711,33 @@ class BookingService:
             text=msg_text,
             is_system=True
         )
+
+        # Trigger reschedule response notification
+        try:
+            from app.services.notification_service import NotificationService
+            recipient_id = booking.client_id if is_freelancer else freelancer_profile.user_id
+            event_code = "BOOKING_RESCHEDULE_ACCEPTED" if accept else "BOOKING_RESCHEDULE_REJECTED"
+            title = "Reschedule Request Approved" if accept else "Reschedule Request Declined"
+            msg_body = f"Reschedule request for booking '{booking.booking_number}' was {'accepted' if accept else 'declined'} by the other party."
+            
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=recipient_id,
+                event_code=event_code,
+                title=title,
+                message=msg_body,
+                action_url=f"/client/bookings/{booking.id}" if recipient_id == booking.client_id else f"/freelancer/bookings/{booking.id}",
+                entity_type="booking",
+                entity_id=booking.id,
+                payload_meta={
+                    "booking_id": booking.id,
+                    "booking_number": booking.booking_number,
+                    "proposed_date": resched_req.new_date.strftime('%Y-%m-%d'),
+                    "role": "client" if recipient_id == booking.client_id else "freelancer"
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("booking_service").exception("Reschedule response notification failed")
 
         return booking

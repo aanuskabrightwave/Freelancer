@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, Numeric, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, Numeric, String, Text, Float, func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -53,6 +53,9 @@ class Service(Base):
     service_radius_km = Column(Integer, nullable=True)
     travel_available = Column(Boolean, default=False, nullable=False)
     travel_fee = Column(Numeric(precision=10, scale=2), nullable=True)
+
+    average_rating = Column(Float, nullable=True)
+    review_count = Column(Integer, default=0, nullable=False)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(

@@ -150,6 +150,11 @@ class FreelancerProfileOut(BaseModel):
     verification_status: VerificationStatus
     is_profile_public: bool
 
+    average_rating: Optional[float] = None
+    review_count: int = 0
+    completed_jobs_count: int = 0
+    trust_badges: List[str] = []
+
     skills: List[SkillOut] = []
     equipment: List[EquipmentOut] = []
     portfolio: List[PortfolioOut] = []
@@ -180,6 +185,12 @@ class PublicFreelancerProfileOut(BaseModel):
     cover_photo_url: Optional[str]
 
     verification_status: VerificationStatus
+    
+    average_rating: Optional[float] = None
+    review_count: int = 0
+    completed_jobs_count: int = 0
+    trust_badges: List[str] = []
+
     skills: List[SkillOut] = []
     equipment: List[EquipmentOut] = []
     portfolio: List[PortfolioOut] = []

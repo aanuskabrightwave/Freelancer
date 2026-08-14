@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { bookingService } from "@/services/booking.service";
 import { messageService } from "@/services/message.service";
 import { paymentService } from "@/services/payment.service";
+import ReviewForm from "@/components/reviews/ReviewForm";
+import StarRating from "@/components/reviews/StarRating";
 
 function BookingDetailsContent() {
   const { id } = useParams();
@@ -348,6 +350,41 @@ function BookingDetailsContent() {
                     </button>
                   </div>
                 </form>
+              </div>
+            )}
+
+            {booking.status === "COMPLETED" && (
+              <div className="space-y-4">
+                {booking.review ? (
+                  <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl space-y-4">
+                    <div>
+                      <span className="text-[10px] text-emerald-450 font-black uppercase tracking-wider block mb-1">
+                        Your Submitted Review
+                      </span>
+                      <h3 className="text-sm font-black text-white">Thank you for your feedback!</h3>
+                      <p className="text-[11px] text-slate-400 mt-1">
+                        Your feedback helps clients choose the right creative professionals.
+                      </p>
+                    </div>
+
+                    <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-3">
+                      <div className="flex items-center justify-between">
+                        <StarRating rating={booking.review.overall_rating} size="sm" />
+                        <span className="text-xs text-slate-450 font-mono">Verified Review</span>
+                      </div>
+                      <p className="text-xs text-slate-300 leading-relaxed italic">
+                        "{booking.review.comment}"
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <ReviewForm
+                    bookingId={booking.id}
+                    onSuccess={(newReview) => {
+                      setBooking({ ...booking, review: newReview });
+                    }}
+                  />
+                )}
               </div>
             )}
 

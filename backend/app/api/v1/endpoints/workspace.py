@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Query
+from fastapi import APIRouter, Depends, status, UploadFile, File, Form, Query, HTTPException
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from pydantic import BaseModel
@@ -90,3 +90,38 @@ def get_workspace_timeline(
     db: Session = Depends(get_db)
 ):
     return WorkspaceService.get_timeline(db, current_user, booking_id)
+
+
+@router.get("/bookings/workspace/files/{file_id}/download", summary="Download workspace file securely")
+def download_workspace_file_by_id(
+    file_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    import os
+    from fastapi.responses import FileResponse
+    from app.models.workspace_file import WorkspaceFile
+    from app.models.booking import Booking
+    from app.models.user import UserRole
+    from app.core.config import settings
+
+    workspace_file = db.query(WorkspaceFile).filter(WorkspaceFile.id == file_id).first()
+    if not workspace_file:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found.")
+
+    booking = workspace_file.workspace.booking
+    if not booking:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Associated booking not found.")
+
+    is_client = booking.client_id == current_user.id
+    is_freelancer = booking.freelancer.user_id == current_user.id if booking.freelancer else False
+    is_admin = current_user.role == UserRole.ADMIN
+
+    if not is_client and not is_freelancer and not is_admin:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")
+
+    local_path = os.path.normpath(os.path.join(settings.UPLOAD_STORAGE_PATH, workspace_file.file_url.lstrip("/uploads/")))
+    if not os.path.exists(local_path):
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found on disk.")
+
+    return FileResponse(local_path, media_type=workspace_file.mime_type, filename=workspace_file.original_name)

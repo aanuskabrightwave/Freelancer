@@ -27,16 +27,24 @@ class UserRepository:
         return db.query(User).filter(User.phone == phone.strip()).first()
 
     @staticmethod
+    def get_by_login_id(db: Session, login_id: str) -> Optional[User]:
+        """
+        Fetch a user by their unique login ID.
+        """
+        return db.query(User).filter(User.login_id == login_id.lower().strip()).first()
+
+    @staticmethod
     def get_by_email_or_phone(db: Session, identifier: str) -> Optional[User]:
         """
-        Fetch a user by either email or phone number.
+        Fetch a user by either email, phone number, or login ID.
         """
         cleaned = identifier.strip()
         cleaned_lower = cleaned.lower()
         return db.query(User).filter(
             or_(
                 User.email == cleaned_lower,
-                User.phone == cleaned
+                User.phone == cleaned,
+                User.login_id == cleaned_lower
             )
         ).first()
 

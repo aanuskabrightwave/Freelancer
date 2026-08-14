@@ -121,6 +121,30 @@ class PaymentService:
             payment.failure_code = "BAD_SIGNATURE"
             payment.failure_description = "Returned signature mismatch."
             db.commit()
+
+            # Trigger PAYMENT_FAILED notification to client
+            try:
+                from app.services.notification_service import NotificationService
+                NotificationService.dispatch(
+                    db=db,
+                    recipient_id=payment.client_id,
+                    event_code="PAYMENT_FAILED",
+                    title="Payment Failed",
+                    message=f"An attempt to capture payment for booking '{booking.booking_number}' failed.",
+                    action_url=f"/client/bookings/{booking.id}/payment",
+                    entity_type="payment",
+                    entity_id=payment.id,
+                    deduplication_key=f"payment:{payment.id}:failed:client:{payment.client_id}",
+                    payload_meta={
+                        "booking_number": booking.booking_number,
+                        "amount": str(int(payment.gross_amount)),
+                        "booking_id": booking.id
+                    }
+                )
+            except Exception as e:
+                import logging
+                logging.getLogger("payment_service").exception("Payment failure notification failed")
+
             raise HTTPException(status_code=400, detail="Invalid payment signature returned.")
 
         # Process successful capture
@@ -133,7 +157,8 @@ class PaymentService:
         Idempotent capture confirmation.
         Updates status, creates ledger entries, and updates workspace events timeline.
         """
-        if payment.status == "CAPTURED":
+        payment = db.query(Payment).filter(Payment.id == payment.id).with_for_update().first()
+        if not payment or payment.status == "CAPTURED":
             return  # Already processed
 
         payment.status = "CAPTURED"
@@ -194,6 +219,53 @@ class PaymentService:
         PaymentRepository.create_attempt(db, attempt_data)
 
         db.commit()
+
+        # Trigger notification to client & freelancer (idempotently via deduplication keys)
+        try:
+            from app.services.notification_service import NotificationService
+            from app.repositories.freelancer_repository import FreelancerRepository
+            freelancer_profile = FreelancerRepository.get_profile_by_id(db, payment.freelancer_profile_id)
+            
+            # 1. Notify Client
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=payment.client_id,
+                event_code="PAYMENT_SUCCESS",
+                title="Payment Successful",
+                message=f"Your payment of ₹{int(payment.gross_amount):,} for booking '{payment.booking.booking_number}' was successful.",
+                action_url=f"/client/bookings/{payment.booking_id}",
+                entity_type="payment",
+                entity_id=payment.id,
+                deduplication_key=f"payment:{payment.id}:captured:client:{payment.client_id}",
+                payload_meta={
+                    "payment_number": payment.payment_number,
+                    "booking_number": payment.booking.booking_number,
+                    "amount": str(int(payment.gross_amount)),
+                    "booking_id": payment.booking_id
+                }
+            )
+
+            # 2. Notify Freelancer
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=freelancer_profile.user_id,
+                event_code="PAYMENT_SUCCESS", # Map to payment update email trigger category
+                title="Payment Secured",
+                message=f"The client payment for booking '{payment.booking.booking_number}' has been confirmed.",
+                action_url=f"/freelancer/bookings/{payment.booking_id}",
+                entity_type="payment",
+                entity_id=payment.id,
+                deduplication_key=f"payment:{payment.id}:captured:freelancer:{freelancer_profile.user_id}",
+                payload_meta={
+                    "payment_number": payment.payment_number,
+                    "booking_number": payment.booking.booking_number,
+                    "amount": str(int(payment.gross_amount)),
+                    "booking_id": payment.booking_id
+                }
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("payment_service").exception("Payment success notification failed")
 
     @staticmethod
     def handle_webhook(db: Session, raw_body: bytes, signature: str) -> None:

@@ -1,8 +1,14 @@
 import logging
 import smtplib
+from datetime import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from typing import Optional
+from sqlalchemy.orm import Session
 from app.core.config import settings
+from app.models.user import User
+from app.models.email_delivery import EmailDelivery
+from app.services.email.email_templates import render_transactional_email, get_template_data
 
 logger = logging.getLogger("email_service")
 
@@ -35,7 +41,7 @@ class EmailService:
         try:
             msg = MIMEMultipart("alternative")
             msg["Subject"] = subject
-            msg["From"] = settings.MAIL_FROM
+            msg["From"] = f"{settings.APP_NAME} <{settings.MAIL_FROM}>"
             msg["To"] = to_email
 
             if text_content:
@@ -99,3 +105,75 @@ class EmailService:
         text_content = f"Verify your email address by visiting this link: {verify_url}"
         
         return cls.send_email(to_email, subject, html_content, text_content)
+
+    @staticmethod
+    def send_transactional_email_sync(
+        db: Session,
+        user_id: int,
+        notification_id: Optional[int],
+        event_code: str,
+        payload: dict
+    ) -> bool:
+        """
+        Synchronously processes email rendering, logs draft delivery record,
+        dispatches via SMTP (or log), and saves result status.
+        """
+        # Fetch user
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user or not user.email:
+            logger.warning(f"Failed email delivery: User {user_id} not found or lacks email address.")
+            return False
+
+        # Get template details
+        template_data = get_template_data(event_code, payload, settings.FRONTEND_URL)
+        subject = template_data["subject"]
+        headline = template_data["headline"]
+        body_text = template_data["body_text"]
+        details = template_data["details"]
+        cta_text = template_data["cta_text"]
+        cta_link = template_data["cta_link"]
+
+        # Render HTML
+        html_content = render_transactional_email(
+            headline=headline,
+            body_text=body_text,
+            details=details,
+            cta_text=cta_text,
+            cta_link=cta_link
+        )
+        text_content = f"{headline}\n\n{body_text}"
+
+        # 1. Log draft status to PENDING
+        delivery = EmailDelivery(
+            user_id=user_id,
+            notification_id=notification_id,
+            recipient_email=user.email,
+            template_code=event_code,
+            subject=subject,
+            status="PENDING"
+        )
+        db.add(delivery)
+        db.commit()
+
+        # 2. Attempt dispatch (catch exceptions to prevent rolling back business transactions)
+        try:
+            success = EmailService.send_email(
+                to_email=user.email,
+                subject=subject,
+                html_content=html_content,
+                text_content=text_content
+            )
+
+            if success:
+                delivery.status = "SENT"
+                delivery.sent_at = datetime.utcnow()
+            else:
+                delivery.status = "FAILED"
+                delivery.failure_reason = "SMTP send returned False"
+        except Exception as e:
+            logger.exception(f"Unhandled SMTP exception on delivery for user {user_id}: {str(e)}")
+            delivery.status = "FAILED"
+            delivery.failure_reason = str(e)
+        
+        db.commit()
+        return delivery.status == "SENT"

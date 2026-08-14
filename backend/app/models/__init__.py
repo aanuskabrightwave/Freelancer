@@ -27,6 +27,18 @@ from app.models.refund import Refund
 from app.models.payout_account import FreelancerPayoutAccount
 from app.models.payout import Payout
 from app.models.ledger import LedgerEntry
+from app.models.review import Review, ReviewStatus
+from app.models.review_response import ReviewResponse
+from app.models.review_report import ReviewReport, ReportReason, ReportStatus
+from app.models.favourite import FavouriteFreelancer, FavouriteService
+from app.models.trust_badge import TrustBadge, FreelancerBadge
+from app.models.notification import Notification, NotificationType
+from app.models.notification_preferences import NotificationPreferences
+from app.models.email_delivery import EmailDelivery
+from app.models.verification import FreelancerVerification, VerificationDocument, DocumentType, DocumentStatus
+from app.models.dispute import Dispute, DisputeMessage, DisputeEvidence, DisputeReason, DisputeStatus, DisputePriority, ResolutionType
+from app.models.platform_setting import PlatformSetting, SettingValueType
+from app.models.admin_audit_log import AdminAuditLog
 
 __all__ = [
     "Base",
@@ -83,5 +95,33 @@ __all__ = [
     "Refund",
     "FreelancerPayoutAccount",
     "Payout",
-    "LedgerEntry"
+    "LedgerEntry",
+    "Review",
+    "ReviewStatus",
+    "ReviewResponse",
+    "ReviewReport",
+    "ReportReason",
+    "ReportStatus",
+    "FavouriteFreelancer",
+    "FavouriteService",
+    "TrustBadge",
+    "FreelancerBadge",
+    "Notification",
+    "NotificationType",
+    "NotificationPreferences",
+    "EmailDelivery",
+    "FreelancerVerification",
+    "VerificationDocument",
+    "DocumentType",
+    "DocumentStatus",
+    "Dispute",
+    "DisputeMessage",
+    "DisputeEvidence",
+    "DisputeReason",
+    "DisputeStatus",
+    "DisputePriority",
+    "ResolutionType",
+    "PlatformSetting",
+    "SettingValueType",
+    "AdminAuditLog"
 ]

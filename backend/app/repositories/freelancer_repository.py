@@ -165,7 +165,11 @@ class FreelancerRepository:
         """
         Retrieve paginated public freelancer profiles, matching filters if provided.
         """
-        query = db.query(FreelancerProfile).filter(FreelancerProfile.is_profile_public == True)
+        from sqlalchemy.orm import joinedload
+        query = db.query(FreelancerProfile).options(
+            joinedload(FreelancerProfile.user),
+            joinedload(FreelancerProfile.badges)
+        ).filter(FreelancerProfile.is_profile_public == True)
         
         if profession:
             query = query.filter(FreelancerProfile.primary_profession == profession.upper())

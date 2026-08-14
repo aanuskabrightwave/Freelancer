@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, model_validator
 from typing import List, Optional
 from datetime import datetime
 
@@ -17,6 +17,12 @@ class WorkspaceFileResponse(BaseModel):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+    @model_validator(mode="after")
+    def rewrite_file_url(self) -> "WorkspaceFileResponse":
+        if self.file_url.startswith("/uploads/workspaces/") or "/workspaces/" in self.file_url:
+            self.file_url = f"/api/v1/bookings/workspace/files/{self.id}/download"
+        return self
 
 
 class WorkspaceLinkResponse(BaseModel):
