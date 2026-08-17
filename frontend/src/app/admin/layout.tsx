@@ -15,15 +15,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       if (!isAuthenticated) {
         router.push("/login");
       } else if (user?.role !== "ADMIN") {
-        router.push("/");
+        if (user?.role === "CLIENT") {
+          router.push("/client/dashboard");
+        } else if (user?.role === "FREELANCER") {
+          router.push("/freelancer/dashboard");
+        } else {
+          router.push("/");
+        }
       }
     }
   }, [isLoading, isAuthenticated, user, router]);
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[70vh] bg-slate-950 text-slate-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      <div className="flex items-center justify-center min-h-[70vh] bg-background text-text-main">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -44,9 +50,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   else if (pathname.includes("/admin/audit")) activeItem = "Audit Logs";
 
   return (
-    <div className="flex flex-row flex-grow bg-slate-950 text-slate-100">
+    <div className="flex flex-row flex-grow bg-background text-text-main">
       <Sidebar role="admin" activeItem={activeItem} />
-      <div className="flex-grow flex flex-col min-w-0 bg-slate-950">
+      <div className="flex-grow flex flex-col min-w-0 bg-background">
         {children}
       </div>
     </div>

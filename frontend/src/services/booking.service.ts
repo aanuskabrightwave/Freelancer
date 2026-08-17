@@ -91,5 +91,26 @@ export const bookingService = {
   // Legacy fallback
   async updateBookingStatus(id: number | string, status: string): Promise<any> {
     return api.put(`/bookings/${id}/status`, { status });
+  },
+
+  // Quote & Two-Stage approvals
+  async sendQuote(id: number | string, proposed_amount: number, deposit_amount: number): Promise<any> {
+    return api.post(`/bookings/${id}/quote`, { proposed_amount, deposit_amount });
+  },
+
+  async acceptQuote(id: number | string): Promise<any> {
+    return api.post(`/bookings/${id}/accept-quote`, {});
+  },
+
+  async approvePreview(id: number | string): Promise<any> {
+    return api.post(`/bookings/${id}/approve-preview`, {});
+  },
+
+  async approveFinalDelivery(id: number | string): Promise<any> {
+    return api.post(`/bookings/${id}/approve-final`, {});
+  },
+
+  async openDispute(id: number | string, reason: string, description: string): Promise<any> {
+    return api.post(`/bookings/${id}/disputes`, { reason, description });
   }
 };

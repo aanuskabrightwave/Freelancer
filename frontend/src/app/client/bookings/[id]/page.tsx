@@ -10,6 +10,31 @@ import { paymentService } from "@/services/payment.service";
 import ReviewForm from "@/components/reviews/ReviewForm";
 import StarRating from "@/components/reviews/StarRating";
 
+function getFriendlyStatus(status: string, payState?: string) {
+  switch (status) {
+    case "REQUESTED":
+      return "Request Sent";
+    case "PENDING_CONFIRMATION":
+      return "Quote Received";
+    case "CONFIRMED":
+      return payState === "DEPOSIT_PAID" ? "Booking Confirmed" : "Deposit Required";
+    case "IN_PROGRESS":
+      return "Work in Progress";
+    case "DELIVERY_PENDING":
+      return "Fulfillment Underway";
+    case "COMPLETED":
+      return "Completed";
+    case "CANCELLED":
+      return "Cancelled";
+    case "REJECTED":
+      return "Rejected";
+    case "RESCHEDULE_REQUESTED":
+      return "Reschedule Requested";
+    default:
+      return status;
+  }
+}
+
 function BookingDetailsContent() {
   const { id } = useParams();
   const router = useRouter();
@@ -124,6 +149,19 @@ function BookingDetailsContent() {
     }
   };
 
+  const handleAcceptQuote = async () => {
+    try {
+      setActionLoading(true);
+      await bookingService.acceptQuote(booking.id);
+      await loadDetails();
+      alert("Quote accepted successfully! Deposit payment is now required.");
+    } catch (err: any) {
+      alert(err.response?.data?.detail || "Failed to accept quote.");
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const handleRescheduleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!reschedDate) {
@@ -194,7 +232,7 @@ function BookingDetailsContent() {
                   <p className="text-xs text-slate-400 mt-2">Source: {booking.source_type} flow</p>
                 </div>
                 <span className="px-3 py-1 bg-slate-950 border border-slate-800 rounded-full text-xs font-black text-indigo-400 uppercase">
-                  {booking.status}
+                  {getFriendlyStatus(booking.status, booking.payment_completion_state)}
                 </span>
               </div>
 
@@ -395,11 +433,46 @@ function BookingDetailsContent() {
             
             {/* Financial Summary */}
             <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-              <span className="text-[10px] text-indigo-400 font-extrabold uppercase tracking-wider block">Rate details</span>
+              <span className="text-[10px] text-indigo-400 font-extrabold uppercase tracking-wider block">Financial Summary</span>
               
               <div className="flex justify-between items-center text-xs">
-                <span className="text-slate-400">Agreed Rate</span>
-                <span className="text-sm font-bold text-white">₹{parseInt(booking.agreed_amount).toLocaleString()}</span>
+                <span className="text-slate-400">Total Agreed Price</span>
+                <span className="text-sm font-bold text-white">₹{Number(booking.agreed_amount).toLocaleString("en-IN")}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs border-t border-slate-855/50 pt-2.5">
+                <span className="text-slate-400">Required Deposit (30%)</span>
+                <span className="text-slate-200 font-semibold">₹{Number(booking.deposit_amount).toLocaleString("en-IN")}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs border-t border-slate-855/50 pt-2.5">
+                <span className="text-slate-400">Deposit Paid Amount</span>
+                <span className={`font-bold ${Number(booking.deposit_paid_amount) > 0 ? "text-emerald-450" : "text-amber-500"}`}>
+                  ₹{Number(booking.deposit_paid_amount).toLocaleString("en-IN")}
+                </span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs border-t border-slate-855/50 pt-2.5">
+                <span className="text-slate-400">Remaining Balance Due</span>
+                <span className="text-slate-200 font-semibold">₹{Number(booking.remaining_balance).toLocaleString("en-IN")}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs border-t border-slate-855/50 pt-2.5">
+                <span className="text-slate-400">Total Paid to Date</span>
+                <span className="font-bold text-emerald-450">₹{Number(booking.total_paid).toLocaleString("en-IN")}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-xs border-t border-slate-855/50 pt-2.5">
+                <span className="text-slate-400">Payment Status</span>
+                <span className={`font-black uppercase tracking-wider text-[10px] ${
+                  booking.payment_completion_state === "FULLY_PAID"
+                    ? "text-emerald-400"
+                    : booking.payment_completion_state === "DEPOSIT_PAID"
+                    ? "text-blue-400"
+                    : "text-amber-500"
+                }`}>
+                  {booking.payment_completion_state}
+                </span>
               </div>
               
               <div className="flex justify-between items-center text-xs border-t border-slate-850 pt-3">
@@ -411,14 +484,37 @@ function BookingDetailsContent() {
 
               {/* Status transition action tags */}
               <div className="pt-4 space-y-2 border-t border-slate-850">
-                {booking.status === "CONFIRMED" && paymentStatus !== "CAPTURED" && Number(booking.agreed_amount) > 0 && (
+                {/* 1. Quote review / Accept Quote */}
+                {booking.status === "PENDING_CONFIRMATION" && (
+                  <button
+                    disabled={actionLoading}
+                    onClick={handleAcceptQuote}
+                    className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-black rounded-xl transition uppercase tracking-wider shadow-lg shadow-emerald-950/20"
+                  >
+                    Accept Quote
+                  </button>
+                )}
+
+                {/* 2. Deposit invoice payment */}
+                {booking.status === "CONFIRMED" && booking.payment_completion_state === "UNPAID" && (
                   <Link
                     href={`/client/bookings/${booking.id}/payment`}
-                    className="w-full block text-center py-2.5 bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-black rounded-xl transition uppercase tracking-wider shadow-lg shadow-emerald-950/20 mb-2"
+                    className="w-full block text-center py-2.5 bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-black rounded-xl transition uppercase tracking-wider shadow-lg shadow-emerald-950/20"
                   >
-                    Pay Booking Invoice (₹{Number(booking.agreed_amount).toLocaleString("en-IN")})
+                    Pay Deposit Invoice (₹{Number(booking.deposit_amount).toLocaleString("en-IN")})
                   </Link>
                 )}
+
+                {/* 3. Final Balance invoice payment */}
+                {booking.payment_completion_state === "DEPOSIT_PAID" && Number(booking.remaining_balance) > 0 && (
+                  <Link
+                    href={`/client/bookings/${booking.id}/payment`}
+                    className="w-full block text-center py-2.5 bg-gradient-to-r from-emerald-600 to-indigo-600 hover:from-emerald-500 hover:to-indigo-500 text-white text-xs font-black rounded-xl transition uppercase tracking-wider shadow-lg shadow-emerald-950/20"
+                  >
+                    Pay Remaining Balance (₹{Number(booking.remaining_balance).toLocaleString("en-IN")})
+                  </Link>
+                )}
+
                 {booking.status !== "REQUESTED" && (
                   <Link
                     href={`/client/bookings/${booking.id}/workspace`}
@@ -427,6 +523,7 @@ function BookingDetailsContent() {
                     Open Project Workspace
                   </Link>
                 )}
+                
                 <button
                   disabled={actionLoading}
                   onClick={handleOpenChat}
@@ -434,16 +531,6 @@ function BookingDetailsContent() {
                 >
                   Open Chat Room
                 </button>
-
-                {booking.status === "DELIVERY_PENDING" && (
-                  <button
-                    disabled={actionLoading}
-                    onClick={handleComplete}
-                    className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black rounded-xl transition uppercase tracking-wider"
-                  >
-                    Accept Work & Complete
-                  </button>
-                )}
 
                 {["REQUESTED", "CONFIRMED", "IN_PROGRESS"].includes(booking.status) && (
                   <>

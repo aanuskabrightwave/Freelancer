@@ -14,8 +14,8 @@ export default function ClientSettingsPage() {
           description="Configure your notifications preferences, email alerts, and subscription triggers."
         />
         <div className="space-y-2">
-          <h3 className="font-bold text-base text-white">Notification Preferences</h3>
-          <p className="text-xs text-white/40">Select which events you would like to receive notifications and email updates for.</p>
+          <h3 className="font-bold text-base text-text-main">Notification Preferences</h3>
+          <p className="text-xs text-text-muted">Select which events you would like to receive notifications and email updates for.</p>
         </div>
         <NotificationPreferencesForm />
       </div>

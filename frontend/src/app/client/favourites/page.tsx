@@ -43,31 +43,31 @@ export default function FavouritesPage() {
   };
 
   return (
-    <Container className="py-8">
-      <div className="space-y-6">
+    <Container className="py-12">
+      <div className="space-y-8">
         <PageHeader
-          title="My Saved Favourites"
+          title="Saved Favourites"
           description="Access your bookmarked creative professionals and services for easy booking."
         />
 
         {/* Tab Selector */}
-        <div className="flex gap-4 border-b border-slate-850 pb-px">
+        <div className="flex gap-6 border-b border-border-custom/50 pb-px">
           <button
             onClick={() => setActiveTab("freelancers")}
-            className={`pb-4 text-xs font-black uppercase tracking-wider transition ${
+            className={`pb-4 text-xs font-bold uppercase tracking-widest transition cursor-pointer ${
               activeTab === "freelancers"
-                ? "text-indigo-400 border-b-2 border-indigo-500"
-                : "text-slate-500 hover:text-slate-350"
+                ? "text-primary border-b-2 border-primary"
+                : "text-text-muted hover:text-text-sub"
             }`}
           >
             Saved Freelancers ({freelancers.length})
           </button>
           <button
             onClick={() => setActiveTab("services")}
-            className={`pb-4 text-xs font-black uppercase tracking-wider transition ${
+            className={`pb-4 text-xs font-bold uppercase tracking-widest transition cursor-pointer ${
               activeTab === "services"
-                ? "text-indigo-400 border-b-2 border-indigo-500"
-                : "text-slate-500 hover:text-slate-350"
+                ? "text-primary border-b-2 border-primary"
+                : "text-text-muted hover:text-text-sub"
             }`}
           >
             Saved Services ({services.length})
@@ -90,7 +90,7 @@ export default function FavouritesPage() {
                     {freelancers.map((fav) => (
                       <div
                         key={fav.id}
-                        className="bg-slate-900 border border-slate-850 hover:border-slate-800 rounded-3xl p-6 shadow-xl relative overflow-hidden transition group"
+                        className="bg-surface-elevated border border-border-custom hover:border-primary/30 rounded-3xl p-6 shadow-sm relative overflow-hidden transition-all group"
                       >
                         {/* Favorite button absolute positioning */}
                         <div className="absolute top-4 right-4 z-10">
@@ -108,42 +108,42 @@ export default function FavouritesPage() {
                               <img
                                 src={fav.profile_photo_url}
                                 alt={fav.full_name}
-                                className="w-14 h-14 rounded-2xl object-cover border border-slate-850"
+                                className="w-14 h-14 rounded-2xl object-cover border border-border-custom"
                               />
                             ) : (
-                              <div className="w-14 h-14 rounded-2xl bg-indigo-950/40 border border-indigo-900/30 flex items-center justify-center text-indigo-400 font-bold uppercase text-xl">
+                              <div className="w-14 h-14 rounded-2xl bg-surface border border-border-custom flex items-center justify-center text-primary font-bold uppercase text-xl">
                                 {fav.full_name ? fav.full_name[0] : "C"}
                               </div>
                             )}
                             <div>
-                              <h3 className="text-sm font-black text-white group-hover:text-indigo-400 transition">
+                              <h3 className="text-sm font-semibold text-text-main group-hover:text-primary transition">
                                 <Link href={`/freelancers/${fav.freelancer_profile_id}`}>
                                   {fav.full_name}
                                 </Link>
                               </h3>
-                              <p className="text-xs text-slate-400 mt-0.5">
+                              <p className="text-xs text-text-sub mt-0.5">
                                 {fav.professional_title}
                               </p>
                             </div>
                           </div>
 
-                          <p className="text-[10px] text-slate-500">
+                          <p className="text-[10px] text-text-muted font-semibold uppercase tracking-wide">
                             Location: {fav.city}, {fav.country}
                           </p>
 
-                          <div className="flex flex-wrap items-center gap-3 border-t border-slate-850 pt-3">
+                          <div className="flex flex-wrap items-center gap-3 border-t border-border-custom/50 pt-3">
                             <div className="flex items-center gap-1.5">
                               <StarRating rating={fav.average_rating || 0} size="xs" />
-                              <span className="text-[11px] font-black text-white">
+                              <span className="text-[11px] font-bold text-text-main">
                                 {fav.average_rating ? fav.average_rating.toFixed(1) : "0.0"}
                               </span>
-                              <span className="text-[10px] text-slate-500">
+                              <span className="text-[10px] text-text-muted">
                                 ({fav.review_count} reviews)
                               </span>
                             </div>
                             
                             {fav.starting_price && (
-                              <span className="text-xs font-black text-emerald-450 ml-auto">
+                              <span className="text-xs font-bold text-success ml-auto">
                                 Starts at ₹{parseInt(fav.starting_price).toLocaleString()}
                               </span>
                             )}
@@ -174,7 +174,7 @@ export default function FavouritesPage() {
                     {services.map((fav) => (
                       <div
                         key={fav.id}
-                        className="bg-slate-900 border border-slate-850 hover:border-slate-800 rounded-3xl overflow-hidden shadow-xl relative transition group"
+                        className="bg-surface-elevated border border-border-custom hover:border-primary/30 rounded-3xl overflow-hidden shadow-sm relative transition-all group"
                       >
                         {/* Favorite button absolute positioning */}
                         <div className="absolute top-4 right-4 z-10">
@@ -187,47 +187,47 @@ export default function FavouritesPage() {
                         </div>
 
                         {fav.cover_image_url ? (
-                          <div className="h-44 overflow-hidden relative border-b border-slate-850">
+                          <div className="h-44 overflow-hidden relative border-b border-border-custom">
                             <img
                               src={fav.cover_image_url}
                               alt={fav.title}
                               className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                             />
                             {fav.service_type && (
-                              <span className="absolute bottom-3 left-3 px-2 py-0.5 bg-slate-950/80 backdrop-blur border border-slate-800 rounded-full text-[9px] font-extrabold text-indigo-400 uppercase tracking-wider">
+                              <span className="absolute bottom-3 left-3 px-2 py-0.5 bg-surface-elevated/90 border border-border-custom rounded-full text-[9px] font-bold text-primary uppercase tracking-wider">
                                 {fav.service_type}
                               </span>
                             )}
                           </div>
                         ) : (
-                          <div className="h-44 bg-slate-950/40 border-b border-slate-850 flex items-center justify-center text-slate-650">
+                          <div className="h-44 bg-surface border-b border-border-custom flex items-center justify-center text-text-muted text-xs">
                             No Cover Image
                           </div>
                         )}
 
                         <div className="p-6 space-y-4">
                           <div>
-                            <span className="text-[9px] text-slate-500 font-extrabold uppercase tracking-wider block">
+                            <span className="text-[9px] text-text-muted font-bold uppercase tracking-wider block">
                               By {fav.freelancer_name}
                             </span>
-                            <h3 className="text-xs font-black text-white group-hover:text-indigo-400 transition mt-1 truncate">
+                            <h3 className="text-xs font-bold text-text-main group-hover:text-primary transition mt-1 truncate">
                               <Link href={`/services/${fav.service_id}`}>{fav.title}</Link>
                             </h3>
                           </div>
 
-                          <div className="flex items-center justify-between border-t border-slate-850 pt-3">
+                          <div className="flex items-center justify-between border-t border-border-custom/50 pt-3">
                             <div className="flex items-center gap-1.5">
                               <StarRating rating={fav.average_rating || 0} size="xs" />
-                              <span className="text-[11px] font-black text-white">
+                              <span className="text-[11px] font-bold text-text-main">
                                 {fav.average_rating ? fav.average_rating.toFixed(1) : "0.0"}
                               </span>
-                              <span className="text-[10px] text-slate-500">
+                              <span className="text-[10px] text-text-muted">
                                 ({fav.review_count})
                               </span>
                             </div>
 
                             {fav.starting_price && (
-                              <span className="text-xs font-black text-emerald-450">
+                              <span className="text-xs font-bold text-success">
                                 ₹{parseInt(fav.starting_price).toLocaleString()}
                               </span>
                             )}

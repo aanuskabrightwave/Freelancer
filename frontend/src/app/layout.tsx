@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
+import ClientLayoutWrapper from "@/components/layout/ClientLayoutWrapper";
 
 import { AuthProvider } from "@/context/AuthContext";
 
@@ -19,9 +18,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="flex flex-col min-h-screen">
         <AuthProvider>
-          <Navbar />
-          <main className="flex-grow flex flex-col">{children}</main>
-          <Footer />
+          <ClientLayoutWrapper>{children}</ClientLayoutWrapper>
         </AuthProvider>
       </body>
     </html>

@@ -106,8 +106,8 @@ export default function NotificationsPage() {
               onClick={() => { setUnreadOnly(!unreadOnly); setPage(1); }}
               className={`px-4 py-2 border rounded-xl text-xs font-bold transition ${
                 unreadOnly 
-                  ? "bg-indigo-500 border-indigo-500 text-white" 
-                  : "bg-white/5 border-white/5 text-white/60 hover:text-white"
+                  ? "bg-primary border-primary text-text-on-dark" 
+                  : "bg-surface border-border-custom text-text-sub hover:text-text-main"
               }`}
             >
               Unread Only
@@ -115,24 +115,24 @@ export default function NotificationsPage() {
             {/* Mark All Read */}
             <button
               onClick={handleMarkAllRead}
-              className="flex items-center gap-1.5 px-4 py-2 bg-white/5 border border-white/5 hover:bg-white/10 rounded-xl text-xs font-bold text-white transition"
+              className="flex items-center gap-1.5 px-4 py-2 bg-surface border border-border-custom hover:bg-surface-elevated rounded-xl text-xs font-bold text-text-main transition"
             >
-              <CheckSquare className="w-4 h-4 text-indigo-400" />
+              <CheckSquare className="w-4 h-4 text-primary" />
               Mark All Read
             </button>
           </div>
         </div>
 
         {/* Filters Grid */}
-        <div className="flex flex-wrap gap-2 pb-2 border-b border-white/5">
+        <div className="flex flex-wrap gap-2 pb-2 border-b border-border-custom">
           {filterTabs.map(tab => (
             <button
               key={tab.value}
               onClick={() => { setTypeFilter(tab.value); setPage(1); }}
               className={`px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition ${
                 typeFilter === tab.value
-                  ? "bg-indigo-500/10 text-indigo-400 border border-indigo-500/20"
-                  : "text-slate-400 hover:text-white border border-transparent"
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "text-text-sub hover:text-text-main border border-transparent"
               }`}
             >
               {tab.label}
@@ -144,10 +144,10 @@ export default function NotificationsPage() {
         {loading ? (
           <LoadingState message="Fetching notifications..." />
         ) : notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-white/[0.01] border border-white/5 rounded-3xl text-center p-6">
-            <Inbox className="w-16 h-16 text-white/10 mb-4" />
-            <h3 className="font-bold text-lg text-white mb-2">No notifications yet</h3>
-            <p className="text-sm text-white/40 max-w-sm">
+          <div className="flex flex-col items-center justify-center py-20 bg-surface border border-border-custom rounded-3xl text-center p-6 shadow-xs">
+            <Inbox className="w-16 h-16 text-text-muted/20 mb-4" />
+            <h3 className="font-bold text-lg text-text-main mb-2">No notifications yet</h3>
+            <p className="text-sm text-text-sub max-w-sm">
               Important project status changes, booking invites, payment captures, and deliveries will show up here.
             </p>
           </div>
@@ -156,7 +156,7 @@ export default function NotificationsPage() {
             {/* Today Group */}
             {today.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-xs font-black uppercase text-indigo-400/80 tracking-wider">Today</h3>
+                <h3 className="text-xs font-black uppercase text-primary/80 tracking-wider">Today</h3>
                 <div className="grid grid-cols-1 gap-3">
                   {today.map(n => (
                     <NotificationItem key={n.id} notification={n} onMarkRead={handleItemMarkedRead} />
@@ -168,7 +168,7 @@ export default function NotificationsPage() {
             {/* Yesterday Group */}
             {yesterday.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-xs font-black uppercase text-slate-400/80 tracking-wider">Yesterday</h3>
+                <h3 className="text-xs font-black uppercase text-text-muted tracking-wider">Yesterday</h3>
                 <div className="grid grid-cols-1 gap-3">
                   {yesterday.map(n => (
                     <NotificationItem key={n.id} notification={n} onMarkRead={handleItemMarkedRead} />
@@ -180,7 +180,7 @@ export default function NotificationsPage() {
             {/* Earlier Group */}
             {earlier.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-xs font-black uppercase text-slate-500/80 tracking-wider">Earlier</h3>
+                <h3 className="text-xs font-black uppercase text-text-muted tracking-wider">Earlier</h3>
                 <div className="grid grid-cols-1 gap-3">
                   {earlier.map(n => (
                     <NotificationItem key={n.id} notification={n} onMarkRead={handleItemMarkedRead} />
@@ -190,20 +190,20 @@ export default function NotificationsPage() {
             )}
 
             {/* Pagination Controls */}
-            <div className="flex items-center justify-between border-t border-white/5 pt-6">
+            <div className="flex items-center justify-between border-t border-border-custom pt-6">
               <button
                 disabled={page === 1}
                 onClick={() => setPage(prev => Math.max(1, prev - 1))}
-                className="flex items-center gap-1.5 px-4 py-2 border border-white/5 bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 rounded-xl text-xs font-bold text-white transition"
+                className="flex items-center gap-1.5 px-4 py-2 border border-border-custom bg-surface disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface-elevated rounded-xl text-xs font-bold text-text-main transition"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous Page
               </button>
-              <span className="text-xs text-white/50">Page {page}</span>
+              <span className="text-xs text-text-sub">Page {page}</span>
               <button
                 disabled={!hasMore}
                 onClick={() => setPage(prev => prev + 1)}
-                className="flex items-center gap-1.5 px-4 py-2 border border-white/5 bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/10 rounded-xl text-xs font-bold text-white transition"
+                className="flex items-center gap-1.5 px-4 py-2 border border-border-custom bg-surface disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface-elevated rounded-xl text-xs font-bold text-text-main transition"
               >
                 Next Page
                 <ChevronRight className="w-4 h-4" />

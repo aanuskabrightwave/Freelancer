@@ -13,5 +13,8 @@ export interface ProposalAcceptPayload {
 export const projectService = {
   async acceptProposal(proposalId: number, data: ProposalAcceptPayload): Promise<any> {
     return api.post(`/client/proposals/${proposalId}/accept`, data);
+  },
+  async getFreelancerProposals(): Promise<any[]> {
+    return api.get("/freelancer/proposals");
   }
 };

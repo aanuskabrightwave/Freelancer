@@ -81,10 +81,10 @@ export default function ClientReviewsPage() {
   }
 
   return (
-    <Container className="py-8">
-      <div className="space-y-6">
+    <Container className="py-12">
+      <div className="space-y-8">
         <PageHeader
-          title="My Submitted Reviews"
+          title="Submitted Reviews"
           description="View and manage the ratings and feedback you have posted for completed bookings."
         />
 
@@ -110,36 +110,36 @@ export default function ClientReviewsPage() {
 
       {/* Edit Review Modal */}
       {editingReview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-lg p-6 md:p-8 space-y-6 shadow-2xl relative">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
+          <div className="bg-surface-elevated border border-border-custom rounded-3xl w-full max-w-lg p-6 md:p-8 space-y-6 shadow-xl relative animate-fade-in">
             <button
               onClick={() => setEditingReview(null)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white font-bold text-sm"
+              className="absolute top-4 right-4 text-text-muted hover:text-text-main font-bold text-sm cursor-pointer"
             >
               ✕
             </button>
 
             <div>
-              <span className="text-[10px] text-indigo-400 font-black uppercase tracking-wider block">
+              <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
                 Edit Feedback
               </span>
-              <h3 className="text-base font-black text-white">Update Your Review</h3>
+              <h3 className="text-base font-semibold text-text-main">Update Your Review</h3>
             </div>
 
             {errorMsg && (
-              <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-xl text-xs">
+              <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-semibold">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleEditSubmit} className="space-y-4">
-              <div className="flex items-center justify-between bg-slate-950 p-4 border border-slate-850 rounded-2xl">
-                <span className="text-xs font-bold text-slate-350">Overall Rating</span>
+              <div className="flex items-center justify-between bg-surface p-4 border border-border-custom rounded-2xl">
+                <span className="text-xs font-semibold text-text-sub">Overall Rating</span>
                 <StarRating rating={editRating} interactive size="md" onChange={setEditRating} />
               </div>
 
               <div>
-                <label className="block text-[10px] text-slate-400 font-black uppercase mb-1">
+                <label className="block text-[10px] text-text-sub font-bold uppercase mb-1.5">
                   Title
                 </label>
                 <input
@@ -147,12 +147,12 @@ export default function ClientReviewsPage() {
                   maxLength={150}
                   value={editTitle}
                   onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-2.5 text-xs text-white"
+                  className="w-full bg-surface border border-border-custom rounded-xl px-4 py-2.5 text-xs text-text-main focus:outline-none placeholder-text-muted"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] text-slate-400 font-black uppercase mb-1">
+                <label className="block text-[10px] text-text-sub font-bold uppercase mb-1.5">
                   Comment (min 20 chars)
                 </label>
                 <textarea
@@ -162,7 +162,7 @@ export default function ClientReviewsPage() {
                   maxLength={3000}
                   value={editComment}
                   onChange={(e) => setEditComment(e.target.value)}
-                  className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-xs text-white resize-none"
+                  className="w-full bg-surface border border-border-custom rounded-xl px-4 py-3 text-xs text-text-main focus:outline-none placeholder-text-muted resize-none"
                 />
               </div>
 
@@ -170,14 +170,14 @@ export default function ClientReviewsPage() {
                 <button
                   type="button"
                   onClick={() => setEditingReview(null)}
-                  className="px-4 py-2 bg-slate-950 border border-slate-800 text-xs font-bold rounded-xl text-slate-400"
+                  className="px-5 py-2.5 bg-surface border border-border-custom text-xs font-bold rounded-full text-text-sub hover:text-text-main transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={saving}
-                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold rounded-xl text-white"
+                  className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-xs font-bold rounded-full text-text-on-dark transition cursor-pointer"
                 >
                   {saving ? "Saving Changes..." : "Save Changes"}
                 </button>

@@ -13,6 +13,10 @@ export interface UserType {
   role: "CLIENT" | "FREELANCER" | "ADMIN";
   is_verified: boolean;
   is_active: boolean;
+  login_id?: string;
+  timezone?: string;
+  created_at?: string;
+  avatar_url?: string;
 }
 
 interface AuthContextType {

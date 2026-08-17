@@ -49,7 +49,7 @@ export default function NotificationPreferencesForm() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-white/50">
+      <div className="flex flex-col items-center justify-center py-20 text-text-muted">
         <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-2" />
         <p className="text-xs">Loading preferences...</p>
       </div>
@@ -105,16 +105,16 @@ export default function NotificationPreferencesForm() {
   ];
 
   return (
-    <form onSubmit={handleSave} className="space-y-6 max-w-2xl bg-white/[0.02] border border-white/5 p-6 rounded-2xl">
+    <form onSubmit={handleSave} className="space-y-6 max-w-2xl bg-surface-elevated border border-border-custom p-6 rounded-2xl">
       <div className="space-y-4">
         {preferenceItems.map(item => (
           <div
             key={item.key}
-            className="flex items-center justify-between gap-6 p-4 bg-white/[0.01] border border-white/5 rounded-xl hover:bg-white/[0.02] transition-all"
+            className="flex items-center justify-between gap-6 p-4 bg-surface border border-border-custom rounded-xl hover:bg-surface-elevated transition-all"
           >
             <div>
-              <h4 className="font-bold text-sm text-white/90">{item.title}</h4>
-              <p className="text-xs text-white/40 mt-1">{item.description}</p>
+              <h4 className="font-bold text-sm text-text-main">{item.title}</h4>
+              <p className="text-xs text-text-muted mt-1">{item.description}</p>
             </div>
             
             {/* Toggle Switch */}
@@ -122,7 +122,7 @@ export default function NotificationPreferencesForm() {
               type="button"
               onClick={() => handleToggle(item.key)}
               className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                prefs[item.key] ? "bg-indigo-500" : "bg-white/10"
+                prefs[item.key] ? "bg-indigo-500" : "bg-neutral-200"
               }`}
             >
               <span
@@ -135,7 +135,7 @@ export default function NotificationPreferencesForm() {
         ))}
       </div>
 
-      <div className="flex items-center gap-4 border-t border-white/5 pt-4">
+      <div className="flex items-center gap-4 border-t border-border-custom pt-4">
         <button
           type="submit"
           disabled={saving}
@@ -155,7 +155,7 @@ export default function NotificationPreferencesForm() {
         </button>
 
         {success && (
-          <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-400">
+          <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
             <Check className="w-4 h-4" />
             Preferences saved successfully!
           </span>

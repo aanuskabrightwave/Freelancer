@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import Container from "@/components/ui/Container";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -123,16 +122,53 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex flex-col flex-grow justify-center bg-slate-950 py-12 px-4 text-slate-100">
-      <Container size="sm">
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-8 shadow-2xl backdrop-blur-xl">
+    <div className="min-h-screen flex bg-background text-text-main">
+      {/* LEFT SIDE: Editorial/Brand Block (Hidden on mobile) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-dark text-text-on-dark flex-col justify-between p-16 relative overflow-hidden">
+        {/* Abstract background accent */}
+        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+        
+        {/* Brand/Logo header */}
+        <div className="relative z-10">
+          <Link href="/" className="font-semibold text-lg uppercase tracking-wider text-text-on-dark flex items-center gap-1.5">
+            <span>Creative</span>
+            <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
+            <span>Market</span>
+          </Link>
+        </div>
+
+        {/* Big Typographic message & quote */}
+        <div className="space-y-6 relative z-10 max-w-md my-auto">
+          <h2 className="text-4xl md:text-5xl font-semibold tracking-tight leading-[1.05] text-text-on-dark">
+            Join the global creative network.
+          </h2>
+          <div className="pt-6 border-t border-white/10 space-y-2">
+            <p className="text-sm italic text-text-on-dark/65 leading-relaxed">
+              "Being listed on CreativeMarket has connected me directly with agency clients looking for local videographers. No middleman, clear briefs, fast payout."
+            </p>
+            <p className="text-xs font-bold uppercase tracking-widest text-primary">
+              — Demo Freelancer, Photographer
+            </p>
+          </div>
+        </div>
+
+        {/* Footer info */}
+        <div className="relative z-10 text-xs text-text-on-dark/40">
+          <p>&copy; {new Date().getFullYear()} CreativeMarket. All rights reserved.</p>
+        </div>
+      </div>
+
+      {/* RIGHT SIDE: Minimal Form/Selection Block */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 bg-background">
+        <div className="w-full max-w-md space-y-8 cinematic-reveal">
+          
           {step === 1 ? (
-            <div className="space-y-8 text-center animate-fade-in">
-              <div>
-                <h2 className="text-3xl font-extrabold tracking-tight text-white">
+            <div className="space-y-8">
+              <div className="space-y-2">
+                <h2 className="text-3xl font-semibold tracking-tight text-text-main">
                   Create your account
                 </h2>
-                <p className="mt-3 text-slate-400">
+                <p className="text-sm text-text-sub">
                   How do you want to use the platform?
                 </p>
               </div>
@@ -141,15 +177,15 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => handleRoleSelect("CLIENT")}
-                  className="flex flex-col items-center justify-between text-left p-6 rounded-xl border border-slate-800 bg-slate-900/50 hover:border-blue-500 hover:bg-blue-950/20 transition-all group cursor-pointer"
+                  className="flex flex-col justify-between text-left p-6 rounded-2xl border border-border-custom bg-surface hover:border-primary/50 hover:bg-surface-elevated transition-all group cursor-pointer shadow-sm"
                 >
-                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">💼</div>
+                  <div className="text-3xl mb-4 group-hover:scale-105 transition-transform">💼</div>
                   <div>
-                    <h3 className="font-bold text-lg text-white group-hover:text-blue-400 transition-colors">
+                    <h3 className="font-semibold text-base text-text-main group-hover:text-primary transition-colors">
                       Client
                     </h3>
-                    <p className="text-sm text-slate-400 mt-2">
-                      Hire photographers, videographers and editors
+                    <p className="text-xs text-text-sub mt-2 leading-relaxed">
+                      Hire photographers, videographers and editors.
                     </p>
                   </div>
                 </button>
@@ -157,57 +193,57 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => handleRoleSelect("FREELANCER")}
-                  className="flex flex-col items-center justify-between text-left p-6 rounded-xl border border-slate-800 bg-slate-900/50 hover:border-purple-500 hover:bg-purple-950/20 transition-all group cursor-pointer"
+                  className="flex flex-col justify-between text-left p-6 rounded-2xl border border-border-custom bg-surface hover:border-primary/50 hover:bg-surface-elevated transition-all group cursor-pointer shadow-sm"
                 >
-                  <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📷</div>
+                  <div className="text-3xl mb-4 group-hover:scale-105 transition-transform">📷</div>
                   <div>
-                    <h3 className="font-bold text-lg text-white group-hover:text-purple-400 transition-colors">
+                    <h3 className="font-semibold text-base text-text-main group-hover:text-primary transition-colors">
                       Freelancer
                     </h3>
-                    <p className="text-sm text-slate-400 mt-2">
-                      Showcase your work and find projects
+                    <p className="text-xs text-text-sub mt-2 leading-relaxed">
+                      Showcase your work and get booked directly.
                     </p>
                   </div>
                 </button>
               </div>
 
-              <div className="text-sm text-slate-400 pt-4">
+              <div className="text-center text-xs text-text-sub pt-6 border-t border-border-custom/50">
                 Already have an account?{" "}
-                <Link href="/login" className="text-blue-400 hover:underline">
+                <Link href="/login" className="text-primary font-bold hover:underline">
                   Log In
                 </Link>
               </div>
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="flex items-center gap-2 mb-2">
+              <div className="flex items-center gap-2">
                 <button
                   onClick={() => setStep(1)}
-                  className="text-slate-400 hover:text-white text-sm flex items-center gap-1"
+                  className="text-text-muted hover:text-text-main text-xs font-semibold flex items-center gap-1 cursor-pointer"
                 >
                   ← Back
                 </button>
-                <span className="text-xs px-2 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700 capitalize ml-auto">
+                <span className="text-[10px] px-2.5 py-0.5 rounded-full bg-surface border border-border-custom text-text-sub font-bold capitalize ml-auto tracking-wider">
                   Signing up as {role?.toLowerCase()}
                 </span>
               </div>
 
-              <div>
-                <h2 className="text-2xl font-bold text-white">Enter your details</h2>
-                <p className="text-sm text-slate-400 mt-1">
+              <div className="space-y-2">
+                <h2 className="text-2xl font-semibold tracking-tight text-text-main">Enter details</h2>
+                <p className="text-sm text-text-sub">
                   Complete the fields below to set up your profile.
                 </p>
               </div>
 
               {apiError && (
-                <div className="bg-red-950/30 border border-red-900/50 text-red-400 p-4 rounded-lg text-sm">
+                <div className="bg-rose-50 border border-rose-200 text-rose-700 p-4 rounded-xl text-xs font-medium">
                   {apiError}
                 </div>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1">
+                  <label className="block text-[10px] text-text-sub font-bold uppercase tracking-wider mb-2">
                     Full Name
                   </label>
                   <input
@@ -215,17 +251,17 @@ export default function RegisterPage() {
                     name="fullName"
                     value={formData.fullName}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border-custom text-text-main placeholder-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
                     placeholder="Enter your full name"
                     required
                   />
                   {errors.fullName && (
-                    <span className="text-xs text-red-500 mt-1 block">{errors.fullName}</span>
+                    <span className="text-xs text-rose-600 mt-1.5 block font-semibold">{errors.fullName}</span>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1">
+                  <label className="block text-[10px] text-text-sub font-bold uppercase tracking-wider mb-2">
                     Email Address
                   </label>
                   <input
@@ -233,17 +269,17 @@ export default function RegisterPage() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border-custom text-text-main placeholder-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
                     placeholder="example@domain.com"
                     required
                   />
                   {errors.email && (
-                    <span className="text-xs text-red-500 mt-1 block">{errors.email}</span>
+                    <span className="text-xs text-rose-600 mt-1.5 block font-semibold">{errors.email}</span>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1">
+                  <label className="block text-[10px] text-text-sub font-bold uppercase tracking-wider mb-2">
                     Phone Number
                   </label>
                   <input
@@ -251,17 +287,17 @@ export default function RegisterPage() {
                     name="phone"
                     value={formData.phone}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border-custom text-text-main placeholder-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
                     placeholder="+91 98765 43210"
                     required
                   />
                   {errors.phone && (
-                    <span className="text-xs text-red-500 mt-1 block">{errors.phone}</span>
+                    <span className="text-xs text-rose-600 mt-1.5 block font-semibold">{errors.phone}</span>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1">
+                  <label className="block text-[10px] text-text-sub font-bold uppercase tracking-wider mb-2">
                     Password
                   </label>
                   <input
@@ -269,17 +305,17 @@ export default function RegisterPage() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border-custom text-text-main placeholder-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
                     placeholder="••••••••"
                     required
                   />
                   {errors.password && (
-                    <span className="text-xs text-red-500 mt-1 block">{errors.password}</span>
+                    <span className="text-xs text-rose-600 mt-1.5 block font-semibold">{errors.password}</span>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-slate-300 mb-1">
+                  <label className="block text-[10px] text-text-sub font-bold uppercase tracking-wider mb-2">
                     Confirm Password
                   </label>
                   <input
@@ -287,37 +323,37 @@ export default function RegisterPage() {
                     name="confirmPassword"
                     value={formData.confirmPassword}
                     onChange={handleChange}
-                    className="w-full px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-surface border border-border-custom text-text-main placeholder-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-xs"
                     placeholder="••••••••"
                     required
                   />
                   {errors.confirmPassword && (
-                    <span className="text-xs text-red-500 mt-1 block">{errors.confirmPassword}</span>
+                    <span className="text-xs text-rose-600 mt-1.5 block font-semibold">{errors.confirmPassword}</span>
                   )}
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:bg-blue-800 disabled:text-slate-400 disabled:cursor-not-allowed"
+                  className="w-full py-3.5 rounded-full bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold transition-all flex items-center justify-center gap-2 mt-8 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
-                      <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin h-4 w-4 text-text-on-dark" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                       </svg>
-                      Creating Account...
+                      <span>Creating Account...</span>
                     </>
                   ) : (
-                    "Create Account"
+                    <span>Create Account</span>
                   )}
                 </button>
               </form>
             </div>
           )}
         </div>
-      </Container>
+      </div>
     </div>
   );
 }

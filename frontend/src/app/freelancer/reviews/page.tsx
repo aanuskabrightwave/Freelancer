@@ -64,10 +64,10 @@ export default function FreelancerReviewsDashboard() {
   }
 
   return (
-    <Container className="py-8">
+    <Container className="py-12">
       <div className="space-y-8">
         <PageHeader
-          title="Reviews & Reputation Dashboard"
+          title="Reviews & Reputation"
           description="Manage client feedback, view your trust badges, and respond to public reviews."
         />
 
@@ -76,13 +76,13 @@ export default function FreelancerReviewsDashboard() {
             {/* Left side column: Stats & badges */}
             <div className="space-y-6">
               {/* Rating Summary Card */}
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl text-center space-y-4">
-                <span className="text-[10px] text-indigo-400 font-black uppercase tracking-wider block">
+              <div className="bg-surface-elevated border border-border-custom rounded-3xl p-6 shadow-sm text-center space-y-4">
+                <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
                   Overall Rating
                 </span>
                 
                 <div className="space-y-1">
-                  <div className="text-5xl font-black text-white">
+                  <div className="text-5xl font-black text-text-main">
                     {profile.average_rating ? profile.average_rating.toFixed(2) : "0.00"}
                   </div>
                   <div className="flex justify-center mt-2">
@@ -90,23 +90,23 @@ export default function FreelancerReviewsDashboard() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 border-t border-slate-850 pt-4 text-xs">
+                <div className="grid grid-cols-2 gap-4 border-t border-border-custom/50 pt-4 text-xs font-semibold">
                   <div>
-                    <span className="text-slate-500 block">Total Reviews</span>
-                    <strong className="text-white text-sm font-bold">{profile.review_count}</strong>
+                    <span className="text-text-muted block">Total Reviews</span>
+                    <strong className="text-text-main text-sm font-bold">{profile.review_count}</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 block">Completed Jobs</span>
-                    <strong className="text-white text-sm font-bold">{profile.completed_jobs_count}</strong>
+                    <span className="text-text-muted block">Completed Jobs</span>
+                    <strong className="text-text-main text-sm font-bold">{profile.completed_jobs_count}</strong>
                   </div>
                 </div>
               </div>
 
               {/* Trust Badges Card */}
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
+              <div className="bg-surface-elevated border border-border-custom rounded-3xl p-6 shadow-sm space-y-4">
                 <div>
-                  <h3 className="text-xs font-black text-white uppercase tracking-wider">Earned Trust Badges</h3>
-                  <p className="text-[10px] text-slate-500 mt-1">
+                  <h3 className="text-xs font-bold text-text-main uppercase tracking-wider">Earned Trust Badges</h3>
+                  <p className="text-[10px] text-text-muted mt-1 leading-relaxed">
                     Badges are evaluated automatically based on verification status and completed job performance.
                   </p>
                 </div>
@@ -116,7 +116,7 @@ export default function FreelancerReviewsDashboard() {
                     <TrustBadgeList badges={profile.trust_badges} />
                   </div>
                 ) : (
-                  <span className="text-xs text-slate-550 block pt-2">No trust badges earned yet.</span>
+                  <span className="text-xs text-text-muted block pt-2">No trust badges earned yet.</span>
                 )}
               </div>
 
@@ -126,7 +126,7 @@ export default function FreelancerReviewsDashboard() {
 
             {/* Right side column: Reviews List */}
             <div className="lg:col-span-2 space-y-6">
-              <h2 className="text-base font-extrabold text-white">Received Reviews ({reviews.length})</h2>
+              <h2 className="text-base font-bold text-text-main">Received Reviews ({reviews.length})</h2>
 
               {reviews.length === 0 ? (
                 <EmptyState

@@ -22,6 +22,22 @@ export function middleware(request: NextRequest) {
   const tokenCookie = request.cookies.get("accessToken");
   const token = tokenCookie?.value;
 
+  // Redirect root path if authenticated
+  if (pathname === "/" && token) {
+    const payload = parseJwt(token);
+    if (payload && payload.role) {
+      const url = request.nextUrl.clone();
+      if (payload.role === "CLIENT") {
+        url.pathname = "/client/dashboard";
+      } else if (payload.role === "FREELANCER") {
+        url.pathname = "/freelancer/dashboard";
+      } else if (payload.role === "ADMIN") {
+        url.pathname = "/admin/dashboard";
+      }
+      return NextResponse.redirect(url);
+    }
+  }
+
   // Paths requiring authentication
   const isClientPath = pathname.startsWith("/client");
   const isFreelancerPath = pathname.startsWith("/freelancer");
@@ -95,6 +111,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   // Run middleware on these matching paths
   matcher: [
+    "/",
     "/client/:path*",
     "/freelancer/:path*",
     "/admin/:path*",

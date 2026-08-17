@@ -47,21 +47,23 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
   const currentItems = items[role] || [];
 
   return (
-    <aside className="w-64 border-r border-[var(--border)] bg-[var(--card)] text-[var(--card-foreground)] flex flex-col p-4 gap-2">
-      <div className="font-bold text-xs uppercase tracking-wider text-[var(--muted-foreground)] px-3 mb-2">
-        {role} Menu
+    <aside className="w-64 border-r border-border-custom bg-surface-elevated text-text-main flex flex-col p-6 gap-6 h-screen sticky top-0 overflow-y-auto">
+      <div>
+        <span className="font-bold text-[10px] uppercase tracking-widest text-text-muted px-3 block">
+          {role} Workspace
+        </span>
       </div>
-      <nav className="flex flex-col gap-1">
+      <nav className="flex flex-col gap-1.5 flex-grow">
         {currentItems.map((item) => {
           const isActive = activeItem === item.name || false;
           return (
             <Link
               key={item.name}
               href={item.href}
-              className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`px-4 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer ${
                 isActive
-                  ? "bg-blue-600 text-white"
-                  : "hover:bg-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                  ? "bg-primary/10 text-primary"
+                  : "text-text-sub hover:text-text-main hover:bg-surface"
               }`}
             >
               {item.name}

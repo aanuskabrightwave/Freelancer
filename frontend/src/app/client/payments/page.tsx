@@ -23,31 +23,32 @@ export default function ClientPaymentsHistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-slate-400 py-12">
-        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-xs uppercase tracking-widest font-black animate-pulse">Loading transaction logs...</p>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center py-12">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-xs uppercase tracking-widest font-bold animate-pulse text-text-sub">Loading transaction logs...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
-      <div className="max-w-6xl mx-auto px-4 py-12">
-        <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="min-h-screen bg-background text-text-main font-sans">
+      <div className="max-w-6xl mx-auto px-6 py-16">
+        <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border-custom/50 pb-6">
           <div>
-            <h1 className="text-3xl font-black tracking-tight">Payments & Receipts</h1>
-            <p className="text-sm text-slate-400 mt-1">Review your payments history and download invoices.</p>
+            <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-1">Billing</span>
+            <h1 className="text-3xl font-semibold tracking-tight text-text-main">Payments & Receipts</h1>
+            <p className="text-xs text-text-sub mt-1">Review your payments history and download invoices.</p>
           </div>
-          <Link href="/client/dashboard" className="text-xs uppercase tracking-widest font-black text-slate-400 hover:text-indigo-400 flex items-center gap-2 group transition">
+          <Link href="/client/dashboard" className="text-xs uppercase tracking-widest font-bold text-text-sub hover:text-primary flex items-center gap-2 group transition cursor-pointer">
             <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Dashboard
           </Link>
         </div>
 
         {error && (
-          <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-400 text-sm py-4 px-4 rounded-xl flex items-center gap-3">
+          <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold py-4 px-4 rounded-xl flex items-center gap-3">
             <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
@@ -56,23 +57,23 @@ export default function ClientPaymentsHistoryPage() {
         )}
 
         {payments.length === 0 ? (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl p-12 text-center shadow-xl">
-            <div className="w-16 h-16 bg-slate-800 text-slate-500 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-850">
+          <div className="bg-surface-elevated border border-border-custom rounded-3xl p-12 text-center shadow-sm">
+            <div className="w-16 h-16 bg-surface text-text-muted rounded-2xl flex items-center justify-center mx-auto mb-4 border border-border-custom">
               <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
               </svg>
             </div>
-            <h3 className="font-bold text-lg mb-1">No transaction records</h3>
-            <p className="text-slate-555 text-sm max-w-sm mx-auto mb-6">
+            <h3 className="font-bold text-base text-text-main mb-1">No transaction records</h3>
+            <p className="text-text-sub text-xs max-w-sm mx-auto mb-6 leading-relaxed">
               You haven't completed any bookings payments on the marketplace yet.
             </p>
           </div>
         ) : (
-          <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+          <div className="bg-surface-elevated border border-border-custom rounded-3xl overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800/80 text-xxs uppercase tracking-widest text-slate-400 font-black bg-slate-950/40">
+                  <tr className="border-b border-border-custom/50 text-[10px] uppercase tracking-widest text-text-sub font-bold bg-surface">
                     <th className="py-4 px-6">Payment Number</th>
                     <th className="py-4 px-6">Service Title</th>
                     <th className="py-4 px-6">Gross Amount</th>
@@ -81,40 +82,40 @@ export default function ClientPaymentsHistoryPage() {
                     <th className="py-4 px-6 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-border-custom/30">
                   {payments.map((pay) => (
-                    <tr key={pay.id} className="hover:bg-slate-850/30 transition text-sm">
-                      <td className="py-5 px-6 font-mono text-xs font-bold text-slate-300">
+                    <tr key={pay.id} className="hover:bg-surface/50 transition text-xs text-text-main font-medium">
+                      <td className="py-5 px-6 font-mono text-xs font-bold text-text-main">
                         {pay.payment_number}
                       </td>
-                      <td className="py-5 px-6 font-medium">
+                      <td className="py-5 px-6 text-text-main">
                         Wedding Highlights / Project Booking
                       </td>
-                      <td className="py-5 px-6 font-bold text-indigo-400 font-mono">
+                      <td className="py-5 px-6 font-bold text-primary font-mono">
                         ₹{Number(pay.gross_amount).toLocaleString("en-IN")}
                       </td>
                       <td className="py-5 px-6">
-                        <span className={`text-[10px] font-black uppercase font-mono tracking-widest py-1 px-2.5 rounded-md border ${
+                        <span className={`text-[9px] font-bold uppercase tracking-wider py-1 px-2.5 rounded-full border ${
                           pay.status === "CAPTURED"
-                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                             : pay.status === "FAILED"
-                            ? "bg-red-500/10 text-red-400 border-red-500/20"
-                            : "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                            ? "bg-rose-50 text-rose-700 border-rose-200"
+                            : "bg-amber-50 text-amber-705 border-amber-200"
                         }`}>
                           {pay.status === "CAPTURED" ? "PAID" : pay.status}
                         </span>
                       </td>
-                      <td className="py-5 px-6 text-slate-400 text-xs">
+                      <td className="py-5 px-6 text-text-sub text-xs">
                         {pay.paid_at ? new Date(pay.paid_at).toLocaleDateString("en-IN", {
                           day: "numeric",
                           month: "short",
                           year: "numeric"
                         }) : "-"}
                       </td>
-                      <td className="py-5 px-6 text-right">
+                      <td className="py-5 px-6 text-right font-bold">
                         <Link
                           href={`/client/payments/${pay.id}`}
-                          className="inline-flex items-center gap-1.5 text-xs bg-slate-800 hover:bg-indigo-600 text-slate-300 hover:text-white font-bold py-2 px-4 rounded-xl transition duration-150"
+                          className="inline-flex items-center gap-1.5 text-xs bg-surface hover:bg-surface-elevated border border-border-custom text-text-sub hover:text-text-main font-bold py-2 px-4 rounded-full transition duration-150 cursor-pointer"
                         >
                           <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
