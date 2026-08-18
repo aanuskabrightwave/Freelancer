@@ -1,14 +1,20 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
-import * as THREE from "three";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { createProceduralCamera } from "./ProceduralCamera";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
+}
+
+const TOTAL_FRAMES = 182;
+
+// Generate zero-padded frame URL: /camera-frames/frame-0001.webp -> frame-0182.webp
+function getFrameUrl(index: number): string {
+  const paddedIndex = String(index + 1).padStart(4, "0");
+  return `/camera-frames/frame-${paddedIndex}.webp`;
 }
 
 export default function CinematicHero() {
@@ -16,514 +22,473 @@ export default function CinematicHero() {
   const stickyRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Chapter content refs
-  const ch0Ref = useRef<HTMLDivElement>(null);
-  const ch1Ref = useRef<HTMLDivElement>(null);
-  const ch2Ref = useRef<HTMLDivElement>(null);
-  const ch3Ref = useRef<HTMLDivElement>(null);
-  const ch4Ref = useRef<HTMLDivElement>(null);
-  const ch5Ref = useRef<HTMLDivElement>(null);
+  // 6 Storytelling Stage Refs
+  const stage1Ref = useRef<HTMLDivElement>(null);
+  const stage2Ref = useRef<HTMLDivElement>(null);
+  const stage3Ref = useRef<HTMLDivElement>(null);
+  const stage4Ref = useRef<HTMLDivElement>(null);
+  const stage5Ref = useRef<HTMLDivElement>(null);
+  const stage6Ref = useRef<HTMLDivElement>(null);
 
-  // Floating frames (Post-production chapter)
-  const frameRawRef = useRef<HTMLDivElement>(null);
-  const frameGradedRef = useRef<HTMLDivElement>(null);
+  // State
+  const [isReducedMotion, setIsReducedMotion] = useState(false);
 
-  // Loader state
-  const [loading, setLoading] = useState(true);
+  // Animation and frame storage refs
+  const framesRef = useRef<HTMLImageElement[]>([]);
+  const targetFrameRef = useRef(0);
+  const currentFrameRef = useRef(0);
+  const lastRenderedFrameRef = useRef(-1);
+  const animFrameIdRef = useRef<number | null>(null);
 
-  // Mouse interaction variables
-  const mouse = useRef({ x: 0, y: 0, targetX: 0, targetY: 0 });
+  // Draw frame onto full-screen High-DPI canvas with guaranteed full-bleed edge coverage
+  const drawFrame = useCallback((frameIndex: number) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
+    const clampedIndex = Math.min(Math.max(frameIndex, 0), TOTAL_FRAMES - 1);
+    const img = framesRef.current[clampedIndex];
+    if (!img || !img.complete || img.naturalWidth === 0) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = document.documentElement.clientWidth || window.innerWidth;
+    const height = window.innerHeight;
+
+    // Reset transform to 1:1 and clear the full hardware buffer
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Apply DPR scaling for ultra-sharp canvas rendering
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    const isMobile = width < 768;
+
+    // Strict Full-Bleed `cover` scaling: guarantees drawW >= width AND drawH >= height
+    const coverScale = Math.max(
+      width / img.naturalWidth,
+      height / img.naturalHeight
+    );
+
+    const drawW = img.naturalWidth * coverScale;
+    const drawH = img.naturalHeight * coverScale;
+
+    // Optical centering: shift camera slightly right while guaranteeing zero gap on edges
+    const maxShiftX = Math.max(0, (drawW - width) / 2);
+    const shiftX = isMobile ? 0 : Math.min(width * 0.08, maxShiftX);
+
+    const posX = (width - drawW) / 2 + shiftX;
+    const posY = (height - drawH) / 2;
+
+    ctx.drawImage(img, posX, posY, drawW, drawH);
+    lastRenderedFrameRef.current = clampedIndex;
+  }, []);
+
+  // Resize handler configuring full-screen High-DPI canvas buffer
+  const handleResize = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = document.documentElement.clientWidth || window.innerWidth;
+    const height = window.innerHeight;
+
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+
+    drawFrame(Math.round(currentFrameRef.current));
+  }, [drawFrame]);
+
+  // Main setup effect
   useEffect(() => {
     if (typeof window === "undefined" || !containerRef.current || !canvasRef.current) return;
 
-    // --- 1. Three.js Scene Setup ---
-    const scene = new THREE.Scene();
+    // Check prefers-reduced-motion
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (motionQuery.matches) {
+      setIsReducedMotion(true);
+      return;
+    }
 
-    // Cinematic Perspective Camera
-    const camera = new THREE.PerspectiveCamera(
-      38,
-      window.innerWidth / window.innerHeight,
-      0.1,
-      100
-    );
-    camera.position.set(0, 0, 9);
+    handleResize();
+    window.addEventListener("resize", handleResize);
 
-    // Renderer Configured for Photorealism (PBR, Tone Mapping, Color Management)
-    const renderer = new THREE.WebGLRenderer({
-      canvas: canvasRef.current,
-      antialias: true,
-      alpha: true, // Transparent canvas background to blend seamlessly with HTML background
-    });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    // Preload All Frames
+    const frames: HTMLImageElement[] = [];
+    for (let i = 0; i < TOTAL_FRAMES; i++) {
+      const img = new Image();
+      img.src = getFrameUrl(i);
+      if (i === 0) {
+        img.onload = () => {
+          drawFrame(0);
+          ScrollTrigger.refresh();
+        };
+      }
+      frames.push(img);
+    }
+    framesRef.current = frames;
 
-    // --- 2. Dynamic Environment Map (EnvMap) Setup ---
-    // Create a virtual studio scene for rendering reflections
-    const envScene = new THREE.Scene();
-    envScene.background = new THREE.Color(0x050505);
-
-    const panelMat = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide });
-
-    // Left studio softbox panel
-    const panelLeftGeo = new THREE.PlaneGeometry(3, 8);
-    const panelLeft = new THREE.Mesh(panelLeftGeo, panelMat);
-    panelLeft.position.set(-6, 2, 2);
-    panelLeft.rotation.y = Math.PI / 3;
-    envScene.add(panelLeft);
-
-    // Right studio softbox panel
-    const panelRightGeo = new THREE.PlaneGeometry(3, 8);
-    const panelRight = new THREE.Mesh(panelRightGeo, panelMat);
-    panelRight.position.set(6, 2, 2);
-    panelRight.rotation.y = -Math.PI / 3;
-    envScene.add(panelRight);
-
-    // Top softbox panel
-    const panelTopGeo = new THREE.PlaneGeometry(6, 3);
-    const panelTop = new THREE.Mesh(panelTopGeo, panelMat);
-    panelTop.position.set(0, 6, 0);
-    panelTop.rotation.x = Math.PI / 2;
-    envScene.add(panelTop);
-
-    // Cube camera setup for dynamic reflection rendering
-    const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256, {
-      generateMipmaps: true,
-      minFilter: THREE.LinearMipmapLinearFilter,
-    });
-    const cubeCamera = new THREE.CubeCamera(0.1, 15, cubeRenderTarget);
-    envScene.add(cubeCamera);
-
-    // Render environment map once
-    cubeCamera.update(renderer, envScene);
-    scene.environment = cubeRenderTarget.texture;
-
-    // --- 3. Studio Lights (Atmospheric Studio Setup) ---
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-    scene.add(ambientLight);
-
-    const keySpotLight = new THREE.SpotLight(0xffffff, 4.0, 15, Math.PI / 4, 0.4, 1);
-    keySpotLight.position.set(4, 5, 5);
-    keySpotLight.castShadow = true;
-    keySpotLight.shadow.mapSize.width = 1024;
-    keySpotLight.shadow.mapSize.height = 1024;
-    keySpotLight.shadow.camera.near = 0.5;
-    keySpotLight.shadow.camera.far = 15;
-    keySpotLight.shadow.bias = -0.0005;
-    keySpotLight.shadow.radius = 4;
-    scene.add(keySpotLight);
-
-    const rimSpotLight = new THREE.SpotLight(0xaaccff, 2.5, 12, Math.PI / 5, 0.3, 1);
-    rimSpotLight.position.set(-4, 3, -4);
-    scene.add(rimSpotLight);
-
-    const fillLight = new THREE.DirectionalLight(0xfff3e0, 0.8);
-    fillLight.position.set(-5, -2, 3);
-    scene.add(fillLight);
-
-    const lensLight = new THREE.PointLight(0x0088ff, 0.0, 6);
-    lensLight.position.set(0, 0, 1.8);
-    scene.add(lensLight);
-
-    const backdropLight = new THREE.SpotLight(0xfff9f2, 5.0, 15, Math.PI / 3, 0.5, 1);
-    backdropLight.position.set(0, 0, 4);
-    scene.add(backdropLight);
-
-    // --- 4. Cyclorama Backdrop & Shadow Catcher ---
-    const cycGeo = new THREE.PlaneGeometry(30, 20);
-    const cycMat = new THREE.MeshStandardMaterial({
-      color: 0xFAF9F6,
-      roughness: 0.95,
-      metalness: 0.0,
-    });
-    const cycMesh = new THREE.Mesh(cycGeo, cycMat);
-    cycMesh.position.set(0, 0, -4.5);
-    cycMesh.receiveShadow = true;
-    scene.add(cycMesh);
-    backdropLight.target = cycMesh;
-
-    const floorGeo = new THREE.PlaneGeometry(30, 20);
-    const floorMesh = new THREE.Mesh(floorGeo, cycMat);
-    floorMesh.position.set(0, -2.5, 0);
-    floorMesh.rotation.x = -Math.PI / 2;
-    floorMesh.receiveShadow = true;
-    scene.add(floorMesh);
-
-    // --- 5. High-Realism Camera Object ---
-    const cameraGroup = createProceduralCamera();
-    
-    // Initial composition offset to the right
-    cameraGroup.position.set(1.4, -0.1, 0);
-    cameraGroup.rotation.set(0.1, -Math.PI / 7, 0);
-    cameraGroup.scale.set(0.95, 0.95, 0.95);
-    
-    scene.add(cameraGroup);
-
-    // Named parts for exploded-view animations
-    const parts = cameraGroup.userData.explodedParts;
-
-    // Turn off loader
-    setLoading(false);
-
-    // --- 6. Mouse Parallax (Cinematic Inertia) ---
-    const handleMouseMove = (e: MouseEvent) => {
-      mouse.current.targetX = (e.clientX / window.innerWidth) - 0.5;
-      mouse.current.targetY = (e.clientY / window.innerHeight) - 0.5;
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-
-    // --- 7. Master GSAP ScrollTrigger Exploded Timeline ---
+    // Master GSAP ScrollTrigger timeline for 6 Synchronized Storytelling Stages
     const timeline = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
         start: "top top",
         end: "bottom bottom",
-        scrub: 1.2, // Smooth scroll tracking with inertia
+        scrub: 0.85, // Responsive, smooth scroll scrub
+        onUpdate: (self) => {
+          const progress = self.progress;
+
+          // Non-linear camera progress mapping: gives extra dwell time to inspect the full exploded view
+          let mappedProgress = 0;
+          if (progress < 0.30) {
+            // Stage 1 & 2: Assembled to initial rotation (0% - 30% scroll -> frames 0% - 38%)
+            mappedProgress = (progress / 0.30) * 0.38;
+          } else if (progress < 0.45) {
+            // Stage 3: Initial disassembly (30% - 45% scroll -> frames 38% - 48%)
+            const subP = (progress - 0.30) / (0.45 - 0.30);
+            mappedProgress = 0.38 + subP * 0.10;
+          } else if (progress < 0.65) {
+            // Stage 4: Full exploded view hold (45% - 65% scroll -> frames 48% - 56%)
+            const subP = (progress - 0.45) / (0.65 - 0.45);
+            mappedProgress = 0.48 + subP * 0.08;
+          } else if (progress < 0.85) {
+            // Stage 5: Reassembly (65% - 85% scroll -> frames 56% - 80%)
+            const subP = (progress - 0.65) / (0.85 - 0.65);
+            mappedProgress = 0.56 + subP * 0.24;
+          } else {
+            // Stage 6: Final assembled showcase (85% - 100% scroll -> frames 80% - 100%)
+            const subP = (progress - 0.85) / (1 - 0.85);
+            mappedProgress = 0.80 + subP * 0.20;
+          }
+
+          targetFrameRef.current = mappedProgress * (TOTAL_FRAMES - 1);
+        },
       },
     });
 
-    // Precision engineering assembly curve (Power3.easeOut for magnetic precision feel)
-    const assemblyEase = "power3.out";
-
+    // Synchronize 6 Storytelling Stages precisely across the timeline:
+    // Timeline duration scale: 0 to 10
     timeline
-      // --- PHASE 1 & 2: Assembled Scroll-Driven Rotation (0% to 30% scroll) ---
-      .to(cameraGroup.rotation, { y: -Math.PI / 5, x: 0.12, duration: 2 }, 0)
-      .to(cameraGroup.position, { x: 1.1, y: -0.2, z: 0.5, duration: 2 }, 0)
-      .to(ch0Ref.current, { opacity: 0, y: -60, duration: 1 }, 0)
-      .to(ch1Ref.current, { opacity: 1, y: 0, duration: 1 }, 1.2)
+      // STAGE 01: 0% to 15% scroll (Timeline 0.0 to 1.5)
+      // Visible at start (opacity 1, y 0), fades out at end of stage 1
+      .to(stage1Ref.current, { opacity: 0, y: -15, duration: 0.5, ease: "power1.in" }, 1.0)
 
-      // --- PHASE 3: Physical Disassembly / Explosion Axis-Aligned (30% to 50% scroll) ---
-      // Move camera to center and face directly front-facing
-      .to(cameraGroup.position, { x: 0, y: -0.15, z: 1.2, duration: 2 }, 2.5)
-      .to(cameraGroup.rotation, { x: 0, y: 0, z: 0, duration: 2 }, 2.5)
-      
-      // Explode physical component sub-groups along original axes with detailed offsets
-      .to(parts.glassGroup.position, { z: 2.4, duration: 2 }, 2.5)       // Front elements move far forward
-      .to(parts.barrelGroup.position, { z: 1.5, duration: 2 }, 2.5)      // Lens barrels move forward
-      .to(parts.apertureGroup.position, { z: 0.9, duration: 2 }, 2.5)    // Internal aperture separates forward
-      .to(parts.mountGroup.position, { z: 0.45, duration: 2 }, 2.5)      // Chrome mount ring separates forward
-      .to(parts.viewfinderGroup.position, { y: 0.75, duration: 2 }, 2.5)  // Viewfinder pulls upward
-      .to(parts.controlsGroup.position, { y: 0.5, duration: 2 }, 2.5)    // Dials/buttons pull upward
-      .to(parts.gripGroup.position, { x: 0.35, duration: 2 }, 2.5)       // Grip expands outward to the right
-      // bodyGroup remains anchored at 0,0,0
+      // STAGE 02: 15% to 30% scroll (Timeline 1.5 to 3.0)
+      .fromTo(stage2Ref.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: "power1.out" }, 1.5)
+      .to(stage2Ref.current, { opacity: 0, y: -15, duration: 0.5, ease: "power1.in" }, 2.5)
 
-      .to(ch1Ref.current, { opacity: 0, y: -40, duration: 1 }, 2.5)
-      .to(ch2Ref.current, { opacity: 1, y: 0, duration: 1 }, 3.5)
+      // STAGE 03: 30% to 45% scroll (Timeline 3.0 to 4.5)
+      .fromTo(stage3Ref.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: "power1.out" }, 3.0)
+      .to(stage3Ref.current, { opacity: 0, y: -15, duration: 0.5, ease: "power1.in" }, 4.0)
 
-      // --- PHASE 4: Full Exploded hold & backdrop dark transition (50% to 60% scroll) ---
-      // Hold exploded positions, rotate parent group slightly to reveal visual spacing depth
-      .to(cameraGroup.rotation, { y: 0.12, x: 0.06, duration: 1.5 }, 4.5)
-      
-      // Blend Cyclorama backdrop to deep charcoal slate
-      .to(cycMat.color, { r: 0.03, g: 0.05, b: 0.09, duration: 1.5 }, 4.5)
-      .to(backdropLight.color, { r: 0.05, g: 0.1, b: 0.18, duration: 1.5 }, 4.5)
-      .to(backdropLight, { intensity: 3.0, duration: 1.5 }, 4.5)
-      .to(keySpotLight.color, { r: 0.8, g: 0.9, b: 1.0, duration: 1.5 }, 4.5)
-      .to(keySpotLight, { intensity: 2.0, duration: 1.5 }, 4.5)
-      .to(fillLight, { intensity: 0.1, duration: 1.5 }, 4.5)
-      .to(rimSpotLight, { intensity: 4.0, duration: 1.5 }, 4.5)
-      
-      .to(ch2Ref.current, { opacity: 0, y: -40, duration: 1 }, 4.5)
-      .to(ch3Ref.current, { opacity: 1, y: 0, duration: 1 }, 5.0)
+      // STAGE 04: 45% to 65% scroll (Timeline 4.5 to 6.5) — Centerpiece Exploded View
+      .fromTo(stage4Ref.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: "power1.out" }, 4.5)
+      .to(stage4Ref.current, { opacity: 0, y: -15, duration: 0.5, ease: "power1.in" }, 6.0)
 
-      // --- PHASE 5: Precision Reassembly (60% to 90% scroll) ---
-      // Camera faces front-aligned again
-      .to(cameraGroup.rotation, { x: 0, y: 0, z: 0, duration: 2 }, 6.0)
-      
-      // Reassemble parts back to exact coordinates with magnetic precision deceleration
-      .to(parts.glassGroup.position, { z: 0, ease: assemblyEase, duration: 2.5 }, 6.0)
-      .to(parts.barrelGroup.position, { z: 0, ease: assemblyEase, duration: 2.3 }, 6.2)
-      .to(parts.apertureGroup.position, { z: 0, ease: assemblyEase, duration: 2.1 }, 6.4)
-      .to(parts.mountGroup.position, { z: 0, ease: assemblyEase, duration: 1.9 }, 6.6)
-      .to(parts.viewfinderGroup.position, { y: 0, ease: assemblyEase, duration: 2.1 }, 6.4)
-      .to(parts.controlsGroup.position, { y: 0, ease: assemblyEase, duration: 2.0 }, 6.5)
-      .to(parts.gripGroup.position, { x: 0, ease: assemblyEase, duration: 1.8 }, 6.7)
-      
-      .to(ch3Ref.current, { opacity: 0, y: -40, duration: 1 }, 6.0)
-      .to(ch4Ref.current, { opacity: 1, y: 0, duration: 1 }, 7.2)
-      
-      // Post-production raw/graded visual comparison cards
-      .to(frameRawRef.current, { opacity: 0.9, scale: 1, x: -300, y: -90, duration: 1.5 }, 6.8)
-      .to(frameGradedRef.current, { opacity: 1, scale: 1.05, x: -130, y: 130, duration: 2.0 }, 7.2)
+      // STAGE 05: 65% to 85% scroll (Timeline 6.5 to 8.5) — Reassembly
+      .fromTo(stage5Ref.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: "power1.out" }, 6.5)
+      .to(stage5Ref.current, { opacity: 0, y: -15, duration: 0.5, ease: "power1.in" }, 8.0)
 
-      // --- PHASE 6: Lock & Release (90% to 100% scroll) ---
-      // Fully assembled camera scales down and moves up
-      .to(cameraGroup.position, { x: 0, y: 1.4, z: -2.0, duration: 2.5 }, 8.8)
-      .to(cameraGroup.rotation, { y: Math.PI * 2, x: 0, z: 0, duration: 2.5 }, 8.8)
-      .to(cameraGroup.scale, { x: 0.45, y: 0.45, z: 0.45, duration: 2.5 }, 8.8)
-      
-      // Reset studio backdrop colors
-      .to(cycMat.color, { r: 0.98, g: 0.97, b: 0.96, duration: 1.5 }, 8.8)
-      .to(backdropLight.color, { r: 1.0, g: 0.97, b: 0.95, duration: 1.5 }, 8.8)
-      .to(backdropLight, { intensity: 5.0, duration: 1.5 }, 8.8)
-      .to(keySpotLight.color, { r: 1.0, g: 1.0, b: 1.0, duration: 1.5 }, 8.8)
-      .to(keySpotLight, { intensity: 4.0, duration: 1.5 }, 8.8)
-      .to(fillLight, { intensity: 0.8, duration: 1.5 }, 8.8)
-      .to(rimSpotLight, { intensity: 2.5, duration: 1.5 }, 8.8)
-      
-      .to(frameRawRef.current, { opacity: 0, scale: 0.5, duration: 1 }, 8.8)
-      .to(frameGradedRef.current, { opacity: 0, scale: 0.5, duration: 1 }, 8.8)
-      .to(ch4Ref.current, { opacity: 0, y: -40, duration: 1 }, 8.8)
-      .to(ch5Ref.current, { opacity: 1, y: 0, duration: 1.5 }, 9.5);
+      // STAGE 06: 85% to 100% scroll (Timeline 8.5 to 10.0) — Final Assembled Showcase
+      .fromTo(stage6Ref.current, { opacity: 0, y: 15 }, { opacity: 1, y: 0, duration: 0.5, ease: "power1.out" }, 8.5);
 
-    // --- 8. Render & Animation Loop ---
-    let animationFrameId: number;
+    // Continuous 60fps render loop with smooth frame interpolation
+    const renderLoop = () => {
+      const diff = targetFrameRef.current - currentFrameRef.current;
 
-    const animate = () => {
-      // Smooth interpolation for mouse movement (inertia)
-      mouse.current.x += (mouse.current.targetX - mouse.current.x) * 0.04;
-      mouse.current.y += (mouse.current.targetY - mouse.current.y) * 0.04;
+      // Smooth interpolation constant (0.22 gives instant response with cinematic smoothness)
+      if (Math.abs(diff) > 0.005) {
+        currentFrameRef.current += diff * 0.22;
+        const targetInt = Math.round(currentFrameRef.current);
 
-      // Small responsive pointer tilt
-      camera.position.x = mouse.current.x * 0.4;
-      camera.position.y = -mouse.current.y * 0.4;
-      camera.lookAt(new THREE.Vector3(0, 0, 0));
+        if (targetInt !== lastRenderedFrameRef.current) {
+          drawFrame(targetInt);
+        }
+      }
 
-      renderer.render(scene, camera);
-      animationFrameId = requestAnimationFrame(animate);
+      animFrameIdRef.current = requestAnimationFrame(renderLoop);
     };
-    animate();
+    renderLoop();
 
-    // Resize handler
-    const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    };
-    window.addEventListener("resize", handleResize);
-
-    // --- Clean Up ---
+    // Cleanup
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("resize", handleResize);
-      cancelAnimationFrame(animationFrameId);
-      renderer.dispose();
+      if (animFrameIdRef.current) cancelAnimationFrame(animFrameIdRef.current);
       timeline.kill();
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
     };
-  }, []);
+  }, [handleResize, drawFrame]);
+
+  if (isReducedMotion) {
+    return (
+      <section className="relative w-full py-20 bg-[#FAF9F6] text-slate-900 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+              <span className="text-[10px] font-black uppercase tracking-widest">
+                01 — THE CREATIVE NETWORK
+              </span>
+            </div>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-950 leading-[0.95]">
+              Every story starts with the right creative.
+            </h1>
+            <p className="text-sm md:text-base text-slate-600 max-w-md leading-relaxed">
+              Find photographers, videographers, and editors who understand your vision and know how to bring it to life.
+            </p>
+            <div className="pt-2">
+              <Link
+                href="/freelancers"
+                className="bg-primary hover:bg-primary-hover text-white font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              >
+                <span>Explore Creatives</span>
+                <span>&rarr;</span>
+              </Link>
+            </div>
+          </div>
+          <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl bg-transparent">
+            <img
+              src="/camera-frames/frame-0001.webp"
+              alt="Camera commercial hero"
+              className="w-full h-full object-contain"
+            />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[450vh] bg-[#FAF9F6]"
+      className="relative w-full h-[500vh] bg-[#FAF9F6] m-0 p-0 overflow-clip"
     >
-      {/* Pinned Viewport Container */}
+      {/* Full-Bleed Pinned Viewport Container (Edge-to-Edge, 100% width, 100vh) */}
       <div
         ref={stickyRef}
-        className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center"
+        className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center bg-[#FAF9F6] m-0 p-0"
       >
-        {/* Three.js Canvas */}
+        {/* Layer 0: Full-Bleed High-Resolution Canvas (z-0, 100% edge-to-edge coverage across all frames) */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 w-full h-full z-10 pointer-events-none"
+          className="absolute inset-0 w-full h-full block pointer-events-none z-0 m-0 p-0"
+          style={{ opacity: 1, filter: "none" }}
         />
 
-        {/* Loader Screen */}
-        {loading && (
-          <div className="absolute inset-0 z-50 flex flex-col justify-center items-center bg-[#FAF9F6] text-slate-900">
-            <h3 className="font-semibold text-lg uppercase tracking-wider mb-2">
-              Creative • Market
-            </h3>
-            <div className="w-16 h-0.5 bg-slate-200 overflow-hidden relative">
-              <div className="absolute top-0 left-0 h-full w-1/2 bg-primary rounded animate-pulse"></div>
-            </div>
-          </div>
-        )}
-
-        {/* HTML Text Overlays */}
-
-        {/* Chapter 0: Initial Hero Load */}
+        {/* Layer 1: Ultra-Subtle Left Text Gradient Only (z-10, max 38% width, never washes out camera) */}
         <div
-          ref={ch0Ref}
-          className="absolute left-[6%] lg:left-[10%] max-w-lg px-6 text-left space-y-6 z-20 transition-all duration-300 pointer-events-auto"
+          className="absolute inset-0 pointer-events-none z-10 m-0 p-0"
+          style={{
+            background:
+              "linear-gradient(90deg, rgba(250,249,246,0.48) 0%, rgba(250,249,246,0.18) 18%, rgba(250,249,246,0.02) 28%, transparent 38%)",
+          }}
+        />
+
+        {/* Layer 2: Synchronized Storytelling Stages Overlaid in Consistent Anchor Position (z-20) */}
+
+        {/* STAGE 01: 0% TO 15% (Active on initial load) */}
+        <div
+          ref={stage1Ref}
+          className="absolute left-[6%] lg:left-[10%] max-w-lg px-6 text-left space-y-6 z-20 pointer-events-auto opacity-100 translate-y-0"
         >
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
             <span className="text-[10px] font-black uppercase tracking-widest">
-              THE PREMIUM CREATIVE NETWORK
+              01 — THE CREATIVE NETWORK
             </span>
           </div>
-          <h1 className="text-5xl lg:text-[76px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl">
-            Find the right creative <br />
-            for every story.
+          <h1
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+          >
+            Every story starts with the right creative.
           </h1>
-          <p className="text-sm lg:text-base text-slate-500 font-normal max-w-md leading-relaxed">
-            Discover photographers, videographers, and editors for projects worth remembering.
+          <p
+            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+          >
+            Find photographers, videographers, and editors who understand your vision and know how to bring it to life.
           </p>
           <div className="flex gap-4 pt-2">
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
             >
-              <span>Explore Talent</span>
+              <span>Explore Creatives</span>
               <span>&rarr;</span>
             </Link>
           </div>
-          <div className="pt-8 animate-bounce">
-            <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 block mb-1">
+          <div className="pt-6 animate-bounce">
+            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 block mb-1">
               Scroll to explore
             </span>
-            <span className="text-slate-400">&darr;</span>
+            <span className="text-slate-500">&darr;</span>
           </div>
         </div>
 
-        {/* Chapter 1: Photography */}
+        {/* STAGE 02: 15% TO 30% */}
         <div
-          ref={ch1Ref}
-          className="absolute left-[8%] lg:left-[12%] max-w-md px-6 text-left space-y-4 z-20 opacity-0 translate-y-8 transition-all duration-300 pointer-events-none"
+          ref={stage2Ref}
+          className="absolute left-[6%] lg:left-[10%] max-w-lg px-6 text-left space-y-6 z-20 pointer-events-auto opacity-0 translate-y-4"
         >
-          <span className="text-[9px] font-black uppercase tracking-widest text-primary block">
-            01 — DISCIPLINE
-          </span>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-950 leading-tight">
-            PHOTOGRAPHY
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              02 — FIND YOUR MATCH
+            </span>
+          </div>
+          <h2
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+          >
+            Talent built around your vision.
           </h2>
-          <h3 className="text-lg font-bold text-slate-800 leading-snug">
-            Capture more than a moment.
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            Discover and book vetted photographers for portraits, events, fashion, brands, and cinematic stories.
+          <p
+            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+          >
+            Browse specialists by craft, style, experience, and project needs.
           </p>
-          <div className="pt-2 pointer-events-auto">
-            <Link
-              href="/freelancers?profession=PHOTOGRAPHER"
-              className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
-            >
-              <span>Explore Photographers</span>
-              <span>&rarr;</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Chapter 2: Exploded details */}
-        <div
-          ref={ch2Ref}
-          className="absolute left-[8%] lg:left-[12%] max-w-md px-6 text-left space-y-4 z-20 opacity-0 translate-y-8 transition-all duration-300 pointer-events-none"
-        >
-          <span className="text-[9px] font-black uppercase tracking-widest text-primary block">
-            02 — STRUCTURE
-          </span>
-          <h2 className="text-4xl md:text-5xl font-black text-slate-950 leading-tight">
-            PRECISION DETAILS
-          </h2>
-          <h3 className="text-lg font-bold text-slate-800 leading-snug">
-            Every story starts with the details.
-          </h3>
-          <p className="text-xs text-slate-500 leading-relaxed">
-            Suspended alignment showing complete Sony mirrorless chassis architecture. Precision behind every frame.
-          </p>
-        </div>
-
-        {/* Chapter 3: Videography */}
-        <div
-          ref={ch3Ref}
-          className="absolute right-[8%] lg:right-[12%] max-w-md px-6 text-left space-y-4 z-20 opacity-0 translate-y-8 transition-all duration-300 pointer-events-none"
-        >
-          <span className="text-[9px] font-black uppercase tracking-widest text-primary block">
-            03 — DISCIPLINE
-          </span>
-          <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">
-            VIDEOGRAPHY
-          </h2>
-          <h3 className="text-lg font-bold text-slate-200 leading-snug">
-            Bring every story to life.
-          </h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            From high-end commercial campaigns to wedding documentaries, find filmmakers who know how to move an audience.
-          </p>
-          <div className="pt-2 pointer-events-auto">
-            <Link
-              href="/freelancers?profession=VIDEOGRAPHER"
-              className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
-            >
-              <span>Explore Videographers</span>
-              <span>&rarr;</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Chapter 4: Post-Production */}
-        <div
-          ref={ch4Ref}
-          className="absolute right-[8%] lg:right-[12%] max-w-md px-6 text-left space-y-4 z-20 opacity-0 translate-y-8 transition-all duration-300 pointer-events-none"
-        >
-          <span className="text-[9px] font-black uppercase tracking-widest text-primary block">
-            04 — DISCIPLINE
-          </span>
-          <h2 className="text-4xl md:text-5xl font-black text-white leading-tight">
-            POST-PRODUCTION
-          </h2>
-          <h3 className="text-lg font-bold text-slate-200 leading-snug">
-            Where every frame finds its final form.
-          </h3>
-          <p className="text-xs text-slate-400 leading-relaxed">
-            Connect with specialized video editors, colorists, and motion designers who turn raw footage into finished masterpieces.
-          </p>
-          <div className="pt-2 pointer-events-auto">
-            <Link
-              href="/freelancers?profession=VIDEO_EDITOR"
-              className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-primary hover:text-primary-hover transition-colors"
-            >
-              <span>Explore Editors</span>
-              <span>&rarr;</span>
-            </Link>
-          </div>
-        </div>
-
-        {/* Post-Production Visual Frames */}
-        <div
-          ref={frameRawRef}
-          className="absolute z-20 w-52 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 opacity-0 scale-75 pointer-events-none transition-all duration-300"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=400&q=80"
-            alt="Unedited flat log input"
-            className="w-full h-full object-cover grayscale brightness-75 contrast-75"
-          />
-          <div className="absolute top-2 left-2 bg-slate-950/75 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded text-white tracking-widest">
-            RAW LOG INPUT
-          </div>
-        </div>
-        <div
-          ref={frameGradedRef}
-          className="absolute z-25 w-56 aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/20 opacity-0 scale-75 pointer-events-none transition-all duration-300"
-        >
-          <img
-            src="https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=400&q=80"
-            alt="Color graded output"
-            className="w-full h-full object-cover saturate-125 contrast-110 brightness-95"
-          />
-          <div className="absolute top-2 left-2 bg-primary/95 text-[8px] font-extrabold uppercase px-2 py-0.5 rounded text-white tracking-widest">
-            FINAL GRADED OUTPUT
-          </div>
-        </div>
-
-        {/* Chapter 5: One Marketplace Reveal */}
-        <div
-          ref={ch5Ref}
-          className="absolute max-w-4xl px-6 text-center space-y-8 z-20 opacity-0 translate-y-8 transition-all duration-300 pointer-events-none"
-        >
-          <span className="text-[10px] font-black uppercase tracking-widest text-primary block">
-            ONE MARKETPLACE
-          </span>
-          <h2 className="text-5xl md:text-7xl font-black tracking-tight text-slate-950 leading-[0.95] max-w-3xl mx-auto">
-            Every creative discipline. <br />
-            One place to find it.
-          </h2>
-          <p className="text-sm md:text-base text-slate-500 font-normal max-w-xl mx-auto leading-relaxed">
-            Hire verified creators and launch your creative projects securely on the platform.
-          </p>
-          <div className="flex justify-center gap-4 pt-4 pointer-events-auto">
+          <div className="flex gap-4 pt-2">
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] uppercase tracking-wider px-8 py-4 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
             >
-              <span>Get Started</span>
+              <span>Discover Talent</span>
+              <span>&rarr;</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* STAGE 03: 30% TO 45% */}
+        <div
+          ref={stage3Ref}
+          className="absolute left-[6%] lg:left-[10%] max-w-lg px-6 text-left space-y-6 z-20 pointer-events-auto opacity-0 translate-y-4"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              03 — EVERY DETAIL MATTERS
+            </span>
+          </div>
+          <h2
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+          >
+            The right specialist changes everything.
+          </h2>
+          <p
+            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+          >
+            From the first frame to the final cut, work with creatives who understand every detail of the process.
+          </p>
+          <div className="flex gap-4 pt-2">
+            <Link
+              href="/#how-it-works"
+              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+            >
+              <span>How It Works</span>
+              <span>&rarr;</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* STAGE 04: 45% TO 65% (Centerpiece Exploded View Hold) */}
+        <div
+          ref={stage4Ref}
+          className="absolute left-[6%] lg:left-[10%] max-w-lg px-6 text-left space-y-6 z-20 pointer-events-auto opacity-0 translate-y-4"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              04 — ONE CREATIVE ECOSYSTEM
+            </span>
+          </div>
+          <h2
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+          >
+            Different skills. <br className="hidden sm:inline" />
+            One complete story.
+          </h2>
+          <p
+            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+          >
+            Photography, videography, editing, color, and post-production — find the expertise your project needs.
+          </p>
+          <div className="flex gap-4 pt-2">
+            <Link
+              href="/freelancers"
+              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+            >
+              <span>Explore Services</span>
+              <span>&rarr;</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* STAGE 05: 65% TO 85% (Reassembly) */}
+        <div
+          ref={stage5Ref}
+          className="absolute left-[6%] lg:left-[10%] max-w-lg px-6 text-left space-y-6 z-20 pointer-events-auto opacity-0 translate-y-4"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              05 — BUILT TOGETHER
+            </span>
+          </div>
+          <h2
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+          >
+            From idea to final delivery.
+          </h2>
+          <p
+            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+          >
+            Find your creative, collaborate with confidence, review the work, and bring the entire project together.
+          </p>
+          <div className="flex gap-4 pt-2">
+            <Link
+              href="/freelancers"
+              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+            >
+              <span>Start a Project</span>
+              <span>&rarr;</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* STAGE 06: 85% TO 100% (Final Assembled Showcase) */}
+        <div
+          ref={stage6Ref}
+          className="absolute left-[6%] lg:left-[10%] max-w-lg px-6 text-left space-y-6 z-20 pointer-events-auto opacity-0 translate-y-4"
+        >
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
+            <span className="text-[10px] font-black uppercase tracking-widest">
+              06 — YOUR STORY STARTS HERE
+            </span>
+          </div>
+          <h2
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+          >
+            Find the creative who gets it.
+          </h2>
+          <p
+            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+          >
+            Connect with the right talent and turn your next idea into something worth remembering.
+          </p>
+          <div className="flex gap-4 pt-2">
+            <Link
+              href="/register"
+              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+            >
+              <span>Join Marketplace</span>
               <span>&rarr;</span>
             </Link>
           </div>

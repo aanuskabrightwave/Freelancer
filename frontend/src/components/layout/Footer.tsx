@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-950 text-slate-400 border-t border-white/5 pt-20 pb-10 mt-auto font-sans">
+    <footer className="bg-[#101114] text-slate-400 border-t border-white/10 pt-20 pb-12 font-sans selection:bg-primary/20">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         
         {/* Main Columns */}
@@ -16,45 +16,60 @@ export default function Footer() {
               <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
               <span>Market</span>
             </Link>
-            <p className="text-xs max-w-sm text-slate-400 leading-relaxed">
-              A premium marketplace connecting Clients with verified professional creative talent including photographers, videographers, editors, and aerial cinematographers.
+            <p className="text-xs max-w-sm text-slate-400 leading-relaxed font-normal">
+              A premium creative network connecting brands, directors, and agencies with verified photographers, cinematographers, colorists, and post-production specialists.
             </p>
           </div>
 
-          {/* Explore Column */}
+          {/* Explore */}
           <div>
-            <h4 className="font-extrabold text-[10px] text-white uppercase tracking-widest mb-6">Explore</h4>
+            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.2em] mb-6">Explore</h4>
             <ul className="space-y-3.5 text-xs">
               <li>
                 <Link href="/freelancers" className="hover:text-white transition-colors">
-                  Explore Creatives
+                  Creatives
                 </Link>
               </li>
               <li>
-                <Link href="/services" className="hover:text-white transition-colors">
-                  Services
+                <Link href="/freelancers?profession=PHOTOGRAPHER" className="hover:text-white transition-colors">
+                  Photography
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="hover:text-white transition-colors">
-                  How It Works
+                <Link href="/freelancers?profession=VIDEOGRAPHER" className="hover:text-white transition-colors">
+                  Videography
+                </Link>
+              </li>
+              <li>
+                <Link href="/freelancers?profession=VIDEO_EDITOR" className="hover:text-white transition-colors">
+                  Post-Production
+                </Link>
+              </li>
+              <li>
+                <Link href="/freelancers?profession=DRONE_OPERATOR" className="hover:text-white transition-colors">
+                  Production Support
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* For Clients */}
+          {/* Clients */}
           <div>
-            <h4 className="font-extrabold text-[10px] text-white uppercase tracking-widest mb-6">For Clients</h4>
+            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.2em] mb-6">Clients</h4>
             <ul className="space-y-3.5 text-xs">
               <li>
                 <Link href="/freelancers" className="hover:text-white transition-colors">
-                  Find Creatives
+                  Find Talent
                 </Link>
               </li>
               <li>
                 <Link href="/register" className="hover:text-white transition-colors">
                   Post a Project
+                </Link>
+              </li>
+              <li>
+                <Link href="/#how-it-works" className="hover:text-white transition-colors">
+                  How It Works
                 </Link>
               </li>
               <li>
@@ -65,47 +80,50 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* For Creators */}
+          {/* Creatives */}
           <div>
-            <h4 className="font-extrabold text-[10px] text-white uppercase tracking-widest mb-6">For Creators</h4>
+            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.2em] mb-6">Creatives</h4>
             <ul className="space-y-3.5 text-xs">
               <li>
                 <Link href="/register" className="hover:text-white transition-colors">
-                  Join as Creator
+                  Join Marketplace
                 </Link>
               </li>
               <li>
-                <Link href="/projects" className="hover:text-white transition-colors">
-                  Browse Projects
+                <Link href="/register" className="hover:text-white transition-colors">
+                  Create Profile
                 </Link>
               </li>
               <li>
                 <Link href="/login" className="hover:text-white transition-colors">
-                  Creator Login
+                  Projects & Dashboard
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" className="hover:text-white transition-colors">
+                  Earnings
                 </Link>
               </li>
             </ul>
           </div>
+
         </div>
 
         {/* Bottom Row */}
-        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-500">
           <div>
-            <p>&copy; {new Date().getFullYear()} CreativeMarket. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} CreativeMarket Network Inc. All rights reserved.</p>
           </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2">
-            <Link href="/about" className="hover:text-white transition-colors">
-              About
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-slate-400">
+            <Link href="/freelancers" className="hover:text-white transition-colors">
+              Talent Directory
             </Link>
-            <Link href="/contact" className="hover:text-white transition-colors">
-              Contact
+            <Link href="/services" className="hover:text-white transition-colors">
+              Production Services
             </Link>
-            <a href="#" className="hover:text-white transition-colors">
-              Privacy Policy
-            </a>
-            <a href="#" className="hover:text-white transition-colors">
-              Terms of Service
-            </a>
+            <Link href="/#how-it-works" className="hover:text-white transition-colors">
+              Workflow Guide
+            </Link>
           </div>
         </div>
 
