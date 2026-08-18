@@ -22,17 +22,16 @@ export const authService = {
     return api.post("/auth/login", credentials);
   },
 
-  async getCurrentUser(token?: string): Promise<any> {
-    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-    return api.get("/auth/me", { headers });
+  async getCurrentUser(): Promise<any> {
+    return api.get("/auth/me");
   },
 
   async logout(): Promise<any> {
     return api.post("/auth/logout", {});
   },
 
-  async refreshAccessToken(refreshToken: string): Promise<any> {
-    return api.post("/auth/refresh", { refresh_token: refreshToken });
+  async refreshAccessToken(): Promise<any> {
+    return api.post("/auth/refresh", {});
   },
 
   async forgotPassword(email: string): Promise<any> {
@@ -47,8 +46,7 @@ export const authService = {
     return api.post("/auth/verify-email", { token });
   },
 
-  async sendVerification(token?: string): Promise<any> {
-    const headers = token ? { Authorization: `Bearer ${token}` } : undefined;
-    return api.post("/auth/send-verification", {}, { headers });
+  async sendVerification(): Promise<any> {
+    return api.post("/auth/send-verification", {});
   }
 };

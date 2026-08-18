@@ -114,7 +114,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
     {
       group: "My Business",
       items: [
-        { name: "Profile", href: "/freelancer/profile", icon: User },
+        { name: "My Profile", href: "/freelancer/profile", icon: User },
         { name: "Portfolio", href: "/freelancer/portfolio", icon: Image },
         { name: "Services", href: "/freelancer/services", icon: Briefcase },
         { name: "Availability", href: "/freelancer/availability", icon: Clock }

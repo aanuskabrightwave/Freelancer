@@ -6,7 +6,7 @@ interface RequestOptions extends RequestInit {
 
 export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const { params, headers, ...restOptions } = options;
-  
+
   // Construct URL with query parameters
   let url = `${API_URL}${endpoint}`;
   if (params) {
@@ -15,18 +15,13 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
   }
 
   const defaultHeaders: Record<string, string> = {};
-  
+
   // Only set application/json content-type if the body is not FormData
   if (options.body && !(options.body instanceof FormData)) {
     defaultHeaders["Content-Type"] = "application/json";
   }
 
-  if (typeof window !== "undefined") {
-    const token = localStorage.getItem("accessToken");
-    if (token) {
-      defaultHeaders["Authorization"] = `Bearer ${token}`;
-    }
-  }
+
 
   // If the body is FormData, make sure we do NOT pass content-type: multipart/form-data explicitly,
   // because the browser needs to set the boundary automatically!
@@ -40,18 +35,25 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
 
   const response = await fetch(url, {
     headers: finalHeaders,
+    credentials: "include", // Essential for HttpOnly cookies
     ...restOptions,
   });
 
   if (!response.ok) {
     let errorMessage = "An error occurred while fetching the data.";
+    let errorData: any = {};
     try {
-      const errorData = await response.json();
+      errorData = await response.json();
       errorMessage = errorData.detail || errorMessage;
     } catch {
       // If response is not JSON
     }
-    throw new Error(errorMessage);
+    const apiError = new Error(errorMessage) as any;
+    apiError.response = {
+      status: response.status,
+      data: errorData
+    };
+    throw apiError;
   }
 
   return response.json() as Promise<T>;
@@ -60,14 +62,14 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
 export const api = {
   get: <T>(endpoint: string, options?: RequestOptions) =>
     apiFetch<T>(endpoint, { ...options, method: "GET" }),
-    
+
   post: <T>(endpoint: string, body: any, options?: RequestOptions) =>
     apiFetch<T>(endpoint, {
       ...options,
       method: "POST",
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
-    
+
   put: <T>(endpoint: string, body: any, options?: RequestOptions) =>
     apiFetch<T>(endpoint, {
       ...options,
@@ -81,7 +83,7 @@ export const api = {
       method: "PATCH",
       body: body instanceof FormData ? body : JSON.stringify(body),
     }),
-    
+
   delete: <T>(endpoint: string, options?: RequestOptions) =>
     apiFetch<T>(endpoint, { ...options, method: "DELETE" }),
 };

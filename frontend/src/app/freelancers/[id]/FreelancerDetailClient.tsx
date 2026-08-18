@@ -10,6 +10,7 @@ import ReviewCard from "@/components/reviews/ReviewCard";
 import RatingDistribution from "@/components/reviews/RatingDistribution";
 import { reviewService } from "@/services/review.service";
 import Container from "@/components/ui/Container";
+import { useAuth } from "@/context/AuthContext";
 
 const PROFESSION_LABELS: Record<string, string> = {
   PHOTOGRAPHER: "Photographer",
@@ -26,8 +27,10 @@ const PROFESSION_LABELS: Record<string, string> = {
 
 export default function FreelancerDetailClient({ id }: { id: string }) {
   const router = useRouter();
+  const { user } = useAuth();
 
   const [profile, setProfile] = useState<any | null>(null);
+  const isOwnProfile = user && profile && user.id === profile.user_id;
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -219,8 +222,17 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
             <span className="text-3xl font-bold text-text-main">
               {profile.starting_price ? `₹${parseInt(profile.starting_price).toLocaleString()}` : "On Quote"}
             </span>
-            <div className="mt-2">
-              <FavouriteButton targetId={profile.id} type="freelancer" label="Save Creator" />
+            <div className="mt-2 w-full flex flex-col gap-2">
+              {isOwnProfile ? (
+                <button
+                  onClick={() => router.push("/freelancer/profile/edit")}
+                  className="w-full px-6 py-2.5 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-xl transition text-center"
+                >
+                  Edit Profile
+                </button>
+              ) : (
+                <FavouriteButton targetId={profile.id} type="freelancer" label="Save Creator" />
+              )}
             </div>
           </div>
         </div>
@@ -234,7 +246,27 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
             {/* Bio Card */}
             <div className="bg-surface-elevated border border-border-custom/60 rounded-3xl p-6 md:p-8 shadow-sm">
               <h2 className="text-base font-semibold text-text-main mb-4 uppercase tracking-wider text-[11px]">About Professional</h2>
-              <p className="text-text-sub text-sm leading-relaxed whitespace-pre-line font-normal">{profile.bio}</p>
+              <p className="text-text-sub text-sm leading-relaxed whitespace-pre-line font-normal mb-6">{profile.bio}</p>
+              
+              {(profile.website || profile.instagram || profile.behance) && (
+                <div className="flex flex-wrap gap-4 pt-4 border-t border-border-custom/50">
+                  {profile.website && (
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1.5">
+                      🔗 Website
+                    </a>
+                  )}
+                  {profile.instagram && (
+                    <a href={profile.instagram} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1.5">
+                      📸 Instagram
+                    </a>
+                  )}
+                  {profile.behance && (
+                    <a href={profile.behance} target="_blank" rel="noopener noreferrer" className="text-xs font-bold text-primary hover:text-primary-hover flex items-center gap-1.5">
+                      🎨 Behance
+                    </a>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Skills Card */}
@@ -457,23 +489,25 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
               </div>
 
               {/* Action buttons (Disabled) */}
-              <div className="space-y-2">
-                <button 
-                  disabled 
-                  className="w-full py-3 bg-primary/25 text-primary/60 text-xs font-bold rounded-xl border border-primary/10 cursor-not-allowed text-center"
-                >
-                  Book Professional
-                </button>
-                <button 
-                  disabled 
-                  className="w-full py-3 bg-surface text-text-muted text-xs font-bold rounded-xl border border-border-custom cursor-not-allowed text-center"
-                >
-                  Send Message
-                </button>
-                <span className="text-[10px] text-text-muted font-bold block text-center mt-3 uppercase tracking-wider">
-                  Booking & Messaging available in Phase 4
-                </span>
-              </div>
+              {!isOwnProfile && (
+                <div className="space-y-2">
+                  <button 
+                    disabled 
+                    className="w-full py-3 bg-primary/25 text-primary/60 text-xs font-bold rounded-xl border border-primary/10 cursor-not-allowed text-center"
+                  >
+                    Book Professional
+                  </button>
+                  <button 
+                    disabled 
+                    className="w-full py-3 bg-surface text-text-muted text-xs font-bold rounded-xl border border-border-custom cursor-not-allowed text-center"
+                  >
+                    Send Message
+                  </button>
+                  <span className="text-[10px] text-text-muted font-bold block text-center mt-3 uppercase tracking-wider">
+                    Booking & Messaging available in Phase 4
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Travel Radius details */}

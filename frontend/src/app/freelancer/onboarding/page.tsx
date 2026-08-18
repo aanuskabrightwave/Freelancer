@@ -65,6 +65,10 @@ export default function FreelancerOnboarding() {
   const [bio, setBio] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
   const [coverPhoto, setCoverPhoto] = useState("");
+  
+  const [website, setWebsite] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [behance, setBehance] = useState("");
 
   // Step 2: Professional Details
   const [primaryProfession, setPrimaryProfession] = useState("PHOTOGRAPHER");
@@ -130,6 +134,10 @@ export default function FreelancerOnboarding() {
           setCoverPhoto(prof.cover_photo_url || "");
           setPrimaryProfession(prof.primary_profession || "PHOTOGRAPHER");
           setExperienceYears(prof.experience_years ?? 0);
+          
+          setWebsite(prof.website || "");
+          setInstagram(prof.instagram || "");
+          setBehance(prof.behance || "");
           setCountry(prof.country || "India");
           setState(prof.state || "");
           setCity(prof.city || "");
@@ -210,6 +218,9 @@ export default function FreelancerOnboarding() {
         event_rate: eventRate ? parseFloat(eventRate) : null,
         profile_photo_url: profilePhoto || null,
         cover_photo_url: coverPhoto || null,
+        website: website || null,
+        instagram: instagram || null,
+        behance: behance || null,
       };
 
       if (step === 1) {
@@ -571,6 +582,40 @@ export default function FreelancerOnboarding() {
                 <div className="flex justify-between items-center text-xs text-slate-500 mt-1">
                   <span>Minimum 30 characters. Max 2000.</span>
                   <span className={bio.length < 30 ? "text-rose-400" : "text-emerald-400"}>{bio.length} characters</span>
+                </div>
+              </div>
+
+              {/* Social Links */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Website (Optional)</label>
+                  <input 
+                    type="url" 
+                    value={website} 
+                    onChange={(e) => setWebsite(e.target.value)} 
+                    placeholder="https://..."
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Instagram (Optional)</label>
+                  <input 
+                    type="url" 
+                    value={instagram} 
+                    onChange={(e) => setInstagram(e.target.value)} 
+                    placeholder="https://instagram.com/..."
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-slate-300 mb-2">Behance/Other (Optional)</label>
+                  <input 
+                    type="url" 
+                    value={behance} 
+                    onChange={(e) => setBehance(e.target.value)} 
+                    placeholder="https://behance.net/..."
+                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition"
+                  />
                 </div>
               </div>
             </div>

@@ -36,60 +36,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const router = useRouter();
 
-  // Helper to manage cookies client-side
-  const setCookie = (name: string, value: string, days: number) => {
-    const expires = new Date(Date.now() + days * 864e5).toUTCString();
-    document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax; Secure`;
-  };
 
-  const deleteCookie = (name: string) => {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-  };
-
-  // Helper to clear local storage and cookie tokens
+  // Helper to clear tokens state locally since cookies are handled by backend
   const clearTokens = () => {
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
-    deleteCookie("accessToken");
-    deleteCookie("refreshToken");
     setUser(null);
   };
 
   // Restore session on mount
   useEffect(() => {
     async function restoreSession() {
-      const accessToken = localStorage.getItem("accessToken");
-      const refreshToken = localStorage.getItem("refreshToken");
-
-      if (!accessToken && !refreshToken) {
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        // Try fetching user profile with current access token
-        if (accessToken) {
-          // Sync access token to cookie in case it was cleared/missing
-          setCookie("accessToken", accessToken, 1);
-          const profile = await authService.getCurrentUser();
-          setUser(profile);
-        } else {
-          throw new Error("No access token, need refresh");
-        }
+        // Try fetching user profile, API uses HttpOnly cookie automatically
+        const profile = await authService.getCurrentUser();
+        setUser(profile);
       } catch (err) {
         // Access token is invalid or expired, try to refresh
-        if (refreshToken) {
-          try {
-            const data = await authService.refreshAccessToken(refreshToken);
-            localStorage.setItem("accessToken", data.access_token);
-            setCookie("accessToken", data.access_token, 1);
-            const profile = await authService.getCurrentUser();
-            setUser(profile);
-          } catch (refreshErr) {
-            // Refresh token also expired/invalid
-            clearTokens();
-          }
-        } else {
+        try {
+          await authService.refreshAccessToken();
+          const profile = await authService.getCurrentUser();
+          setUser(profile);
+        } catch (refreshErr) {
+          // Refresh token also expired/invalid, or no cookies exist
           clearTokens();
         }
       } finally {
@@ -104,10 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     try {
       const data = await authService.login(credentials);
-      localStorage.setItem("accessToken", data.access_token);
-      localStorage.setItem("refreshToken", data.refresh_token);
-      setCookie("accessToken", data.access_token, 1);
-      setCookie("refreshToken", data.refresh_token, 7);
+      // Cookies are automatically set by the backend response
       setUser(data.user);
       
       // Determine redirection based on role

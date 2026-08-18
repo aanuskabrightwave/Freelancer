@@ -22,7 +22,7 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
     ],
     freelancer: [
       { name: "Dashboard", href: "/freelancer/dashboard" },
-      { name: "Profile", href: "/freelancer/profile" },
+      { name: "My Profile", href: "/freelancer/profile" },
       { name: "Portfolio", href: "/freelancer/portfolio" },
       { name: "Services", href: "/freelancer/services" },
       { name: "Projects", href: "/freelancer/projects" },

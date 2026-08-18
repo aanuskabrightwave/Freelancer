@@ -16,45 +16,6 @@ export default function LoginPage() {
   // Errors & States
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [guestLoadingRole, setGuestLoadingRole] = useState<"CLIENT" | "FREELANCER" | null>(null);
-
-  const showGuestButtons = 
-    process.env.NODE_ENV === "development" || 
-    process.env.NEXT_PUBLIC_APP_ENV === "development" ||
-    process.env.NEXT_PUBLIC_SHOW_GUEST_LOGIN === "true";
-
-  const handleGuestLogin = async (role: "CLIENT" | "FREELANCER") => {
-    setError(null);
-    setIsLoading(true);
-    setGuestLoadingRole(role);
-
-    const guestUsername = role === "CLIENT" 
-      ? process.env.NEXT_PUBLIC_GUEST_CLIENT_USERNAME 
-      : process.env.NEXT_PUBLIC_GUEST_FREELANCER_USERNAME;
-
-    const guestPassword = role === "CLIENT" 
-      ? process.env.NEXT_PUBLIC_GUEST_CLIENT_PASSWORD 
-      : process.env.NEXT_PUBLIC_GUEST_FREELANCER_PASSWORD;
-
-    if (!guestUsername || !guestPassword) {
-      setError(`Unable to access the demo ${role === "CLIENT" ? "Client" : "Freelancer"} account. Check that the development demo account exists.`);
-      setIsLoading(false);
-      setGuestLoadingRole(null);
-      return;
-    }
-
-    try {
-      await login({
-        identifier: guestUsername,
-        password: guestPassword,
-      });
-    } catch (err: any) {
-      setError(`Unable to access the demo ${role === "CLIENT" ? "Client" : "Freelancer"} account. Check that the development demo account exists.`);
-      console.error(`Guest login failed for ${role}:`, err);
-      setIsLoading(false);
-      setGuestLoadingRole(null);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -199,62 +160,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Guest development testing access buttons */}
-          {showGuestButtons && (
-            <div className="space-y-4 pt-6 border-t border-border-custom/50">
-              <div className="relative flex py-2 items-center justify-center">
-                <div className="flex-grow border-t border-border-custom/50"></div>
-                <span className="flex-shrink mx-4 text-[10px] text-text-sub font-bold uppercase tracking-wider">
-                  Or Continue As Guest
-                </span>
-                <div className="flex-grow border-t border-border-custom/50"></div>
-              </div>
-              
-              <div className="text-center text-[10px] text-text-muted font-semibold uppercase tracking-wider">
-                Quick Test Access
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  type="button"
-                  onClick={() => handleGuestLogin("CLIENT")}
-                  disabled={isLoading}
-                  className="flex-1 py-3 px-4 rounded-full border border-border-custom bg-surface hover:bg-surface-elevated text-text-main text-xs font-bold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  {isLoading && guestLoadingRole === "CLIENT" ? (
-                    <>
-                      <svg className="animate-spin h-3.5 w-3.5 text-text-main" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      <span>Entering Client...</span>
-                    </>
-                  ) : (
-                    <span>Guest as Client</span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => handleGuestLogin("FREELANCER")}
-                  disabled={isLoading}
-                  className="flex-1 py-3 px-4 rounded-full border border-border-custom bg-surface hover:bg-surface-elevated text-text-main text-xs font-bold transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer flex items-center justify-center gap-1.5"
-                >
-                  {isLoading && guestLoadingRole === "FREELANCER" ? (
-                    <>
-                      <svg className="animate-spin h-3.5 w-3.5 text-text-main" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                      </svg>
-                      <span>Entering Freelancer...</span>
-                    </>
-                  ) : (
-                    <span>Guest as Freelancer</span>
-                  )}
-                </button>
-              </div>
-            </div>
-          )}
 
           <div className="text-center text-xs text-text-sub pt-6 border-t border-border-custom/50">
             Don't have an account?{" "}

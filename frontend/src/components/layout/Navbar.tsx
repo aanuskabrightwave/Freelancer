@@ -44,8 +44,9 @@ export default function Navbar() {
           </Link>
           
           <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-text-sub">
-            <Link href="/freelancers" className="hover:text-text-main transition-colors">Explore Talent</Link>
+            <Link href="/freelancers" className="hover:text-text-main transition-colors">Explore Creatives</Link>
             <Link href="/services" className="hover:text-text-main transition-colors">Services</Link>
+            <Link href="/about" className="hover:text-text-main transition-colors">How It Works</Link>
             {isAuthenticated && user && (
               <>
                 {user.role === "CLIENT" && (

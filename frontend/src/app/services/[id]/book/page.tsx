@@ -104,6 +104,7 @@ function BookServiceContent() {
 
   const handleSubmitBooking = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitLoading) return;
     if (!user) {
       router.push("/login");
       return;
