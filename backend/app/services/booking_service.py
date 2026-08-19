@@ -143,6 +143,11 @@ class BookingService:
             "venue_address": booking_data.get("venue_address"),
             "agreed_amount": package.price,
             "price": package.price,
+            "deposit_amount": Decimal(str(package.price)) * Decimal("0.30"),
+            "deposit_paid_amount": Decimal("0.00"),
+            "remaining_balance": Decimal(str(package.price)),
+            "total_paid": Decimal("0.00"),
+            "payment_completion_state": "UNPAID",
             "notes": booking_data.get("notes"),
             "requirements_answers": requirements_answers
         }
@@ -228,6 +233,16 @@ class BookingService:
         if project.status == "AWARDED" or proposal.status == "ACCEPTED":
             raise HTTPException(status_code=400, detail="This proposal/project has already been awarded.")
 
+        # Retrieve freelancer profile and prevent self-booking
+        freelancer_profile = FreelancerRepository.get_profile_by_id(db, proposal.freelancer_profile_id)
+        if not freelancer_profile:
+            raise HTTPException(status_code=404, detail="Freelancer profile not found")
+        if freelancer_profile.user_id == client_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You cannot award a project proposal to yourself."
+            )
+
         # Check conflict availability check
         start_t = datetime.strptime(start_time_str, "%H:%M").time()
         end_t = datetime.strptime(end_time_str, "%H:%M").time()
@@ -271,6 +286,11 @@ class BookingService:
             "venue_address": venue_address,
             "agreed_amount": proposal.proposed_amount,
             "price": proposal.proposed_amount,
+            "deposit_amount": Decimal(str(proposal.proposed_amount)) * Decimal("0.30"),
+            "deposit_paid_amount": Decimal("0.00"),
+            "remaining_balance": Decimal(str(proposal.proposed_amount)),
+            "total_paid": Decimal("0.00"),
+            "payment_completion_state": "UNPAID",
             "confirmed_at": datetime.now(),
             "notes": f"Proposal Cover Letter: {proposal.cover_letter}"
         }
@@ -336,6 +356,21 @@ class BookingService:
                 detail="Booking not found."
             )
 
+        # Dynamic auto-completion check: if dispute window has expired, set status to COMPLETED
+        if booking.final_approved_at and booking.dispute_window_ends_at and booking.status != BookingStatus.COMPLETED:
+            if datetime.now() > booking.dispute_window_ends_at:
+                # Check for active disputes
+                from app.models.dispute import Dispute, DisputeStatus
+                active_dispute = db.query(Dispute).filter(
+                    Dispute.booking_id == booking.id,
+                    Dispute.status.in_([DisputeStatus.OPEN, DisputeStatus.UNDER_REVIEW, DisputeStatus.WAITING_FOR_CLIENT, DisputeStatus.WAITING_FOR_FREELANCER])
+                ).first()
+                if not active_dispute:
+                    booking.status = BookingStatus.COMPLETED
+                    booking.completed_at = booking.dispute_window_ends_at
+                    db.commit()
+                    db.refresh(booking)
+
         # Authorization check: must be the booking client OR the freelancer owner
         is_client = (booking.client_id == user.id)
         is_freelancer = False
@@ -384,6 +419,27 @@ class BookingService:
             )
 
         current = booking.status
+
+        # Strict State Machine Enforcement
+        ALLOWED_TRANSITIONS = {
+            BookingStatus.REQUESTED: [BookingStatus.PENDING_CONFIRMATION, BookingStatus.CONFIRMED, BookingStatus.CANCELLED, BookingStatus.REJECTED],
+            BookingStatus.PENDING_CONFIRMATION: [BookingStatus.CONFIRMED, BookingStatus.CANCELLED, BookingStatus.REJECTED],
+            BookingStatus.CONFIRMED: [BookingStatus.IN_PROGRESS, BookingStatus.RESCHEDULE_REQUESTED, BookingStatus.CANCELLED],
+            BookingStatus.RESCHEDULE_REQUESTED: [BookingStatus.CONFIRMED, BookingStatus.CANCELLED],
+            BookingStatus.IN_PROGRESS: [BookingStatus.DELIVERY_PENDING, BookingStatus.CANCELLED, BookingStatus.RESCHEDULE_REQUESTED],
+            BookingStatus.DELIVERY_PENDING: [BookingStatus.COMPLETED, BookingStatus.CANCELLED],
+            BookingStatus.COMPLETED: [],  # Terminal state
+            BookingStatus.CANCELLED: [],  # Terminal state
+            BookingStatus.REJECTED: [],   # Terminal state
+        }
+
+        # Check if transition is allowed
+        allowed_next_states = ALLOWED_TRANSITIONS.get(current, [])
+        if new_status not in allowed_next_states and user.role != UserRole.ADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Invalid state transition from {current.value} to {new_status.value}."
+            )
 
         # Transition security rules
         if new_status == BookingStatus.CONFIRMED:
@@ -739,5 +795,184 @@ class BookingService:
         except Exception as e:
             import logging
             logging.getLogger("booking_service").exception("Reschedule response notification failed")
+
+        return booking
+
+    @staticmethod
+    def send_quote(db: Session, user: User, booking_id: int, proposed_amount: Decimal, deposit_amount: Decimal) -> Booking:
+        booking = BookingRepository.get_by_id(db, booking_id)
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found.")
+
+        # Auth check: must be the freelancer
+        freelancer_profile = FreelancerRepository.get_profile_by_id(db, booking.freelancer_profile_id)
+        if not freelancer_profile or freelancer_profile.user_id != user.id:
+            raise HTTPException(status_code=403, detail="Only the assigned freelancer can send a quotation.")
+
+        if booking.status != BookingStatus.REQUESTED:
+            raise HTTPException(status_code=400, detail="Quotations can only be sent for bookings in REQUESTED status.")
+
+        if proposed_amount <= 0:
+            raise HTTPException(status_code=400, detail="Proposed amount must be greater than zero.")
+        if deposit_amount < 0 or deposit_amount > proposed_amount:
+            raise HTTPException(status_code=400, detail="Deposit amount must be between 0 and the total proposed amount.")
+
+        # Update financials
+        booking.agreed_amount = proposed_amount
+        booking.price = proposed_amount
+        booking.deposit_amount = deposit_amount
+        booking.remaining_balance = proposed_amount
+        booking.status = BookingStatus.PENDING_CONFIRMATION
+        db.commit()
+        db.refresh(booking)
+
+        # Notify client
+        try:
+            from app.services.notification_service import NotificationService
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=booking.client_id,
+                event_code="QUOTE_RECEIVED",
+                title="New Quote Received",
+                message=f"You received a new quote of ₹{proposed_amount:,} (Deposit: ₹{deposit_amount:,}) for your booking request.",
+                action_url=f"/client/bookings/{booking.id}",
+                entity_type="booking",
+                entity_id=booking.id
+            )
+        except Exception:
+            pass
+
+        return booking
+
+    @staticmethod
+    def accept_quote(db: Session, user: User, booking_id: int) -> Booking:
+        booking = BookingRepository.get_by_id(db, booking_id)
+        if not booking or booking.client_id != user.id:
+            raise HTTPException(status_code=403, detail="Unauthorized action.")
+
+        if booking.status != BookingStatus.PENDING_CONFIRMATION:
+            raise HTTPException(status_code=400, detail="Booking is not in a quote review state.")
+
+        # Transition quote to accepted
+        booking.status = BookingStatus.CONFIRMED
+        booking.payment_completion_state = "UNPAID"
+        db.commit()
+        db.refresh(booking)
+
+        # Notify freelancer
+        try:
+            from app.services.notification_service import NotificationService
+            freelancer_profile = FreelancerRepository.get_profile_by_id(db, booking.freelancer_profile_id)
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=freelancer_profile.user_id,
+                event_code="QUOTE_ACCEPTED",
+                title="Quote Accepted",
+                message=f"The client accepted your quote for booking '{booking.booking_number}'. Deposit payment is pending.",
+                action_url=f"/freelancer/bookings/{booking.id}",
+                entity_type="booking",
+                entity_id=booking.id
+            )
+        except Exception:
+            pass
+
+        return booking
+
+    @staticmethod
+    def approve_preview(db: Session, user: User, booking_id: int) -> Booking:
+        booking = BookingRepository.get_by_id(db, booking_id)
+        if not booking or booking.client_id != user.id:
+            raise HTTPException(status_code=403, detail="Unauthorized action.")
+
+        # Find the latest preview/revision delivery
+        from app.models.delivery import Delivery, DeliveryType, DeliveryStatus
+        latest_delivery = db.query(Delivery).filter(
+            Delivery.booking_id == booking_id,
+            Delivery.delivery_type.in_([DeliveryType.PREVIEW, DeliveryType.REVISION])
+        ).order_by(Delivery.version.desc()).first()
+
+        if not latest_delivery:
+            raise HTTPException(status_code=400, detail="No preview delivery package found to approve.")
+
+        if latest_delivery.status == DeliveryStatus.APPROVED:
+            raise HTTPException(status_code=400, detail="Preview draft is already approved.")
+
+        # Set delivery status to approved
+        latest_delivery.status = DeliveryStatus.APPROVED
+        latest_delivery.approved_at = datetime.now()
+
+        # Update booking remaining balance details
+        booking.remaining_balance = booking.agreed_amount - booking.deposit_paid_amount
+        db.commit()
+        db.refresh(booking)
+
+        # Notify freelancer
+        try:
+            from app.services.notification_service import NotificationService
+            freelancer_profile = FreelancerRepository.get_profile_by_id(db, booking.freelancer_profile_id)
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=freelancer_profile.user_id,
+                event_code="PREVIEW_APPROVED",
+                title="Preview Approved",
+                message=f"The client approved your preview draft. Remaining balance payment is now required.",
+                action_url=f"/freelancer/bookings/{booking.id}",
+                entity_type="booking",
+                entity_id=booking.id
+            )
+        except Exception:
+            pass
+
+        return booking
+
+    @staticmethod
+    def approve_final_delivery(db: Session, user: User, booking_id: int) -> Booking:
+        booking = BookingRepository.get_by_id(db, booking_id)
+        if not booking or booking.client_id != user.id:
+            raise HTTPException(status_code=403, detail="Unauthorized action.")
+
+        if booking.payment_completion_state != "FULLY_PAID":
+            raise HTTPException(status_code=400, detail="Remaining balance must be paid before final approval.")
+
+        # Find latest final delivery
+        from app.models.delivery import Delivery, DeliveryType, DeliveryStatus
+        latest_delivery = db.query(Delivery).filter(
+            Delivery.booking_id == booking_id,
+            Delivery.delivery_type == DeliveryType.FINAL
+        ).order_by(Delivery.version.desc()).first()
+
+        if not latest_delivery:
+            raise HTTPException(status_code=400, detail="No final delivery package found to approve.")
+
+        if latest_delivery.status == DeliveryStatus.APPROVED:
+            raise HTTPException(status_code=400, detail="Final delivery is already approved.")
+
+        # Approve final delivery
+        latest_delivery.status = DeliveryStatus.APPROVED
+        latest_delivery.approved_at = datetime.now()
+
+        # Set dispute window timestamps
+        from datetime import timedelta
+        booking.final_approved_at = datetime.now()
+        booking.dispute_window_ends_at = datetime.now() + timedelta(hours=48)
+        db.commit()
+        db.refresh(booking)
+
+        # Notify freelancer
+        try:
+            from app.services.notification_service import NotificationService
+            freelancer_profile = FreelancerRepository.get_profile_by_id(db, booking.freelancer_profile_id)
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=freelancer_profile.user_id,
+                event_code="FINAL_APPROVED",
+                title="Final Project Approved",
+                message=f"The client approved the final project. The 48-hour dispute window has started.",
+                action_url=f"/freelancer/bookings/{booking.id}",
+                entity_type="booking",
+                entity_id=booking.id
+            )
+        except Exception:
+            pass
 
         return booking

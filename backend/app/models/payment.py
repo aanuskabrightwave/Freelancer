@@ -42,6 +42,7 @@ class Payment(Base):
     commission_percent_snapshot = Column(Numeric(precision=5, scale=2), nullable=False)
     
     status = Column(String(50), default="CREATED", nullable=False, index=True)
+    payment_type = Column(String(50), default="FULL", nullable=False)
     payment_method = Column(String(50), nullable=True)
     failure_code = Column(String(100), nullable=True)
     failure_description = Column(Text, nullable=True)

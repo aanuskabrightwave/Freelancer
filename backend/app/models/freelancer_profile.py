@@ -32,14 +32,14 @@ class FreelancerProfile(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, nullable=False, index=True)
     
-    professional_title = Column(String(120), nullable=False)
+    professional_title = Column(String(120), nullable=True)
     primary_profession = Column(Enum(FreelancerProfession), nullable=False, index=True)
-    bio = Column(Text, nullable=False)
-    experience_years = Column(Integer, nullable=False)
+    bio = Column(Text, nullable=True)
+    experience_years = Column(Integer, nullable=True)
 
-    city = Column(String(100), nullable=False, index=True)
-    state = Column(String(100), nullable=False)
-    country = Column(String(100), nullable=False)
+    city = Column(String(100), nullable=True, index=True)
+    state = Column(String(100), nullable=True)
+    country = Column(String(100), nullable=True)
 
     service_radius_km = Column(Integer, nullable=True)
     willing_to_travel = Column(Boolean, default=False, nullable=False)
@@ -51,6 +51,10 @@ class FreelancerProfile(Base):
 
     profile_photo_url = Column(String(500), nullable=True)
     cover_photo_url = Column(String(500), nullable=True)
+
+    website = Column(String(500), nullable=True)
+    instagram = Column(String(500), nullable=True)
+    behance = Column(String(500), nullable=True)
 
     profile_completion_percentage = Column(Integer, default=0, nullable=False)
     verification_status = Column(Enum(VerificationStatus), default=VerificationStatus.NOT_SUBMITTED, nullable=False)

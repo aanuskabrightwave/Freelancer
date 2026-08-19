@@ -39,23 +39,40 @@ class PaymentService:
         if booking.status == BookingStatus.CANCELLED:
             raise HTTPException(status_code=400, detail="Cannot pay for a cancelled booking.")
 
-        # Check existing payment
-        existing_payment = PaymentRepository.get_by_booking_id(db, booking_id)
-        if existing_payment and existing_payment.status == "CAPTURED":
-            raise HTTPException(status_code=400, detail="This booking has already been paid.")
+        # Determine charge amount and payment type based on booking stage
+        if booking.payment_completion_state == "UNPAID":
+            charge_amount = booking.deposit_amount
+            payment_type_val = "DEPOSIT"
+        elif booking.payment_completion_state == "DEPOSIT_PAID":
+            # Client pays remaining balance only after preview/draft has been submitted (or if it's already approved)
+            from app.models.delivery import Delivery, DeliveryType, DeliveryStatus
+            preview_approved = db.query(Delivery).filter(
+                Delivery.booking_id == booking.id,
+                Delivery.delivery_type.in_([DeliveryType.PREVIEW, DeliveryType.REVISION])
+            ).first()
+            if not preview_approved:
+                raise HTTPException(
+                    status_code=400,
+                    detail="You must receive a preview draft before paying the remaining balance."
+                )
+            
+            charge_amount = booking.remaining_balance
+            payment_type_val = "FINAL_BALANCE"
+        else:
+            raise HTTPException(status_code=400, detail="This booking has already been fully paid.")
 
-        if booking.agreed_amount <= 0:
-            raise HTTPException(status_code=400, detail="Booking agreed amount must be greater than zero.")
+        if charge_amount <= 0:
+            raise HTTPException(status_code=400, detail="Payment amount must be greater than zero.")
 
-        # Financial split splits
-        splits = FinancialService.calculate_splits(booking.agreed_amount)
+        # Financial split splits based on charge amount
+        splits = FinancialService.calculate_splits(charge_amount)
 
         # Generate unique number
         payment_number = PaymentService.generate_payment_number(db)
         provider = RazorpayProvider()
 
         # Create Razorpay Order
-        rzp_order = provider.create_order(payment_number, booking.agreed_amount)
+        rzp_order = provider.create_order(payment_number, charge_amount)
         provider_order_id = rzp_order["id"]
 
         payment_data = {
@@ -69,7 +86,8 @@ class PaymentService:
             "platform_fee_amount": splits["platform_fee_amount"],
             "freelancer_amount": splits["freelancer_amount"],
             "commission_percent_snapshot": splits["commission_percent"],
-            "status": "CREATED"
+            "status": "CREATED",
+            "payment_type": payment_type_val
         }
         
         # Save payment details
@@ -166,9 +184,26 @@ class PaymentService:
         payment.paid_at = datetime.now()
 
         # 1. Update Booking status or metadata
-        # We can record the booking as paid. Since we shouldn't overload status, we track paid via payment records.
-        # But we also add workspace notification event!
-        workspace = WorkspaceService.get_or_create_workspace(db, payment.client, payment.booking_id)
+        from decimal import Decimal
+        booking = payment.booking
+        if payment.payment_type == "DEPOSIT":
+            booking.deposit_paid_amount = payment.gross_amount
+            booking.total_paid = booking.total_paid + payment.gross_amount
+            booking.remaining_balance = booking.agreed_amount - booking.total_paid
+            booking.payment_completion_state = "DEPOSIT_PAID"
+            booking.status = BookingStatus.CONFIRMED
+            booking.confirmed_at = datetime.now()
+        else:  # FINAL_BALANCE or FULL
+            booking.total_paid = booking.agreed_amount
+            booking.remaining_balance = Decimal("0.00")
+            booking.payment_completion_state = "FULLY_PAID"
+
+        client_user = payment.client
+        if not client_user:
+            from app.models.user import User
+            client_user = db.query(User).filter(User.id == payment.client_id).first()
+
+        workspace = WorkspaceService.get_or_create_workspace(db, client_user, payment.booking_id)
 
         # Log system event
         WorkspaceService.log_workspace_event(
@@ -176,7 +211,7 @@ class PaymentService:
             workspace_id=workspace.id,
             event_type=WorkspaceEventType.MESSAGE_SYSTEM,
             actor_user_id=None,
-            title="Payment Completed",
+            title=f"Payment ({payment.payment_type}) Completed",
             description=f"Client payment of ₹{int(payment.gross_amount):,} completed successfully via {payment.provider}."
         )
 

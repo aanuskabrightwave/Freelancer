@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -44,12 +44,32 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     summary="Log in using email or phone number"
 )
-def login(credentials: LoginRequest, db: Session = Depends(get_db)):
+def login(credentials: LoginRequest, response: Response, db: Session = Depends(get_db)):
     """
     Log in a user using an identifier (email or phone) and a password.
     Returns access and refresh tokens.
     """
     user, access_token, refresh_token = AuthService.login(db, credentials)
+    
+    # Set HttpOnly cookies for secure session management
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,  # Set True in production (HTTPS)
+        samesite="lax",
+        max_age=3600  # 1 hour
+    )
+    
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=3600 * 24 * 7  # 7 days
+    )
+    
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
@@ -64,11 +84,32 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     summary="Refresh access token using refresh token"
 )
-def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
+def refresh_token(request_obj: Request, response: Response, request: RefreshTokenRequest = None, db: Session = Depends(get_db)):
     """
-    Generate a new access token using a valid refresh token.
+    Generate a new access token using a valid refresh token from HttpOnly cookie.
     """
-    access_token = AuthService.refresh_access_token(db, request.refresh_token)
+    # Prefer cookie, fallback to request body
+    token = request_obj.cookies.get("refresh_token")
+    if not token and request:
+        token = request.refresh_token
+        
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing refresh token",
+        )
+        
+    access_token = AuthService.refresh_access_token(db, token)
+    
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=3600
+    )
+    
     return {
         "access_token": access_token,
         "token_type": "bearer"
@@ -80,11 +121,12 @@ def refresh_token(request: RefreshTokenRequest, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     summary="Log out from the session"
 )
-def logout():
+def logout(response: Response):
     """
-    Logout is handled client-side by deleting the tokens.
-    This endpoint returns a successful status.
+    Logout clears the HttpOnly authentication cookies.
     """
+    response.delete_cookie(key="access_token", samesite="lax")
+    response.delete_cookie(key="refresh_token", samesite="lax")
     return {"detail": "Successfully logged out"}
 
 

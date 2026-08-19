@@ -1,24 +1,6 @@
 version: '3.8'
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: creative_marketplace_db
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-password}
-      MYSQL_DATABASE: ${DB_NAME:-creative_marketplace}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-password}
-    ports:
-      - "3307:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-password}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   backend:
     build:
       context: ./backend
@@ -29,20 +11,19 @@ services:
       - APP_NAME=${APP_NAME:-Creative Marketplace}
       - APP_ENV=${APP_ENV:-development}
       - APP_DEBUG=${APP_DEBUG:-true}
-      - DB_HOST=mysql
+      - DB_HOST=host.docker.internal
       - DB_PORT=3306
-      - DB_NAME=${DB_NAME:-creative_marketplace}
+      - DB_NAME=creative_marketplace
       - DB_USER=root
-      - DB_PASSWORD=${DB_PASSWORD:-password}
+      - DB_PASSWORD=root
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
       - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
-    depends_on:
-      mysql:
-        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   frontend:
     build:
@@ -62,5 +43,4 @@ services:
     depends_on:
       - backend
 
-volumes:
-  mysql_data:
+

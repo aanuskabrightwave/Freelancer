@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File,
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.dependencies.auth import get_current_active_user
+from app.dependencies.auth import get_current_active_user, get_current_user_optional
 from app.models.user import User, UserRole
 from app.models.freelancer_profile import FreelancerProfile
 from app.repositories.freelancer_repository import FreelancerRepository
@@ -21,6 +21,7 @@ from app.schemas.freelancer import (
     PortfolioCreate,
     PortfolioOut,
 )
+from app.schemas.project import FreelancerProposalOut
 
 router = APIRouter()
 
@@ -228,13 +229,79 @@ def list_public_freelancers(
 
 
 @router.get("/freelancers/{id}", response_model=PublicFreelancerProfileOut, summary="Get public details of a published freelancer profile")
-def get_public_freelancer_detail(id: int, db: Session = Depends(get_db)):
+def get_public_freelancer_detail(
+    id: int, 
+    current_user: Optional[User] = Depends(get_current_user_optional),
+    db: Session = Depends(get_db)
+):
     profile = FreelancerRepository.get_profile_by_id(db, id)
-    if not profile or not profile.is_profile_public:
+    if not profile:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Public freelancer profile not found."
         )
+    
+    # Allow viewing if the profile is public OR the current user is the owner
+    is_owner = current_user and current_user.id == profile.user_id
+    if not profile.is_profile_public and not is_owner:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Public freelancer profile not found."
+        )
+        
     profile.full_name = profile.user.full_name
     profile.trust_badges = [fb.badge.code for fb in profile.badges if fb.is_active]
     return profile
+
+
+@router.get(
+    "/freelancer/proposals",
+    response_model=List[FreelancerProposalOut],
+    summary="Get current freelancer's own proposals"
+)
+def get_my_proposals(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    from app.models.project import Proposal
+    from app.models.booking import Booking
+
+    if current_user.role != "FREELANCER":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only freelancer accounts can retrieve freelancer proposals"
+        )
+    
+    # Get freelancer profile
+    profile = db.query(FreelancerProfile).filter(FreelancerProfile.user_id == current_user.id).first()
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Freelancer profile not found"
+        )
+        
+    proposals = db.query(Proposal).filter(Proposal.freelancer_profile_id == profile.id).all()
+    
+    proposal_ids = [p.id for p in proposals]
+    bookings_map = {}
+    if proposal_ids:
+        bookings = db.query(Booking).filter(Booking.proposal_id.in_(proposal_ids)).all()
+        bookings_map = {b.proposal_id: b for b in bookings}
+        
+    result = []
+    for p in proposals:
+        booking_obj = bookings_map.get(p.id)
+        result.append({
+            "id": p.id,
+            "project_id": p.project_id,
+            "freelancer_profile_id": p.freelancer_profile_id,
+            "proposed_amount": p.proposed_amount,
+            "cover_letter": p.cover_letter,
+            "status": p.status,
+            "created_at": p.created_at,
+            "updated_at": p.updated_at,
+            "project": p.project,
+            "booking": booking_obj
+        })
+        
+    return result

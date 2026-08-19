@@ -112,6 +112,14 @@ class BookingResponse(BaseModel):
     currency: str
     price: Decimal  # Kept for backward compatibility
 
+    deposit_amount: Decimal
+    deposit_paid_amount: Decimal
+    remaining_balance: Decimal
+    total_paid: Decimal
+    payment_completion_state: str
+    final_approved_at: Optional[datetime] = None
+    dispute_window_ends_at: Optional[datetime] = None
+
     notes: Optional[str] = None
     requirements_answers: Optional[dict[str, Any]] = None
     cancellation_reason: Optional[str] = None

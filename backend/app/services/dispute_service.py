@@ -59,6 +59,12 @@ class DisputeService:
         if not is_client and not is_freelancer:
             raise HTTPException(status_code=403, detail="Only booking participants can open disputes.")
 
+        # 2.5 Verify dispute window is active
+        if not booking.dispute_window_ends_at:
+            raise HTTPException(status_code=400, detail="Dispute window has not started yet. You must approve the final project first.")
+        if datetime.now() > booking.dispute_window_ends_at:
+            raise HTTPException(status_code=400, detail="The 48-hour dispute window has expired.")
+
         # 3. Verify duplicate protection
         existing = db.query(Dispute).filter(
             Dispute.booking_id == booking_id,

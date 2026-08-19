@@ -77,14 +77,14 @@ class PortfolioOut(BaseModel):
 
 # Profile Schemas
 class FreelancerProfileBase(BaseModel):
-    professional_title: str = Field(..., min_length=3, max_length=120)
+    professional_title: Optional[str] = Field(None, max_length=120)
     primary_profession: FreelancerProfession
-    bio: str = Field(..., min_length=30, max_length=2000)
-    experience_years: int = Field(..., ge=0, le=50)
+    bio: Optional[str] = Field(None, max_length=2000)
+    experience_years: Optional[int] = Field(None, ge=0, le=50)
 
-    city: str = Field(..., min_length=1, max_length=100)
-    state: str = Field(..., min_length=1, max_length=100)
-    country: str = Field(..., min_length=1, max_length=100)
+    city: Optional[str] = Field(None, max_length=100)
+    state: Optional[str] = Field(None, max_length=100)
+    country: Optional[str] = Field(None, max_length=100)
 
     service_radius_km: Optional[int] = Field(None, ge=1)
     willing_to_travel: bool = False
@@ -95,6 +95,9 @@ class FreelancerProfileBase(BaseModel):
 
     profile_photo_url: Optional[str] = None
     cover_photo_url: Optional[str] = None
+    website: Optional[str] = Field(None, max_length=500)
+    instagram: Optional[str] = Field(None, max_length=500)
+    behance: Optional[str] = Field(None, max_length=500)
 
 
 class FreelancerProfileCreate(FreelancerProfileBase):
@@ -102,14 +105,14 @@ class FreelancerProfileCreate(FreelancerProfileBase):
 
 
 class FreelancerProfileUpdate(BaseModel):
-    professional_title: Optional[str] = Field(None, min_length=3, max_length=120)
+    professional_title: Optional[str] = Field(None, max_length=120)
     primary_profession: Optional[FreelancerProfession] = None
-    bio: Optional[str] = Field(None, min_length=30, max_length=2000)
+    bio: Optional[str] = Field(None, max_length=2000)
     experience_years: Optional[int] = Field(None, ge=0, le=50)
 
-    city: Optional[str] = Field(None, min_length=1, max_length=100)
-    state: Optional[str] = Field(None, min_length=1, max_length=100)
-    country: Optional[str] = Field(None, min_length=1, max_length=100)
+    city: Optional[str] = Field(None, max_length=100)
+    state: Optional[str] = Field(None, max_length=100)
+    country: Optional[str] = Field(None, max_length=100)
 
     service_radius_km: Optional[int] = Field(None, ge=1)
     willing_to_travel: Optional[bool] = None
@@ -120,6 +123,9 @@ class FreelancerProfileUpdate(BaseModel):
 
     profile_photo_url: Optional[str] = None
     cover_photo_url: Optional[str] = None
+    website: Optional[str] = Field(None, max_length=500)
+    instagram: Optional[str] = Field(None, max_length=500)
+    behance: Optional[str] = Field(None, max_length=500)
     is_profile_public: Optional[bool] = None
 
 
@@ -127,14 +133,14 @@ class FreelancerProfileOut(BaseModel):
     id: int
     user_id: int
     full_name: Optional[str] = None
-    professional_title: str
+    professional_title: Optional[str] = None
     primary_profession: FreelancerProfession
-    bio: str
-    experience_years: int
+    bio: Optional[str] = None
+    experience_years: Optional[int] = None
     
-    city: str
-    state: str
-    country: str
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
 
     service_radius_km: Optional[int]
     willing_to_travel: bool
@@ -145,6 +151,9 @@ class FreelancerProfileOut(BaseModel):
 
     profile_photo_url: Optional[str]
     cover_photo_url: Optional[str]
+    website: Optional[str] = None
+    instagram: Optional[str] = None
+    behance: Optional[str] = None
 
     profile_completion_percentage: int
     verification_status: VerificationStatus
@@ -164,15 +173,16 @@ class FreelancerProfileOut(BaseModel):
 
 class PublicFreelancerProfileOut(BaseModel):
     id: int
+    user_id: int
     full_name: str
-    professional_title: str
+    professional_title: Optional[str] = None
     primary_profession: FreelancerProfession
-    bio: str
-    experience_years: int
+    bio: Optional[str] = None
+    experience_years: Optional[int] = None
     
-    city: str
-    state: str
-    country: str
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
 
     service_radius_km: Optional[int]
     willing_to_travel: bool
@@ -183,6 +193,9 @@ class PublicFreelancerProfileOut(BaseModel):
 
     profile_photo_url: Optional[str]
     cover_photo_url: Optional[str]
+    website: Optional[str] = None
+    instagram: Optional[str] = None
+    behance: Optional[str] = None
 
     verification_status: VerificationStatus
     

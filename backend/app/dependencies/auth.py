@@ -1,5 +1,6 @@
 import jwt
-from fastapi import Depends, HTTPException, status
+from typing import Optional
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
@@ -12,21 +13,48 @@ from app.repositories.user_repository import UserRepository
 security_scheme = HTTPBearer(auto_error=False)
 
 
+def get_current_user_optional(
+    request: Request,
+    credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """
+    Dependency that optionally returns the authenticated user, or None if guest.
+    """
+    token = request.cookies.get("access_token")
+    if not token and credentials:
+        token = credentials.credentials
+    if not token:
+        return None
+    try:
+        payload = decode_token(token, "access")
+        user_id = int(payload.get("sub"))
+        return UserRepository.get_by_id(db, user_id)
+    except Exception:
+        return None
+
+
 def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(security_scheme),
     db: Session = Depends(get_db),
 ) -> User:
     """
     Dependency that validates the JWT access token and yields the current user.
     """
-    if not credentials:
+    # Prefer cookie-based authentication
+    token = request.cookies.get("access_token")
+    
+    # Fallback to Authorization Header (for API clients/mobile apps)
+    if not token and credentials:
+        token = credentials.credentials
+
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Missing authentication token",
             headers={"WWW-Authenticate": "Bearer"},
         )
-        
-    token = credentials.credentials
     try:
         payload = decode_token(token, "access")
         user_id = int(payload.get("sub"))

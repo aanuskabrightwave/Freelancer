@@ -119,3 +119,48 @@ def open_booking_dispute(
 ):
     return DisputeService.open_dispute(db, current_user, id, payload.reason, payload.description)
 
+
+class FreelancerQuotePayload(BaseModel):
+    proposed_amount: float
+    deposit_amount: float
+
+
+@router.post("/bookings/{id}/quote", response_model=BookingResponse, summary="Freelancer sends a quote for requested booking")
+def send_booking_quote(
+    id: int,
+    payload: FreelancerQuotePayload,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    from decimal import Decimal
+    return BookingService.send_quote(
+        db, current_user, id, Decimal(str(payload.proposed_amount)), Decimal(str(payload.deposit_amount))
+    )
+
+
+@router.post("/bookings/{id}/accept-quote", response_model=BookingResponse, summary="Client accepts quote")
+def accept_booking_quote(
+    id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    return BookingService.accept_quote(db, current_user, id)
+
+
+@router.post("/bookings/{id}/approve-preview", response_model=BookingResponse, summary="Client approves preview draft")
+def approve_booking_preview(
+    id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    return BookingService.approve_preview(db, current_user, id)
+
+
+@router.post("/bookings/{id}/approve-final", response_model=BookingResponse, summary="Client approves final project delivery")
+def approve_booking_final_delivery(
+    id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    return BookingService.approve_final_delivery(db, current_user, id)
+

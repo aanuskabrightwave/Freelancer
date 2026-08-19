@@ -1,0 +1,69 @@
+{
+  "version": 3,
+  "skills": {
+    "banner-design": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+      "skillPath": ".claude/skills/banner-design/SKILL.md",
+      "skillFolderHash": "0179fd7d727a3d879c2ec7aa0f70bd1c185ecb6f",
+      "installedAt": "2026-07-10T09:42:29.513Z",
+      "updatedAt": "2026-07-10T09:42:29.513Z"
+    },
+    "brand": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+      "skillPath": ".claude/skills/brand/SKILL.md",
+      "skillFolderHash": "0c2f743227597102bdf19ac5a1c00ba26e468b3a",
+      "installedAt": "2026-07-10T09:42:29.517Z",
+      "updatedAt": "2026-07-10T09:42:29.517Z"
+    },
+    "design": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+      "skillPath": ".claude/skills/design/SKILL.md",
+      "skillFolderHash": "689cab29fd6da6519250c79568b725365d7027cb",
+      "installedAt": "2026-07-10T09:42:29.519Z",
+      "updatedAt": "2026-07-10T09:42:29.519Z"
+    },
+    "design-system": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+      "skillPath": ".claude/skills/design-system/SKILL.md",
+      "skillFolderHash": "5d99b8b98eb93cc2641adc1a4d8c243a5e928ea0",
+      "installedAt": "2026-07-10T09:42:29.521Z",
+      "updatedAt": "2026-07-10T09:42:29.521Z"
+    },
+    "slides": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+      "skillPath": ".claude/skills/slides/SKILL.md",
+      "skillFolderHash": "3180dd950c35d627d7f4e770cc96d6267d6cf257",
+      "installedAt": "2026-07-10T09:42:29.523Z",
+      "updatedAt": "2026-07-10T09:42:29.523Z"
+    },
+    "ui-styling": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+      "skillPath": ".claude/skills/ui-styling/SKILL.md",
+      "skillFolderHash": "c198f4241c6ec9d890b5721beca86e8a08bdc85a",
+      "installedAt": "2026-07-10T09:42:29.525Z",
+      "updatedAt": "2026-07-10T09:42:29.525Z"
+    },
+    "ui-ux-pro-max": {
+      "source": "nextlevelbuilder/ui-ux-pro-max-skill",
+      "sourceType": "github",
+      "sourceUrl": "https://github.com/nextlevelbuilder/ui-ux-pro-max-skill.git",
+      "skillPath": ".claude/skills/ui-ux-pro-max/SKILL.md",
+      "skillFolderHash": "37bb3804d0aeac9f08c0408d791b7abbb6ff8bdc",
+      "installedAt": "2026-07-10T09:42:29.527Z",
+      "updatedAt": "2026-07-10T09:42:29.527Z"
+    }
+  },
+  "dismissed": {}
+}

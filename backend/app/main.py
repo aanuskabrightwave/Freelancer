@@ -70,10 +70,18 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.request_history[key] = [t for t in history if now - t < window]
 
         if len(self.request_history[key]) >= limit:
-            return JSONResponse(
+            response = JSONResponse(
                 status_code=429,
                 content={"detail": "Too many requests. Please try again later."}
             )
+            origin = request.headers.get("origin")
+            if origin:
+                if origin in settings.cors_origins or "*" in settings.cors_origins:
+                    response.headers["Access-Control-Allow-Origin"] = origin
+                    response.headers["Access-Control-Allow-Credentials"] = "true"
+                    response.headers["Access-Control-Allow-Methods"] = "*"
+                    response.headers["Access-Control-Allow-Headers"] = "*"
+            return response
 
         self.request_history[key].append(now)
         return await call_next(request)

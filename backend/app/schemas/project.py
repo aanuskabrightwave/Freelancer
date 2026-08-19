@@ -46,3 +46,40 @@ class ProposalResponse(ProposalBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class ProposalProjectOut(BaseModel):
+    id: int
+    title: str
+    description: str
+    project_type: str
+    budget: Decimal
+    city: Optional[str] = None
+    state: Optional[str] = None
+    country: Optional[str] = None
+    status: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ProposalBookingOut(BaseModel):
+    id: int
+    booking_number: str
+    status: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FreelancerProposalOut(BaseModel):
+    id: int
+    project_id: int
+    freelancer_profile_id: int
+    proposed_amount: Decimal
+    cover_letter: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    project: ProposalProjectOut
+    booking: Optional[ProposalBookingOut] = None
+
+    model_config = ConfigDict(from_attributes=True)

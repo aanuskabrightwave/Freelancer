@@ -48,6 +48,23 @@ class AvailabilityService:
         # 3. Weekly schedule check
         day_str = scheduled_date.strftime("%A").upper()
         weekly = AvailabilityRepository.get_weekly_schedule_for_day(db, freelancer_profile_id, day_str)
+        
+        # If no weekly schedule records exist at all for this freelancer, default to available 09:00-18:00
+        has_any_schedule = db.query(FreelancerWeeklySchedule).filter(
+            FreelancerWeeklySchedule.freelancer_profile_id == freelancer_profile_id
+        ).first() is not None
+
+        if not has_any_schedule:
+            from datetime import time as dt_time
+            default_start = dt_time(9, 0)
+            default_end = dt_time(18, 0)
+            if start_time < default_start or end_time > default_end:
+                return {
+                    "available": False,
+                    "reason": f"Requested hours fall outside freelancer's default standard hours: 09:00 - 18:00"
+                }
+            return {"available": True, "reason": "Available (Default Schedule)"}
+
         if not weekly or not weekly.is_available:
             return {
                 "available": False,

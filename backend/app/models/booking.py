@@ -64,6 +64,17 @@ class Booking(Base):
     currency = Column(String(10), default="INR", nullable=False)
     price = Column(Numeric(precision=10, scale=2), nullable=False)  # Kept for backward compatibility with Phase 5 endpoints
 
+    # Two-stage payment financials
+    deposit_amount = Column(Numeric(precision=10, scale=2), default=0.00, nullable=False)
+    deposit_paid_amount = Column(Numeric(precision=10, scale=2), default=0.00, nullable=False)
+    remaining_balance = Column(Numeric(precision=10, scale=2), default=0.00, nullable=False)
+    total_paid = Column(Numeric(precision=10, scale=2), default=0.00, nullable=False)
+    payment_completion_state = Column(String(50), default="UNPAID", nullable=False)
+
+    # Dispute window timelines
+    final_approved_at = Column(DateTime(timezone=True), nullable=True)
+    dispute_window_ends_at = Column(DateTime(timezone=True), nullable=True)
+
     # Notes and requirements answers
     notes = Column(Text, nullable=True)
     requirements_answers = Column(JSON, nullable=True)  # Legacy json answers
