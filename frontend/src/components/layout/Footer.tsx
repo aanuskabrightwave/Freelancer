@@ -3,11 +3,11 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-[#101114] text-slate-400 border-t border-white/10 pt-20 pb-12 font-sans selection:bg-primary/20">
+    <footer className="bg-[#050507] text-slate-500 border-t border-white/5 pt-24 pb-12 font-sans selection:bg-primary/20">
       <div className="max-w-7xl mx-auto px-6 sm:px-8">
         
         {/* Main Columns */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-12 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-12 mb-20">
           
           {/* Brand Column */}
           <div className="col-span-2 space-y-6">
@@ -16,92 +16,87 @@ export default function Footer() {
               <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
               <span>Market</span>
             </Link>
-            <p className="text-xs max-w-sm text-slate-400 leading-relaxed font-normal">
+            <p className="text-xs max-w-sm text-slate-400 leading-relaxed font-medium">
               A premium creative network connecting brands, directors, and agencies with verified photographers, cinematographers, colorists, and post-production specialists.
             </p>
           </div>
 
-          {/* Explore */}
+          {/* Platform */}
           <div>
-            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.2em] mb-6">Explore</h4>
-            <ul className="space-y-3.5 text-xs">
+            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.25em] mb-6">Platform</h4>
+            <ul className="space-y-3.5 text-xs font-semibold">
               <li>
-                <Link href="/freelancers" className="hover:text-white transition-colors">
-                  Creatives
+                <Link href="/freelancers" className="hover:text-primary transition-colors">
+                  Explore Creators
                 </Link>
               </li>
               <li>
-                <Link href="/freelancers?profession=PHOTOGRAPHER" className="hover:text-white transition-colors">
-                  Photography
+                <Link href="/freelancers" className="hover:text-primary transition-colors">
+                  Browse Projects
                 </Link>
               </li>
               <li>
-                <Link href="/freelancers?profession=VIDEOGRAPHER" className="hover:text-white transition-colors">
-                  Videography
+                <Link href="/services" className="hover:text-primary transition-colors">
+                  Production Services
                 </Link>
               </li>
               <li>
-                <Link href="/freelancers?profession=VIDEO_EDITOR" className="hover:text-white transition-colors">
-                  Post-Production
-                </Link>
-              </li>
-              <li>
-                <Link href="/freelancers?profession=DRONE_OPERATOR" className="hover:text-white transition-colors">
-                  Production Support
+                <Link href="/#how-it-works" className="hover:text-primary transition-colors">
+                  How It Works
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Clients */}
+          {/* For Clients */}
           <div>
-            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.2em] mb-6">Clients</h4>
-            <ul className="space-y-3.5 text-xs">
+            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.25em] mb-6">For Clients</h4>
+            <ul className="space-y-3.5 text-xs font-semibold">
               <li>
-                <Link href="/freelancers" className="hover:text-white transition-colors">
-                  Find Talent
-                </Link>
-              </li>
-              <li>
-                <Link href="/register" className="hover:text-white transition-colors">
+                <Link href="/register" className="hover:text-primary transition-colors">
                   Post a Project
                 </Link>
               </li>
               <li>
-                <Link href="/#how-it-works" className="hover:text-white transition-colors">
-                  How It Works
+                <Link href="/freelancers" className="hover:text-primary transition-colors">
+                  Find Talent
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-white transition-colors">
-                  Bookings
+                <Link href="/#how-it-works" className="hover:text-primary transition-colors">
+                  How Hiring Works
+                </Link>
+              </li>
+              <li>
+                <Link href="/login" className="hover:text-primary transition-colors">
+                  Client Help
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Creatives */}
+          {/* For Creators */}
           <div>
-            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.2em] mb-6">Creatives</h4>
-            <ul className="space-y-3.5 text-xs">
+            <h4 className="font-black text-[10px] text-white uppercase tracking-[0.25em] mb-6">For Creators</h4>
+            <ul className="space-y-3.5 text-xs font-semibold">
               <li>
-                <Link href="/register" className="hover:text-white transition-colors">
-                  Join Marketplace
+                <Link href="/login" className="hover:text-primary transition-colors">
+                  Find Work
                 </Link>
               </li>
               <li>
-                <Link href="/register" className="hover:text-white transition-colors">
-                  Create Profile
+                <Link href="/login" className="hover:text-primary transition-colors">
+                  Creator Profile
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-white transition-colors">
-                  Projects & Dashboard
+                <Link href="/#how-it-works" className="hover:text-primary transition-colors">
+                  How It Works
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="hover:text-white transition-colors">
-                  Earnings
+                <Link href="/services" className="hover:text-primary transition-colors">
+                  Creator Resources
                 </Link>
               </li>
             </ul>
@@ -110,18 +105,18 @@ export default function Footer() {
         </div>
 
         {/* Bottom Row */}
-        <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-slate-500">
+        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-6 text-[11px] text-slate-600 font-semibold uppercase tracking-wider">
           <div>
-            <p>&copy; {new Date().getFullYear()} CreativeMarket Network Inc. All rights reserved.</p>
+            <p>&copy; {new Date().getFullYear()} CreativeMarket Network. All rights reserved.</p>
           </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-2 text-slate-400">
-            <Link href="/freelancers" className="hover:text-white transition-colors">
+          <div className="flex flex-wrap gap-x-6 gap-y-2 text-slate-500">
+            <Link href="/freelancers" className="hover:text-primary transition-colors">
               Talent Directory
             </Link>
-            <Link href="/services" className="hover:text-white transition-colors">
-              Production Services
+            <Link href="/services" className="hover:text-primary transition-colors">
+              Services Directory
             </Link>
-            <Link href="/#how-it-works" className="hover:text-white transition-colors">
+            <Link href="/#how-it-works" className="hover:text-primary transition-colors">
               Workflow Guide
             </Link>
           </div>
