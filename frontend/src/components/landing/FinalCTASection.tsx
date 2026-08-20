@@ -70,7 +70,7 @@ export default function FinalCTASection() {
   return (
     <section
       ref={containerRef}
-      className="py-36 bg-[#050507] text-white relative z-20 flex flex-col justify-center items-center overflow-hidden border-t border-white/5"
+      className="pt-8 md:pt-12 lg:pt-16 pb-12 md:pb-16 lg:pb-20 bg-[#050507] text-white relative z-20 flex flex-col justify-center items-center overflow-hidden border-t border-white/5"
     >
       <div className="max-w-4xl mx-auto px-6 text-center space-y-12 relative z-10">
         

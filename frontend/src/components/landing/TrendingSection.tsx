@@ -1,18 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
-
-const CATEGORIES = [
-  "REELS ↗", "MUSIC VIDEOS ↗", "COMMERCIALS ↗", "WEDDING FILMS ↗", 
-  "YOUTUBE ↗", "SHORT FILMS ↗", "VFX ↗", "DOCUMENTARIES ↗", 
-  "PRODUCT FILMS ↗", "FASHION SHOOTS ↗"
-];
+import React, { useState } from "react";
 
 const PROJECTS = [
   {
@@ -45,55 +33,9 @@ const PROJECTS = [
 ];
 
 export default function TrendingSection() {
-  const marqueeInnerRef = useRef<HTMLDivElement>(null);
-  
   // Custom cursor state for each card
   const [hoveredCardId, setHoveredCardId] = useState<number | null>(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  // Marquee scroll velocity multiplier effect
-  useEffect(() => {
-    const marqueeInner = marqueeInnerRef.current;
-    if (!marqueeInner) return;
-
-    // Continuous marquee movement
-    const loop = gsap.to(marqueeInner, {
-      xPercent: -50,
-      ease: "none",
-      duration: 22,
-      repeat: -1
-    });
-
-    // Velocity listener
-    const trigger = ScrollTrigger.create({
-      trigger: marqueeInner,
-      start: "top bottom",
-      end: "bottom top",
-      onUpdate: (self) => {
-        // self.getVelocity() returns pixels/sec. We scale it appropriately.
-        const velocity = self.getVelocity();
-        const absoluteVelocity = Math.abs(velocity);
-        
-        // Speed up marquee when user scrolls quickly
-        let multiplier = 1 + (absoluteVelocity * 0.001);
-        if (velocity < 0) {
-          multiplier = -multiplier; // reverse direction when scrolling up
-        }
-
-        gsap.to(loop, {
-          timeScale: multiplier,
-          duration: 0.6,
-          overwrite: "auto",
-          ease: "power2.out"
-        });
-      }
-    });
-
-    return () => {
-      loop.kill();
-      trigger.kill();
-    };
-  }, []);
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -109,23 +51,11 @@ export default function TrendingSection() {
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-4 mb-20">
         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
-          03 / WHAT'S CUTTING THROUGH
+          03 / WHAT&apos;S CUTTING THROUGH
         </span>
         <h2 className="text-4xl sm:text-6xl lg:text-[72px] font-black tracking-tight text-white leading-none">
           Trending right now.
         </h2>
-      </div>
-
-      {/* Looping Category Ticker */}
-      <div className="w-full bg-[#101114] border-y border-white/5 py-6 mb-24 overflow-hidden select-none whitespace-nowrap flex">
-        <div ref={marqueeInnerRef} className="flex gap-16 pr-16 text-3xl sm:text-5xl font-black uppercase text-slate-400 tracking-wider">
-          {/* Double content for seamless looping */}
-          {[...CATEGORIES, ...CATEGORIES].map((cat, idx) => (
-            <span key={idx} className="hover:text-primary transition-colors cursor-default">
-              {cat}
-            </span>
-          ))}
-        </div>
       </div>
 
       {/* Projects Editorial Masonry */}

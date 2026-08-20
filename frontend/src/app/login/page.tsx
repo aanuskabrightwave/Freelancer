@@ -66,7 +66,7 @@ export default function LoginPage() {
           </h2>
           <div className="pt-6 border-t border-white/10 space-y-2">
             <p className="text-sm italic text-text-on-dark/65 leading-relaxed">
-              "Through CreativeMarket, we sourced the entire camera team and post-production suite for our commercial campaign in Mumbai. Seamless and secure."
+              &ldquo;Through CreativeMarket, we sourced the entire camera team and post-production suite for our commercial campaign in Mumbai. Seamless and secure.&rdquo;
             </p>
             <p className="text-xs font-bold uppercase tracking-widest text-primary">
               — Luminous Labs Production
@@ -162,7 +162,7 @@ export default function LoginPage() {
 
 
           <div className="text-center text-xs text-text-sub pt-6 border-t border-border-custom/50">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/register" className="text-primary font-bold hover:underline">
               Create Account
             </Link>

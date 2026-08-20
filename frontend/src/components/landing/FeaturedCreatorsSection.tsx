@@ -56,7 +56,7 @@ const FALLBACK_CREATORS = [
 export default function FeaturedCreatorsSection() {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const [creators, setCreators] = useState<any[]>([]);
+  const [creators, setCreators] = useState<any[]>(FALLBACK_CREATORS);
 
   // Fetch real creators or map fallback
   useEffect(() => {
@@ -75,18 +75,15 @@ export default function FeaturedCreatorsSection() {
             video: FALLBACK_CREATORS[idx % 4].video // use loops for consistent premium visuals
           }));
           setCreators(mapped);
-        } else {
-          setCreators(FALLBACK_CREATORS);
         }
-      } catch (err) {
-        console.error("Failed to load featured creators:", err);
-        setCreators(FALLBACK_CREATORS);
+      } catch {
+        // Backend offline or unreachable, retain fallback creators
       }
     }
     loadCreators();
   }, []);
 
-  // Horizontal scroll trigger
+  // Horizontal scroll wheel handler
   useEffect(() => {
     if (creators.length === 0) return;
     const container = containerRef.current;
@@ -94,42 +91,93 @@ export default function FeaturedCreatorsSection() {
     if (!container || !track) return;
 
     const ctx = gsap.context(() => {
-      // Horizontal translation tween
-      const scrollTween = gsap.to(track, {
-        x: () => -(track.scrollWidth - window.innerWidth),
-        ease: "none",
-        scrollTrigger: {
-          trigger: container,
-          start: "top top",
-          end: () => `+=${track.scrollWidth - window.innerWidth}`,
-          pin: true,
-          scrub: 1,
-          invalidateOnRefresh: true,
-        }
-      });
-
-      // Animate creator numbers as they enter focus
       const cards = gsap.utils.toArray(".creator-panel");
-      cards.forEach((card: any) => {
-        const numEl = card.querySelector(".creator-num");
-        if (!numEl) return;
 
-        gsap.fromTo(numEl, 
-          { scale: 0.8, color: "#64748b" }, 
-          { 
-            scale: 1.25, 
-            color: "#E4523D", 
+      // Dynamic function to calculate max horizontal scroll distance
+      const getScrollDistance = () => track.scrollWidth - container.clientWidth;
+
+      const handleWheel = (e: WheelEvent) => {
+        const maxScroll = getScrollDistance();
+        if (maxScroll <= 0) return;
+
+        // Sync targetX with current animated position
+        const currentTranslation = gsap.getProperty(track, "x") as number;
+        let targetX = -currentTranslation;
+
+        const isScrollingDown = e.deltaY > 0;
+        const isScrollingUp = e.deltaY < 0;
+
+        const canScrollLeft = targetX < maxScroll && isScrollingDown;
+        const canScrollRight = targetX > 0 && isScrollingUp;
+
+        if (canScrollLeft || canScrollRight) {
+          // Intercept mouse wheel, prevent native page scrolling
+          e.preventDefault();
+
+          targetX += e.deltaY;
+          targetX = Math.max(0, Math.min(targetX, maxScroll));
+
+          // Animate horizontal translation of the track smoothly
+          gsap.to(track, {
+            x: -targetX,
+            duration: 0.5,
             ease: "power2.out",
-            scrollTrigger: {
-              trigger: card,
-              containerAnimation: scrollTween,
-              start: "left 65%",
-              end: "right 35%",
-              scrub: true,
+            overwrite: "auto",
+            onUpdate: function() {
+              const containerRect = container.getBoundingClientRect();
+              const containerCenter = containerRect.left + containerRect.width / 2;
+              
+              cards.forEach((card: any) => {
+                const rect = card.getBoundingClientRect();
+                const cardCenter = rect.left + rect.width / 2;
+                const distance = Math.abs(cardCenter - containerCenter);
+                const maxDist = containerRect.width * 0.4;
+                
+                const progress = Math.max(0, Math.min(1, 1 - distance / maxDist));
+                
+                const numEl = card.querySelector(".creator-num");
+                if (numEl) {
+                  gsap.set(numEl, {
+                    scale: 0.8 + progress * 0.45,
+                    color: gsap.utils.interpolate("#64748b", "#E4523D", progress),
+                  });
+                }
+              });
             }
+          });
+        }
+      };
+
+      // Register non-passive wheel listener directly on the track container
+      track.addEventListener("wheel", handleWheel, { passive: false });
+
+      // Run initial highlight after mount
+      setTimeout(() => {
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        
+        cards.forEach((card: any) => {
+          const rect = card.getBoundingClientRect();
+          const cardCenter = rect.left + rect.width / 2;
+          const distance = Math.abs(cardCenter - containerCenter);
+          const maxDist = containerRect.width * 0.4;
+          
+          const progress = Math.max(0, Math.min(1, 1 - distance / maxDist));
+          
+          const numEl = card.querySelector(".creator-num");
+          if (numEl) {
+            gsap.set(numEl, {
+              scale: 0.8 + progress * 0.45,
+              color: gsap.utils.interpolate("#64748b", "#E4523D", progress),
+            });
           }
-        );
-      });
+        });
+      }, 100);
+
+      // Clean up event listener
+      return () => {
+        track.removeEventListener("wheel", handleWheel);
+      };
 
     }, containerRef);
 
@@ -139,27 +187,25 @@ export default function FeaturedCreatorsSection() {
   if (creators.length === 0) return null;
 
   return (
-    <div
+    <section
       ref={containerRef}
-      className="relative w-full h-[300vh] bg-[#101114] text-white overflow-clip m-0 p-0"
+      className="py-24 md:py-32 bg-[#101114] text-white relative z-20 overflow-hidden"
     >
-      {/* Sticky Fullscreen Container */}
-      <div className="sticky top-0 w-full h-screen flex flex-col justify-center overflow-hidden">
-        
-        {/* Section Header (Moves independently on top) */}
-        <div className="absolute top-20 left-16 max-w-2xl space-y-4 z-20">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
-            04 / FEATURED TALENT
-          </span>
-          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-none">
-            Meet the people<br />behind the cut.
-          </h2>
-        </div>
+      {/* Section Header */}
+      <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-4 mb-16">
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+          04 / FEATURED TALENT
+        </span>
+        <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-none">
+          Meet the people<br />behind the cut.
+        </h2>
+      </div>
 
-        {/* Horizontal Card Track */}
+      {/* Horizontal Card Track Wrapper */}
+      <div className="w-full overflow-x-auto md:overflow-x-hidden scrollbar-hide select-none">
         <div
           ref={trackRef}
-          className="flex gap-20 px-[20vw] items-center h-[60vh] mt-24 select-none relative z-10 w-fit"
+          className="flex gap-20 pl-[20vw] pr-[10vw] items-center h-[55vh] select-none relative z-10 w-fit"
         >
           {creators.map((creator) => (
             <div
@@ -242,8 +288,7 @@ export default function FeaturedCreatorsSection() {
           </div>
 
         </div>
-
       </div>
-    </div>
+    </section>
   );
 }

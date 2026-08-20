@@ -144,7 +144,7 @@ export default function RegisterPage() {
           </h2>
           <div className="pt-6 border-t border-white/10 space-y-2">
             <p className="text-sm italic text-text-on-dark/65 leading-relaxed">
-              "Being listed on CreativeMarket has connected me directly with agency clients looking for local videographers. No middleman, clear briefs, fast payout."
+              &ldquo;Being listed on CreativeMarket has connected me directly with agency clients looking for local videographers. No middleman, clear briefs, fast payout.&rdquo;
             </p>
             <p className="text-xs font-bold uppercase tracking-widest text-primary">
               — Demo Freelancer, Photographer

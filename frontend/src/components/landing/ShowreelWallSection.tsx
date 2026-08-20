@@ -109,7 +109,7 @@ export default function ShowreelWallSection() {
   };
 
   return (
-    <section className="py-32 bg-[#0B0C0E] border-t border-white/5 relative z-20 text-white overflow-hidden">
+    <section className="pt-32 pb-8 md:pb-10 lg:pb-12 bg-[#0B0C0E] border-t border-white/5 relative z-20 text-white overflow-hidden">
       
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-4 mb-20 text-center">

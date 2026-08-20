@@ -69,7 +69,7 @@ export default function TrendingCitiesSection() {
   return (
     <section 
       onMouseMove={handleMouseMove}
-      className="py-32 bg-[#0B0C0E] text-white border-t border-white/5 relative z-20 overflow-hidden"
+      className="pt-32 pb-8 md:pb-10 lg:pb-12 bg-[#0B0C0E] text-white border-t border-white/5 relative z-20 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-16">
         
@@ -79,10 +79,10 @@ export default function TrendingCitiesSection() {
             05 / CREATIVE HOTSPOTS
           </span>
           <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-none">
-            Talent doesn't live<br />in one place.
+            Talent doesn&apos;t live<br />in one place.
           </h2>
           <p className="text-sm text-slate-400 max-w-md leading-relaxed">
-            Discover editors, filmmakers, photographers and creators working from India's most active creative hubs.
+            Discover editors, filmmakers, photographers and creators working from India&apos;s most active creative hubs.
           </p>
         </div>
 

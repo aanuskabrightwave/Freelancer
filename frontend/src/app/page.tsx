@@ -9,6 +9,7 @@ import TrendingSection from "@/components/landing/TrendingSection";
 import FeaturedCreatorsSection from "@/components/landing/FeaturedCreatorsSection";
 import TrendingCitiesSection from "@/components/landing/TrendingCitiesSection";
 import EditingStylesSection from "@/components/landing/EditingStylesSection";
+import TrendingTicker from "@/components/landing/TrendingTicker";
 import PlatformSidesSection from "@/components/landing/PlatformSidesSection";
 import WorkflowSection from "@/components/landing/WorkflowSection";
 import EditingTimelineSection from "@/components/landing/EditingTimelineSection";
@@ -62,6 +63,9 @@ export default function Home() {
 
       {/* 6. FIND YOUR EDITING STYLE */}
       <EditingStylesSection />
+
+      {/* TRENDING TICKER RELOCATION */}
+      <TrendingTicker />
 
       {/* 7. TWO SIDES. ONE PLATFORM. */}
       <PlatformSidesSection />

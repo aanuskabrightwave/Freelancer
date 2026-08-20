@@ -52,7 +52,7 @@ export default function TestimonialsSection() {
   const current = TESTIMONIALS[activeIdx];
 
   return (
-    <section className="py-32 bg-[#0B0C0E] text-white border-t border-white/5 relative z-20 overflow-hidden">
+    <section className="pt-8 md:pt-12 lg:pt-16 pb-8 md:pb-10 lg:pb-12 bg-[#0B0C0E] text-white border-t border-white/5 relative z-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-16">
         
         {/* Header */}

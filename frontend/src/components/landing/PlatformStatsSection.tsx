@@ -29,8 +29,8 @@ export default function PlatformStatsSection() {
             creators: data.length
           }));
         }
-      } catch (err) {
-        console.error("Failed to fetch statistics:", err);
+      } catch {
+        // Backend offline, keep default fallback stats
       }
     }
     loadStats();
@@ -71,7 +71,7 @@ export default function PlatformStatsSection() {
   return (
     <section 
       ref={containerRef}
-      className="py-32 bg-[#101114] text-[#F7F3ED] border-y border-white/5 relative z-20 overflow-hidden"
+      className="pt-8 md:pt-12 lg:pt-16 pb-8 md:pb-10 lg:pb-12 bg-[#101114] text-[#F7F3ED] border-y border-white/5 relative z-20 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-24">
         
