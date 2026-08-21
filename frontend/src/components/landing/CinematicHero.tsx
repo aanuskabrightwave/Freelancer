@@ -225,7 +225,7 @@ export default function CinematicHero() {
 
   if (isReducedMotion) {
     return (
-      <section className="relative w-full py-20 bg-[#FAF9F6] text-slate-900 border-b border-slate-200">
+      <section className="relative w-full py-20 bg-bg-level-0 text-text-heading border-b border-border-subtle">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary">
@@ -233,10 +233,10 @@ export default function CinematicHero() {
                 01 — THE CREATIVE NETWORK
               </span>
             </div>
-            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-slate-950 leading-[0.95]">
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight text-text-heading leading-[0.95]">
               Every story starts with the right creative.
             </h1>
-            <p className="text-sm md:text-base text-slate-600 max-w-md leading-relaxed">
+            <p className="text-sm md:text-base text-text-body max-w-md leading-relaxed">
               Find photographers, videographers, and editors who understand your vision and know how to bring it to life.
             </p>
             <div className="pt-2">
@@ -264,12 +264,12 @@ export default function CinematicHero() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[500vh] bg-[#FAF9F6] m-0 p-0 overflow-clip"
+      className="relative w-full h-[500vh] bg-bg-level-0 m-0 p-0 overflow-clip"
     >
       {/* Full-Bleed Pinned Viewport Container (Edge-to-Edge, 100% width, 100vh) */}
       <div
         ref={stickyRef}
-        className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center bg-[#FAF9F6] m-0 p-0"
+        className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center bg-bg-level-0 m-0 p-0"
       >
         {/* Layer 0: Full-Bleed High-Resolution Canvas (z-0, 100% edge-to-edge coverage across all frames) */}
         <canvas
@@ -283,7 +283,7 @@ export default function CinematicHero() {
           className="absolute inset-0 pointer-events-none z-10 m-0 p-0"
           style={{
             background:
-              "linear-gradient(90deg, rgba(250,249,246,0.48) 0%, rgba(250,249,246,0.18) 18%, rgba(250,249,246,0.02) 28%, transparent 38%)",
+              "linear-gradient(90deg, rgba(18,16,15,0.48) 0%, rgba(18,16,15,0.18) 18%, rgba(18,16,15,0.02) 28%, transparent 38%)",
           }}
         />
 
@@ -300,14 +300,14 @@ export default function CinematicHero() {
             </span>
           </div>
           <h1
-            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
-            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-text-heading leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.6)" }}
           >
             Every story starts with the right creative.
           </h1>
           <p
-            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
-            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+            className="text-xs sm:text-sm lg:text-base text-text-body font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}
           >
             Find photographers, videographers, and editors who understand your vision and know how to bring it to life.
           </p>
@@ -321,10 +321,10 @@ export default function CinematicHero() {
             </Link>
           </div>
           <div className="pt-6 animate-bounce">
-            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 block mb-1">
+            <span className="text-[9px] font-black uppercase tracking-widest text-text-sub block mb-1">
               Scroll to explore
             </span>
-            <span className="text-slate-500">&darr;</span>
+            <span className="text-text-sub">&darr;</span>
           </div>
         </div>
 
@@ -339,14 +339,14 @@ export default function CinematicHero() {
             </span>
           </div>
           <h2
-            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
-            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-text-heading leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.6)" }}
           >
             Talent built around your vision.
           </h2>
           <p
-            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
-            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+            className="text-xs sm:text-sm lg:text-base text-text-body font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}
           >
             Browse specialists by craft, style, experience, and project needs.
           </p>
@@ -372,14 +372,14 @@ export default function CinematicHero() {
             </span>
           </div>
           <h2
-            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
-            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-text-heading leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.6)" }}
           >
             The right specialist changes everything.
           </h2>
           <p
-            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
-            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+            className="text-xs sm:text-sm lg:text-base text-text-body font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}
           >
             From the first frame to the final cut, work with creatives who understand every detail of the process.
           </p>
@@ -405,15 +405,15 @@ export default function CinematicHero() {
             </span>
           </div>
           <h2
-            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
-            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-text-heading leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.6)" }}
           >
             Different skills. <br className="hidden sm:inline" />
             One complete story.
           </h2>
           <p
-            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
-            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+            className="text-xs sm:text-sm lg:text-base text-text-body font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}
           >
             Photography, videography, editing, color, and post-production — find the expertise your project needs.
           </p>
@@ -439,14 +439,14 @@ export default function CinematicHero() {
             </span>
           </div>
           <h2
-            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
-            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-text-heading leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.6)" }}
           >
             From idea to final delivery.
           </h2>
           <p
-            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
-            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+            className="text-xs sm:text-sm lg:text-base text-text-body font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}
           >
             Find your creative, collaborate with confidence, review the work, and bring the entire project together.
           </p>
@@ -472,14 +472,14 @@ export default function CinematicHero() {
             </span>
           </div>
           <h2
-            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-slate-950 leading-[0.92] max-w-xl"
-            style={{ textShadow: "0 1px 3px rgba(255,255,255,0.7), 0 0 15px rgba(255,255,255,0.5)" }}
+            className="text-4xl sm:text-5xl lg:text-[68px] font-black tracking-tight text-text-heading leading-[0.92] max-w-xl"
+            style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8), 0 0 15px rgba(0,0,0,0.6)" }}
           >
             Find the creative who gets it.
           </h2>
           <p
-            className="text-xs sm:text-sm lg:text-base text-slate-700 font-medium max-w-md leading-relaxed"
-            style={{ textShadow: "0 1px 2px rgba(255,255,255,0.8)" }}
+            className="text-xs sm:text-sm lg:text-base text-text-body font-medium max-w-md leading-relaxed"
+            style={{ textShadow: "0 1px 2px rgba(0,0,0,0.8)" }}
           >
             Connect with the right talent and turn your next idea into something worth remembering.
           </p>

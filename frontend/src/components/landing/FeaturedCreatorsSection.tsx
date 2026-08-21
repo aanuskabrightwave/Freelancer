@@ -104,8 +104,11 @@ export default function FeaturedCreatorsSection() {
         const currentTranslation = gsap.getProperty(track, "x") as number;
         let targetX = -currentTranslation;
 
-        const isScrollingDown = e.deltaY > 0;
-        const isScrollingUp = e.deltaY < 0;
+        // Normalize deltaX and deltaY to handle Shift + Wheel and horizontal gestures
+        const wheelDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+
+        const isScrollingDown = wheelDelta > 0;
+        const isScrollingUp = wheelDelta < 0;
 
         const canScrollLeft = targetX < maxScroll && isScrollingDown;
         const canScrollRight = targetX > 0 && isScrollingUp;
@@ -114,7 +117,8 @@ export default function FeaturedCreatorsSection() {
           // Intercept mouse wheel, prevent native page scrolling
           e.preventDefault();
 
-          targetX += e.deltaY;
+          // Apply sensitivity multiplier (1.35) for faster but controllable premium scrolling
+          targetX += wheelDelta * 1.35;
           targetX = Math.max(0, Math.min(targetX, maxScroll));
 
           // Animate horizontal translation of the track smoothly
@@ -139,7 +143,7 @@ export default function FeaturedCreatorsSection() {
                 if (numEl) {
                   gsap.set(numEl, {
                     scale: 0.8 + progress * 0.45,
-                    color: gsap.utils.interpolate("#64748b", "#E4523D", progress),
+                    color: gsap.utils.interpolate("#81776F", "#F05A47", progress),
                   });
                 }
               });
@@ -168,7 +172,7 @@ export default function FeaturedCreatorsSection() {
           if (numEl) {
             gsap.set(numEl, {
               scale: 0.8 + progress * 0.45,
-              color: gsap.utils.interpolate("#64748b", "#E4523D", progress),
+              color: gsap.utils.interpolate("#81776F", "#F05A47", progress),
             });
           }
         });
@@ -189,14 +193,14 @@ export default function FeaturedCreatorsSection() {
   return (
     <section
       ref={containerRef}
-      className="py-24 md:py-32 bg-[#101114] text-white relative z-20 overflow-hidden"
+      className="landing-section bg-bg-level-0 text-text-body relative z-20 overflow-hidden"
     >
       {/* Section Header */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-4 mb-16">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
           04 / FEATURED TALENT
         </span>
-        <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-none">
+        <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-text-heading leading-none">
           Meet the people<br />behind the cut.
         </h2>
       </div>
@@ -210,10 +214,10 @@ export default function FeaturedCreatorsSection() {
           {creators.map((creator) => (
             <div
               key={creator.id}
-              className="creator-panel flex-shrink-0 w-[70vw] md:w-[50vw] lg:w-[42vw] h-[55vh] bg-[#0B0C0E] border border-white/5 rounded-2xl p-8 sm:p-10 flex flex-col justify-between relative group hover:border-white/15 hover:shadow-2xl transition-all duration-500 ease-out"
+              className="creator-panel flex-shrink-0 w-[70vw] md:w-[50vw] lg:w-[42vw] h-[55vh] bg-bg-level-2 border border-border-subtle rounded-2xl p-8 sm:p-10 flex flex-col justify-between relative group hover:bg-bg-level-3 hover:border-border-accent hover:shadow-[0_16px_45px_rgba(0,0,0,0.30)] hover:-translate-y-1 transition-all duration-500 ease-out"
             >
               {/* Index Number */}
-              <div className="absolute top-8 left-8 text-lg font-black tracking-widest text-slate-500">
+              <div className="absolute top-8 left-8 text-lg font-black tracking-widest text-text-muted-meta">
                 <span className="creator-num inline-block transform origin-left transition-colors">
                   {creator.num}
                 </span>{" "}
@@ -221,7 +225,7 @@ export default function FeaturedCreatorsSection() {
               </div>
 
               {/* Looping Portfolio Video Viewport */}
-              <div className="relative w-full h-[28vh] bg-slate-900 rounded-xl overflow-hidden mt-8 border border-white/5 shadow-inner">
+              <div className="relative w-full h-[28vh] bg-surface-media rounded-xl overflow-hidden mt-8 border border-border-subtle shadow-inner">
                 <video
                   src={creator.video}
                   className="w-full h-full object-cover filter saturate-[0.9] group-hover:scale-105 transition-transform duration-700 ease-out"
@@ -230,40 +234,40 @@ export default function FeaturedCreatorsSection() {
                   muted
                   playsInline
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-60" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0/50 via-transparent to-transparent opacity-60" />
               </div>
 
               {/* Creator details */}
               <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 mt-4">
                 <div className="space-y-1">
-                  <h3 className="text-2xl font-black tracking-tight text-white group-hover:text-primary transition-colors duration-300">
+                  <h3 className="text-2xl font-black tracking-tight text-text-heading group-hover:text-accent-coral transition-colors duration-300">
                     {creator.name}
                   </h3>
-                  <p className="text-[11px] font-black uppercase tracking-wider text-primary">
+                  <p className="text-[11px] font-black uppercase tracking-wider text-accent-coral">
                     {creator.title}
                   </p>
-                  <p className="text-xs text-slate-400 font-medium">
+                  <p className="text-xs text-text-sub font-medium">
                     {creator.skills}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-6 sm:text-right flex-shrink-0">
                   <div className="text-xs">
-                    <span className="block font-black text-white text-sm">{creator.rating} ★</span>
-                    <span className="text-[9px] text-slate-500 uppercase tracking-widest block font-bold">RATING</span>
+                    <span className="block font-black text-text-heading text-sm">{creator.rating} ★</span>
+                    <span className="text-[9px] text-text-muted-meta uppercase tracking-widest block font-bold">RATING</span>
                   </div>
                   <div className="text-xs">
-                    <span className="block font-black text-white text-sm">{creator.projects}</span>
-                    <span className="text-[9px] text-slate-500 uppercase tracking-widest block font-bold">PROJECTS</span>
+                    <span className="block font-black text-text-heading text-sm">{creator.projects}</span>
+                    <span className="text-[9px] text-text-muted-meta uppercase tracking-widest block font-bold">PROJECTS</span>
                   </div>
                 </div>
               </div>
 
               {/* Call to action */}
-              <div className="pt-4 border-t border-white/5 flex items-center justify-between">
+              <div className="pt-4 border-t border-border-subtle flex items-center justify-between">
                 <Link
                   href={`/freelancers/${creator.id}`}
-                  className="text-xs font-black uppercase tracking-wider text-primary hover:text-primary-hover transition-colors inline-flex items-center gap-1.5"
+                  className="text-xs font-black uppercase tracking-wider text-accent-coral hover:opacity-80 transition-opacity inline-flex items-center gap-1.5"
                 >
                   <span>VIEW PORTFOLIO</span>
                   <span className="group-hover:translate-x-1 transition-transform">&rarr;</span>
@@ -275,12 +279,12 @@ export default function FeaturedCreatorsSection() {
 
           {/* End Panel / CTA to browse all */}
           <div className="flex-shrink-0 w-[40vw] sm:w-[30vw] h-[55vh] flex flex-col justify-center items-start px-12 relative">
-            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-white mb-6">
+            <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-text-heading mb-6">
               Ready to find<br />your editor?
             </h3>
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition inline-flex items-center gap-2 shadow-lg shadow-primary/20"
+              className="bg-accent-coral hover:opacity-90 text-text-heading font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition inline-flex items-center gap-2 shadow-lg shadow-accent-coral/20"
             >
               <span>EXPLORE ALL TALENT</span>
               <span>&rarr;</span>

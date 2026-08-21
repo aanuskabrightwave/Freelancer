@@ -80,15 +80,15 @@ export default function EditingStylesSection() {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   return (
-    <section className="pt-8 md:pt-12 lg:pt-16 pb-32 bg-[#0B0C0E] text-white border-t border-white/5 relative z-20 overflow-hidden">
+    <section className="landing-section bg-bg-level-0 text-text-body border-t border-border-subtle relative z-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-16">
         
         {/* Header */}
         <div className="space-y-4 max-w-2xl">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
             06 / EXPLORE BY STYLE
           </span>
-          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-none">
+          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-text-heading leading-none">
             Every story needs<br />a different cut.
           </h2>
         </div>
@@ -101,7 +101,7 @@ export default function EditingStylesSection() {
               href={`/freelancers?profession=VIDEO_EDITOR&style=${cat.filter}`}
               onMouseEnter={() => setHoveredIdx(idx)}
               onMouseLeave={() => setHoveredIdx(null)}
-              className={`${cat.gridClass} relative bg-[#101114] border border-white/5 rounded-2xl overflow-hidden group shadow-md hover:shadow-2xl transition-all duration-500`}
+              className={`${cat.gridClass} relative bg-bg-level-2 border border-border-subtle rounded-2xl overflow-hidden group shadow-md hover:bg-bg-level-3 hover:border-border-hover hover:-translate-y-1 hover:shadow-2xl hover:shadow-black/30 transition-all duration-500`}
             >
               
               {/* Media viewport */}
@@ -119,15 +119,15 @@ export default function EditingStylesSection() {
                   muted
                   playsInline
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0/90 via-bg-level-0/25 to-transparent" />
               </div>
 
               {/* Text overlays */}
               <div className="absolute bottom-8 left-8 right-8 z-10 flex items-center justify-between pointer-events-none">
-                <h3 className="text-lg sm:text-2xl font-black tracking-tight uppercase group-hover:translate-x-1 transition-transform duration-300">
+                <h3 className="text-lg sm:text-2xl font-black tracking-tight uppercase text-text-heading group-hover:translate-x-1 transition-transform duration-300">
                   {cat.name}
                 </h3>
-                <span className="text-primary text-xl opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
+                <span className="text-accent-coral text-xl opacity-0 group-hover:opacity-100 translate-x-4 group-hover:translate-x-0 transition-all duration-300">
                   &rarr;
                 </span>
               </div>

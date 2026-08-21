@@ -44,7 +44,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-col flex-grow bg-[#FAF9F6] text-[#080B1D] font-sans selection:bg-primary/20">
+    <div className="flex flex-col flex-grow bg-bg-level-0 text-text-body font-sans selection:bg-accent-coral/20">
       
       {/* 1. CINEMATIC 3D CAMERA HERO SECTION (COMPLETED & APPROVED — DO NOT TOUCH) */}
       <CinematicHero />

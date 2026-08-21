@@ -102,20 +102,20 @@ export default function EditingTimelineSection() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[400vh] bg-[#080B1D] text-white overflow-clip m-0 p-0 z-20"
+      className="relative w-full h-screen bg-bg-level-1 text-text-body overflow-clip m-0 p-0 z-20"
     >
-      {/* Sticky viewports */}
+      {/* Viewport container */}
       <div
         ref={stickyRef}
-        className="sticky top-0 w-full h-screen flex flex-col justify-between items-center overflow-hidden py-12 px-6 sm:px-16"
+        className="relative w-full h-full flex flex-col justify-between items-center overflow-hidden py-12 px-6 sm:px-16"
       >
         
         {/* Title */}
         <div className="text-center space-y-2 max-w-lg z-20">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
             09 / TIMELINE CHOREOGRAPHY
           </span>
-          <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-white leading-none">
+          <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight text-text-heading leading-none">
             Every frame has a purpose.
           </h2>
         </div>
@@ -123,7 +123,7 @@ export default function EditingTimelineSection() {
         {/* Dynamic Preview Monitor Panel */}
         <div
           ref={previewMonitor}
-          className="relative w-[85vw] md:w-[60vw] lg:w-[48vw] aspect-video bg-[#000] border border-white/10 rounded-2xl overflow-hidden z-10 flex items-center justify-center shadow-2xl transition-all duration-300"
+          className="relative w-[85vw] md:w-[60vw] lg:w-[48vw] aspect-video bg-[#000] border border-border-subtle rounded-2xl overflow-hidden z-10 flex items-center justify-center shadow-2xl transition-all duration-300"
         >
           {/* Looping Cinematic Footage */}
           <video
@@ -137,7 +137,7 @@ export default function EditingTimelineSection() {
           />
 
           {/* Timecode counter overlay */}
-          <div className="absolute bottom-4 right-4 bg-black/60 px-3 py-1 border border-white/5 text-[9px] tracking-widest uppercase font-mono text-slate-300 rounded font-black">
+          <div className="absolute bottom-4 right-4 bg-bg-level-0/80 px-3 py-1 border border-border-subtle text-[9px] tracking-widest uppercase font-mono text-accent-cool rounded font-black">
             LOCKED / REC.709
           </div>
 
@@ -146,9 +146,9 @@ export default function EditingTimelineSection() {
             ref={fullScreenText}
             className="absolute inset-0 flex flex-col items-center justify-center text-center opacity-0 z-20 bg-black/40 px-6 pointer-events-none"
           >
-            <h3 className="text-5xl sm:text-8xl font-black tracking-tighter uppercase leading-none">
+            <h3 className="text-5xl sm:text-8xl font-black tracking-tighter uppercase text-text-heading leading-none">
               EVERY LAYER.<br />
-              <span className="text-primary">ONE STORY.</span>
+              <span className="text-accent-coral">ONE STORY.</span>
             </h3>
           </div>
         </div>
@@ -156,10 +156,10 @@ export default function EditingTimelineSection() {
         {/* Professional Editing Timeline Interface */}
         <div
           ref={timelineWorkspace}
-          className="w-full max-w-5xl bg-[#101114] border border-white/5 rounded-2xl p-6 space-y-4 shadow-2xl z-20"
+          className="w-full max-w-5xl bg-bg-level-2 border border-border-subtle rounded-2xl p-6 space-y-4 shadow-2xl z-20"
         >
-          <div className="flex items-center justify-between pb-3 border-b border-white/5">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">MOCK TIMELINE WORKSPACE</span>
+          <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
+            <span className="text-[10px] font-black uppercase tracking-widest text-text-muted-meta">MOCK TIMELINE WORKSPACE</span>
             <div className="flex gap-2">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
               <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
@@ -168,15 +168,15 @@ export default function EditingTimelineSection() {
           </div>
 
           {/* Timeline Tracks */}
-          <div className="space-y-2 font-mono text-[9px] font-black tracking-widest text-slate-500">
+          <div className="space-y-2 font-mono text-[9px] font-black tracking-widest text-text-muted-meta">
             
             {/* Color LUT Track */}
             <div className="grid grid-cols-12 gap-4 items-center">
               <span className="col-span-2 text-right">LUT COLOR</span>
-              <div className="col-span-10 h-4 bg-slate-950/40 rounded overflow-hidden relative">
+              <div className="col-span-10 h-4 bg-bg-level-0/40 rounded overflow-hidden relative">
                 <div 
                   ref={trackColorLayer}
-                  className="h-full bg-primary/20 border border-primary/30 w-[80%] rounded origin-left"
+                  className="h-full bg-accent-coral/20 border border-border-accent w-[80%] rounded origin-left"
                 />
               </div>
             </div>
@@ -184,10 +184,10 @@ export default function EditingTimelineSection() {
             {/* Video track */}
             <div className="grid grid-cols-12 gap-4 items-center">
               <span className="col-span-2 text-right">VIDEO A</span>
-              <div className="col-span-10 h-6 bg-slate-950/40 rounded overflow-hidden relative">
+              <div className="col-span-10 h-6 bg-bg-level-0/40 rounded overflow-hidden relative">
                 <div 
                   ref={trackVideoBlock}
-                  className="h-full bg-[#1e293b] border border-white/10 w-[70%] rounded origin-left flex items-center px-4 text-white"
+                  className="h-full bg-bg-level-3 border border-border-subtle w-[70%] rounded origin-left flex items-center px-4 text-text-heading"
                 >
                   MASTER_A001.MOV
                 </div>
@@ -197,10 +197,10 @@ export default function EditingTimelineSection() {
             {/* B-Roll Track */}
             <div className="grid grid-cols-12 gap-4 items-center">
               <span className="col-span-2 text-right">B-ROLL</span>
-              <div className="col-span-10 h-6 bg-slate-950/40 rounded overflow-hidden relative">
+              <div className="col-span-10 h-6 bg-bg-level-0/40 rounded overflow-hidden relative">
                 <div 
                   ref={trackBRollBlock}
-                  className="h-full bg-slate-700/80 border border-white/10 w-[45%] ml-[30%] rounded origin-left flex items-center px-4 text-white"
+                  className="h-full bg-accent-cool/20 border border-border-subtle w-[45%] ml-[30%] rounded origin-left flex items-center px-4 text-text-heading"
                 >
                   B_ROLL_DETAIL_2.MXF
                 </div>
@@ -210,16 +210,16 @@ export default function EditingTimelineSection() {
             {/* Music Track */}
             <div className="grid grid-cols-12 gap-4 items-center">
               <span className="col-span-2 text-right">MUSIC</span>
-              <div className="col-span-10 h-6 bg-slate-950/40 rounded overflow-hidden relative flex items-center">
+              <div className="col-span-10 h-6 bg-bg-level-0/40 rounded overflow-hidden relative flex items-center">
                 <div 
                   ref={trackMusicWave}
-                  className="h-3/4 bg-primary/30 border border-primary/40 rounded origin-left overflow-hidden flex items-center justify-around px-2"
+                  className="h-3/4 bg-accent-coral/20 border border-border-accent rounded origin-left overflow-hidden flex items-center justify-around px-2"
                 >
                   {/* Waveform lines */}
                   {[...Array(24)].map((_, i) => (
                     <span 
                       key={i} 
-                      className="w-[2px] bg-primary/80 rounded" 
+                      className="w-[2px] bg-accent-coral/80 rounded" 
                       style={{ height: `${20 + Math.random() * 70}%` }}
                     />
                   ))}
@@ -230,10 +230,10 @@ export default function EditingTimelineSection() {
             {/* Text layers */}
             <div className="grid grid-cols-12 gap-4 items-center">
               <span className="col-span-2 text-right">TITLES</span>
-              <div className="col-span-10 h-5 bg-slate-950/40 rounded overflow-hidden relative">
+              <div className="col-span-10 h-5 bg-bg-level-0/40 rounded overflow-hidden relative">
                 <div 
                   ref={trackTextLayer}
-                  className="h-full bg-[#020617] border border-white/10 w-[35%] ml-[10%] rounded origin-left flex items-center px-4 text-primary"
+                  className="h-full bg-surface-media border border-border-subtle w-[35%] ml-[10%] rounded origin-left flex items-center px-4 text-accent-coral"
                 >
                   VOGUE_TITLE_INTRO
                 </div>
@@ -243,10 +243,10 @@ export default function EditingTimelineSection() {
             {/* SFX Track */}
             <div className="grid grid-cols-12 gap-4 items-center">
               <span className="col-span-2 text-right">SFX</span>
-              <div className="col-span-10 h-5 bg-slate-950/40 rounded overflow-hidden relative flex items-center px-4">
+              <div className="col-span-10 h-5 bg-bg-level-0/40 rounded overflow-hidden relative flex items-center px-4">
                 <div 
                   ref={trackSFXLayer}
-                  className="h-3 w-6 bg-[#334155] rounded border border-white/10 flex items-center justify-center text-[7px]"
+                  className="h-3 w-6 bg-[#1e293b] rounded border border-border-subtle flex items-center justify-center text-[7px]"
                 >
                   WOOSH
                 </div>

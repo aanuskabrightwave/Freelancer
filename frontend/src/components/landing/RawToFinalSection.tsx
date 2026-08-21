@@ -25,10 +25,8 @@ export default function RawToFinalSection() {
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          end: "+=200%",
-          pin: true,
+          end: "bottom bottom",
           scrub: 1,
-          anticipatePin: 1,
         },
       });
 
@@ -59,8 +57,8 @@ export default function RawToFinalSection() {
           { opacity: 1, scale: 1, y: 0, duration: 0.8, ease: "power3.out" },
           1.6
         )
-        // Dwell state
-        .to({}, { duration: 0.5 });
+        // Dwell state (short hold on completed final cut)
+        .to({}, { duration: 0.8 });
     }, containerRef);
 
     return () => ctx.revert();
@@ -69,11 +67,11 @@ export default function RawToFinalSection() {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[300vh] bg-[#080B1D] text-white overflow-clip m-0 p-0 z-20 border-t border-white/5"
+      className="relative w-full h-[300vh] bg-bg-level-0 text-text-body m-0 p-0 z-20 border-t border-border-subtle"
     >
       <div
         ref={stickyRef}
-        className="sticky top-0 w-full h-screen flex flex-col justify-center items-center overflow-hidden"
+        className="sticky top-0 w-full h-screen overflow-hidden flex flex-col justify-center items-center"
       >
         {/* Cinematic Image Layer Container */}
         <div className="absolute inset-0 w-full h-full select-none pointer-events-none z-0">
@@ -87,7 +85,7 @@ export default function RawToFinalSection() {
           />
 
           {/* Label Right: RAW (since the right side of the divider starts as RAW) */}
-          <div className="absolute top-24 right-8 z-20 px-3 py-1 bg-black/60 backdrop-blur-md border border-white/10 rounded text-[10px] tracking-widest uppercase font-black text-slate-300">
+          <div className="absolute top-24 right-8 z-20 px-3 py-1 bg-bg-level-2/60 backdrop-blur-md border border-border-subtle rounded text-[10px] tracking-widest uppercase font-black text-accent-cool">
             RAW
           </div>
 
@@ -103,38 +101,38 @@ export default function RawToFinalSection() {
           />
 
           {/* Label Left: FINAL CUT (since the left side of the divider reveals FINAL CUT) */}
-          <div className="absolute top-24 left-8 z-20 px-3 py-1 bg-primary/80 backdrop-blur-md border border-primary/20 rounded text-[10px] tracking-widest uppercase font-black text-white">
+          <div className="absolute top-24 left-8 z-20 px-3 py-1 bg-accent-coral/80 backdrop-blur-md border border-border-accent rounded text-[10px] tracking-widest uppercase font-black text-text-heading">
             FINAL CUT
           </div>
 
           {/* Sweeping Vertical Divider Line */}
           <div
             ref={dividerRef}
-            className="absolute top-0 bottom-0 w-[2px] bg-primary z-20 left-[0%] pointer-events-none flex items-center justify-center"
+            className="absolute top-0 bottom-0 w-[2px] bg-accent-coral z-20 left-[0%] pointer-events-none flex items-center justify-center"
           >
-            <div className="w-10 h-10 rounded-full bg-primary text-white border border-white/20 flex items-center justify-center text-xs shadow-2xl font-bold select-none">
+            <div className="w-10 h-10 rounded-full bg-accent-coral text-text-heading border border-white/20 flex items-center justify-center text-xs shadow-2xl font-bold select-none">
               &larr;&rarr;
             </div>
           </div>
         </div>
 
         {/* Dynamic Dark Gradient overlays for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-[#080B1D] via-transparent to-[#080B1D] opacity-90 z-10 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-bg-level-0 via-transparent to-bg-level-0 opacity-90 z-10 pointer-events-none" />
 
         {/* Phase 1 Overlay Header */}
         <div
           ref={headerRef}
           className="relative z-20 text-center max-w-4xl px-6 space-y-5 pointer-events-none mt-12"
         >
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
             02 / THE TRANSFORMATION
           </span>
-          <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.88] text-white">
+          <h2 className="text-5xl sm:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.88] text-text-heading">
             RAW FOOTAGE.<br />
             REAL CRAFT.<br />
             FINAL STORY.
           </h2>
-          <p className="text-sm sm:text-base text-slate-400 font-medium max-w-lg mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-text-sub font-medium max-w-lg mx-auto leading-relaxed">
             See how skilled editors transform ordinary footage into polished, cinematic experiences.
           </p>
         </div>
@@ -144,9 +142,9 @@ export default function RawToFinalSection() {
           ref={textRevealRef}
           className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none opacity-0"
         >
-          <h3 className="text-5xl sm:text-8xl lg:text-9xl font-black tracking-tight text-center text-white leading-none px-4 drop-shadow-2xl">
+          <h3 className="text-5xl sm:text-8xl lg:text-9xl font-black tracking-tight text-center text-text-heading leading-none px-4 drop-shadow-2xl">
             FROM FOOTAGE<br />
-            <span className="text-primary">TO FEELING.</span>
+            <span className="text-accent-coral">TO FEELING.</span>
           </h3>
         </div>
       </div>
