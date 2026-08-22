@@ -279,6 +279,27 @@ export default function ProjectWorkspace({ bookingId, role }: ProjectWorkspacePr
     }
   }
 
+  // Start confirmed job
+  async function handleStartProject() {
+    if (!confirm("Are you ready to start working on this project? This will change the status to 'Work In Progress'.")) return;
+    try {
+      setActionLoading(true);
+      await bookingService.startBooking(bookingId);
+      
+      // Reload workspace data
+      const bData = await bookingService.getBookingDetails(bookingId);
+      setBooking(bData);
+      const timelineEvents = await workspaceService.getTimeline(bookingId);
+      setTimeline(timelineEvents);
+      
+      alert("Project started! You are now in the 'Work In Progress' stage.");
+    } catch (err: any) {
+      alert(err.response?.data?.detail || "Failed to start project.");
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   // Submit delivery
   async function handleDeliverSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -527,6 +548,97 @@ export default function ProjectWorkspace({ bookingId, role }: ProjectWorkspacePr
         </div>
       </div>
 
+      {/* visual pipeline stage tracker */}
+      {(() => {
+        const getStepIndex = (status: string) => {
+          switch (status) {
+            case "REQUESTED":
+            case "PENDING_CONFIRMATION":
+            case "CONFIRMED":
+            case "RESCHEDULE_REQUESTED":
+              return 0;
+            case "IN_PROGRESS":
+              return 1;
+            case "DELIVERY_PENDING":
+              return 2;
+            case "COMPLETED":
+              return 3;
+            default:
+              return 0;
+          }
+        };
+        const currentStep = getStepIndex(booking.status);
+        return (
+          <div className="max-w-7xl mx-auto px-6 md:px-12 mt-8">
+            <div className="bg-surface-elevated border border-border-custom rounded-3xl p-6 shadow-sm">
+              <div className="flex flex-col md:flex-row justify-between items-stretch md:items-center gap-6 relative">
+                
+                {/* Step 1: Confirmed */}
+                <div className="flex-1 flex flex-row md:flex-col items-center md:text-center gap-3 md:gap-2 relative z-10">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition duration-300 ${
+                    currentStep >= 0 ? "bg-primary text-text-on-dark" : "bg-surface border border-border-custom text-text-muted"
+                  }`}>
+                    1
+                  </div>
+                  <div className="md:space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider block text-text-main">Order Confirmed</span>
+                    <span className="text-[9px] text-text-muted block font-medium">Workspace opened</span>
+                  </div>
+                </div>
+
+                {/* Step 2: In Progress */}
+                <div className="flex-1 flex flex-row md:flex-col items-center md:text-center gap-3 md:gap-2 relative z-10">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition duration-300 ${
+                    currentStep >= 1 ? "bg-primary text-text-on-dark" : "bg-surface border border-border-custom text-text-muted"
+                  }`}>
+                    2
+                  </div>
+                  <div className="md:space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider block text-text-main">Work In Progress</span>
+                    <span className="text-[9px] text-text-muted block font-medium">Fulfillment started</span>
+                  </div>
+                </div>
+
+                {/* Step 3: Delivery Review */}
+                <div className="flex-1 flex flex-row md:flex-col items-center md:text-center gap-3 md:gap-2 relative z-10">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition duration-300 ${
+                    currentStep >= 2 ? "bg-primary text-text-on-dark" : "bg-surface border border-border-custom text-text-muted"
+                  }`}>
+                    3
+                  </div>
+                  <div className="md:space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider block text-text-main">Delivery Review</span>
+                    <span className="text-[9px] text-text-muted block font-medium">Under review by client</span>
+                  </div>
+                </div>
+
+                {/* Step 4: Completed */}
+                <div className="flex-1 flex flex-row md:flex-col items-center md:text-center gap-3 md:gap-2 relative z-10">
+                  <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs transition duration-300 ${
+                    currentStep >= 3 ? "bg-primary text-text-on-dark" : "bg-surface border border-border-custom text-text-muted"
+                  }`}>
+                    4
+                  </div>
+                  <div className="md:space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider block text-text-main">Completed</span>
+                    <span className="text-[9px] text-text-muted block font-medium">Payout released</span>
+                  </div>
+                </div>
+
+                {/* Connector Line (visible on desktop md) */}
+                <div className="hidden md:block absolute top-[18px] left-[12.5%] right-[12.5%] h-0.5 bg-border-custom z-0">
+                  <div 
+                    className="h-full bg-primary transition-all duration-500" 
+                    style={{ width: `${(currentStep / 3) * 100}%` }}
+                  />
+                </div>
+
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Tabs Navigator */}
       <div className="max-w-7xl mx-auto px-6 md:px-12 mt-6">
         <div className="flex border-b border-border-custom overflow-x-auto gap-4 md:gap-8 text-xs font-bold uppercase tracking-wider pb-px scrollbar-none">
@@ -610,7 +722,17 @@ export default function ProjectWorkspace({ bookingId, role }: ProjectWorkspacePr
                       </button>
                     )}
 
-                    {role === "FREELANCER" && ["CONFIRMED", "IN_PROGRESS"].includes(booking.status) && (
+                    {role === "FREELANCER" && booking.status === "CONFIRMED" && (
+                      <button
+                        onClick={handleStartProject}
+                        disabled={actionLoading}
+                        className="w-full py-2.5 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-full transition uppercase tracking-wider cursor-pointer animate-bounce"
+                      >
+                        Start Work Project
+                      </button>
+                    )}
+
+                    {role === "FREELANCER" && booking.status === "IN_PROGRESS" && (
                       <button
                         onClick={() => setActiveTab("deliveries")}
                         className="w-full py-2.5 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-full transition uppercase tracking-wider cursor-pointer"

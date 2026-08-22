@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 from app.core.database import get_db
 from app.dependencies.auth import get_current_active_user
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.models.booking import BookingStatus
 from app.services.booking_service import BookingService
 from app.schemas.booking import BookingResponse
@@ -26,7 +26,7 @@ def list_freelancer_bookings(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    if current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role) != "FREELANCER":
+    if current_user.role != UserRole.FREELANCER:
         raise HTTPException(status_code=403, detail="Only freelancers can retrieve freelancer booking dashboards.")
     return BookingService.list_bookings(db, current_user)
 

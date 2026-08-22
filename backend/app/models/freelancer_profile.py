@@ -59,6 +59,14 @@ class FreelancerProfile(Base):
     profile_completion_percentage = Column(Integer, default=0, nullable=False)
     verification_status = Column(Enum(VerificationStatus), default=VerificationStatus.NOT_SUBMITTED, nullable=False)
     is_profile_public = Column(Boolean, default=False, nullable=False)
+    
+    # Work Preferences Settings
+    preferred_categories = Column(Text, nullable=True)
+    preferred_budget_min = Column(Numeric(precision=10, scale=2), nullable=True)
+    preferred_budget_max = Column(Numeric(precision=10, scale=2), nullable=True)
+    preferred_work_mode = Column(String(50), nullable=True)
+    preferred_locations = Column(String(255), nullable=True)
+    open_to_remote = Column(Boolean, default=True, nullable=True)
 
     average_rating = Column(Float, nullable=True)
     review_count = Column(Integer, default=0, nullable=False)

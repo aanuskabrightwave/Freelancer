@@ -1,14 +1,20 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
 from sqlalchemy.orm import Session
+import os
+from pydantic import BaseModel, Field
+from fastapi.responses import FileResponse
 
 from app.core.database import get_db
 from app.dependencies.auth import get_current_active_user, get_current_user_optional
 from app.models.user import User, UserRole
-from app.models.freelancer_profile import FreelancerProfile
+from app.models.freelancer_profile import FreelancerProfile, VerificationStatus
+from app.models.verification import FreelancerVerification, VerificationDocument, DocumentType, DocumentStatus
 from app.repositories.freelancer_repository import FreelancerRepository
 from app.services.freelancer_service import FreelancerService
 from app.services.storage_service import StorageService
+from app.services.verification_service import VerificationService
+from app.core.config import settings
 from app.schemas.freelancer import (
     FreelancerProfileCreate,
     FreelancerProfileUpdate,
@@ -24,6 +30,15 @@ from app.schemas.freelancer import (
 from app.schemas.project import FreelancerProposalOut
 
 router = APIRouter()
+
+# Schema for Freelancer Verification submissions
+class DocumentSubmitCustom(BaseModel):
+    document_type: DocumentType
+    file_path: str
+    mime_type: str
+
+class VerificationSubmitCustom(BaseModel):
+    documents: List[DocumentSubmitCustom] = Field(..., min_length=1)
 
 
 # 1. Profile CRUD Endpoints
@@ -305,3 +320,138 @@ def get_my_proposals(
         })
         
     return result
+
+# 6. FREELANCER VERIFICATION ENDPOINTS
+@router.get("/freelancer/verification", summary="Get freelancer's verification status")
+def get_freelancer_verification_status(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != UserRole.FREELANCER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only freelancer profiles can access verification details."
+        )
+
+    profile = FreelancerService.get_my_profile(db, current_user)
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Freelancer profile not configured."
+        )
+
+    verification = VerificationService.get_verification_by_freelancer_id(db, profile.id)
+    if not verification:
+        return {
+            "status": VerificationStatus.NOT_SUBMITTED.value,
+            "documents": []
+        }
+
+    return {
+        "id": verification.id,
+        "status": verification.status.value,
+        "submitted_at": verification.submitted_at,
+        "rejection_reason": verification.rejection_reason,
+        "admin_notes": verification.admin_notes,
+        "documents": [{
+            "id": d.id,
+            "document_type": d.document_type.value,
+            "mime_type": d.mime_type,
+            "status": d.status.value
+        } for d in verification.documents]
+    }
+
+@router.post("/freelancer/verification", status_code=status.HTTP_201_CREATED, summary="Submit freelancer verification request")
+def submit_freelancer_verification(
+    payload: VerificationSubmitCustom,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != UserRole.FREELANCER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only freelancers can submit verification documents."
+        )
+
+    profile = FreelancerService.get_my_profile(db, current_user)
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Freelancer profile setup required before submitting verification."
+        )
+
+    # Validate document file paths and existences
+    sanitized_docs = []
+    for doc in payload.documents:
+        # Validate storage path safety to prevent IDOR access of other files
+        clean_path = doc.file_path.strip()
+        if not clean_path.startswith("/uploads/verifications/"):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Verification files must be located inside the secure verifications storage."
+            )
+
+        # Validate existence on disk
+        local_rel = clean_path.replace("/uploads/", "")
+        local_path = os.path.normpath(os.path.join(settings.UPLOAD_STORAGE_PATH, local_rel))
+        
+        # Verify directory traversal block
+        uploads_base = os.path.normpath(settings.UPLOAD_STORAGE_PATH)
+        if not local_path.startswith(uploads_base) or not os.path.exists(local_path):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="One or more specified verification files were not found on disk."
+            )
+
+        sanitized_docs.append({
+            "document_type": doc.document_type,
+            "file_path": clean_path,
+            "mime_type": doc.mime_type
+        })
+
+    # Delegate to VerificationService (already validates active review requests)
+    return VerificationService.submit_verification(db, profile.id, sanitized_docs)
+
+@router.get("/freelancer/verification/documents/{doc_id}/download", summary="Securely download freelancer's own verification document")
+def download_my_verification_document(
+    doc_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != UserRole.FREELANCER:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only freelancers can retrieve document files."
+        )
+
+    profile = FreelancerService.get_my_profile(db, current_user)
+    if not profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Freelancer profile not found."
+        )
+
+    doc = db.query(VerificationDocument).filter(VerificationDocument.id == doc_id).first()
+    if not doc:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Verification document not found."
+        )
+
+    # Enforce Owner Authorization check
+    if doc.verification.freelancer_profile_id != profile.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to access this document."
+        )
+
+    local_rel = doc.file_path.replace("/uploads/", "")
+    local_path = os.path.normpath(os.path.join(settings.UPLOAD_STORAGE_PATH, local_rel))
+
+    if not os.path.exists(local_path):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="File not found on local disk."
+        )
+
+    return FileResponse(local_path, media_type=doc.mime_type)

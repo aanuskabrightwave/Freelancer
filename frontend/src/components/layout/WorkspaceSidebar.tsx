@@ -123,7 +123,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
     {
       group: "Find Work",
       items: [
-        { name: "Browse Projects", href: "/services", icon: FileText },
+        { name: "Browse Projects", href: "/freelancer/jobs", icon: FileText },
         { name: "My Proposals", href: "/freelancer/proposals", icon: FolderOpen }
       ]
     },
@@ -145,7 +145,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       group: "Reputation",
       items: [
         { name: "Reviews", href: "/freelancer/reviews", icon: Star },
-        { name: "Verification", href: "/freelancer/dashboard", icon: ShieldCheck }
+        { name: "Verification", href: "/freelancer/verification", icon: ShieldCheck }
       ]
     },
     {

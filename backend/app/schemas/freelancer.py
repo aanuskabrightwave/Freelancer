@@ -79,7 +79,7 @@ class PortfolioOut(BaseModel):
 class FreelancerProfileBase(BaseModel):
     professional_title: Optional[str] = Field(None, max_length=120)
     primary_profession: FreelancerProfession
-    bio: Optional[str] = Field(None, max_length=2000)
+    bio: Optional[str] = Field(None, min_length=30, max_length=2000)
     experience_years: Optional[int] = Field(None, ge=0, le=50)
 
     city: Optional[str] = Field(None, max_length=100)
@@ -107,7 +107,7 @@ class FreelancerProfileCreate(FreelancerProfileBase):
 class FreelancerProfileUpdate(BaseModel):
     professional_title: Optional[str] = Field(None, max_length=120)
     primary_profession: Optional[FreelancerProfession] = None
-    bio: Optional[str] = Field(None, max_length=2000)
+    bio: Optional[str] = Field(None, min_length=30, max_length=2000)
     experience_years: Optional[int] = Field(None, ge=0, le=50)
 
     city: Optional[str] = Field(None, max_length=100)

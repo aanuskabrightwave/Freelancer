@@ -239,6 +239,7 @@ def test_verification_review_flow(client: TestClient, db: Session, test_users, f
 # ----------------------------------------------------
 
 def test_dispute_resolution(client: TestClient, db: Session, test_users, freelancer_profile, service, client_headers, admin_headers):
+    from datetime import datetime, timedelta
     # Create completed booking
     booking = Booking(
         booking_number="B-999",
@@ -247,7 +248,8 @@ def test_dispute_resolution(client: TestClient, db: Session, test_users, freelan
         service_id=service.id,
         status=BookingStatus.COMPLETED,
         agreed_amount=Decimal("15000.00"),
-        price=Decimal("15000.00")
+        price=Decimal("15000.00"),
+        dispute_window_ends_at=datetime.now() + timedelta(hours=48)
     )
     db.add(booking)
     db.commit()

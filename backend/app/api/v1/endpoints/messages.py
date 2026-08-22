@@ -17,10 +17,46 @@ def create_conversation(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    # Retrieve target freelancer profile's user account
-    from app.repositories.freelancer_repository import FreelancerRepository
     from fastapi import HTTPException
     
+    # 1. Handle Freelancer initiating chat with a Client (client_id provided)
+    if convo_in.client_id is not None:
+        if convo_in.client_id == current_user.id:
+            raise HTTPException(status_code=400, detail="You cannot start a conversation with yourself")
+
+        # Check current user is a freelancer
+        from app.repositories.freelancer_repository import FreelancerRepository
+        profile = FreelancerRepository.get_profile_by_user_id(db, current_user.id)
+        if not profile:
+            raise HTTPException(status_code=403, detail="Only registered freelancers can message clients")
+
+        # Verify active business relationship to prevent spam
+        from app.models.booking import Booking
+        from app.models.project import Proposal, Project
+
+        has_booking = db.query(Booking).filter(
+            Booking.client_id == convo_in.client_id,
+            Booking.freelancer_profile_id == profile.id
+        ).first()
+
+        has_proposal = db.query(Proposal).join(Project).filter(
+            Project.client_id == convo_in.client_id,
+            Proposal.freelancer_profile_id == profile.id
+        ).first()
+
+        if not has_booking and not has_proposal:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You can only message clients with whom you have an active booking or proposal."
+            )
+
+        return MessageService.get_or_create_conversation(db, convo_in.client_id, current_user.id)
+
+    # 2. Handle Client initiating chat with a Freelancer (freelancer_id provided)
+    if convo_in.freelancer_id is None:
+        raise HTTPException(status_code=400, detail="Either freelancer_id or client_id is required")
+
+    from app.repositories.freelancer_repository import FreelancerRepository
     profile = FreelancerRepository.get_profile_by_id(db, convo_in.freelancer_id)
     if not profile:
         raise HTTPException(status_code=404, detail="Freelancer profile not found")

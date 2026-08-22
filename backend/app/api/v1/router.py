@@ -5,7 +5,8 @@ from app.api.v1.endpoints import (
     messages, client_bookings, freelancer_bookings, availability,
     workspace, messaging, deliveries, revisions,
     payments, freelancer_earnings, payouts, payment_webhooks,
-    reviews, favourites, notifications, admin_management
+    reviews, favourites, notifications, admin_management, projects,
+    settings
 )
 
 api_router = APIRouter()
@@ -13,6 +14,7 @@ api_router = APIRouter()
 # Register active endpoints
 api_router.include_router(health.router, prefix="/health", tags=["Health"])
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+api_router.include_router(settings.router, prefix="/settings", tags=["Settings"])
 api_router.include_router(freelancers.router, tags=["Freelancers"])
 api_router.include_router(freelancer_services.router, tags=["Freelancer Services"])
 api_router.include_router(services.router, tags=["Marketplace Services"])
@@ -32,6 +34,7 @@ api_router.include_router(payment_webhooks.router, tags=["Payment Webhooks"])
 api_router.include_router(reviews.router, tags=["Reviews & Ratings"])
 api_router.include_router(favourites.router, tags=["Favourites"])
 api_router.include_router(notifications.router, tags=["Notifications"])
+api_router.include_router(projects.router, tags=["Projects"])
 
 
 # Register placeholder routes for planned modules
@@ -44,10 +47,6 @@ async def users_placeholder():
 @placeholder_router.get("/clients", tags=["Placeholder"])
 async def clients_placeholder():
     return {"message": "Client profiles will be implemented in a future module"}
-
-@placeholder_router.get("/projects", tags=["Placeholder"])
-async def projects_placeholder():
-    return {"message": "Projects endpoints will be implemented in a future module"}
 
 @placeholder_router.get("/proposals", tags=["Placeholder"])
 async def proposals_placeholder():

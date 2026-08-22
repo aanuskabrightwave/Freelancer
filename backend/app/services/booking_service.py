@@ -261,6 +261,13 @@ class BookingService:
         project.status = "AWARDED"
         proposal.status = "ACCEPTED"
         
+        # Reject other pending proposals
+        db.query(Proposal).filter(
+            Proposal.project_id == project.id,
+            Proposal.id != proposal.id,
+            Proposal.status == "PENDING"
+        ).update({"status": "REJECTED"}, synchronize_session=False)
+        
         b_number = BookingRepository.generate_booking_number(db)
         
         booking_record = {
@@ -479,6 +486,22 @@ class BookingService:
                     )
             booking.started_at = datetime.now()
 
+            # Automatically initialize workspace if needed and log timeline event
+            try:
+                from app.services.workspace_service import WorkspaceService
+                from app.models.workspace_event import WorkspaceEventType
+                workspace = WorkspaceService.get_or_create_workspace(db, user, booking.id)
+                WorkspaceService.log_workspace_event(
+                    db,
+                    workspace_id=workspace.id,
+                    event_type=WorkspaceEventType.WORK_STARTED,
+                    actor_user_id=user.id,
+                    title="Project Started",
+                    description=f"{user.full_name} has started working on this project. Workspace is now active."
+                )
+            except Exception:
+                pass
+
         elif new_status == BookingStatus.DELIVERY_PENDING:
             if not is_freelancer and user.role != UserRole.ADMIN:
                 raise HTTPException(status_code=403, detail="Only freelancers can mark delivery pending.")
@@ -491,6 +514,24 @@ class BookingService:
             if current != BookingStatus.DELIVERY_PENDING:
                 raise HTTPException(status_code=400, detail="Only DELIVERY_PENDING bookings can be completed.")
             booking.completed_at = datetime.now()
+
+            # Log project completion event to timeline
+            try:
+                from app.repositories.workspace_repository import WorkspaceRepository
+                from app.services.workspace_service import WorkspaceService
+                from app.models.workspace_event import WorkspaceEventType
+                workspace = WorkspaceRepository.get_by_booking_id(db, booking.id)
+                if workspace:
+                    WorkspaceService.log_workspace_event(
+                        db,
+                        workspace_id=workspace.id,
+                        event_type=WorkspaceEventType.BOOKING_COMPLETED,
+                        actor_user_id=user.id,
+                        title="Project Completed",
+                        description=f"{user.full_name} approved the final delivery and marked the project as completed."
+                    )
+            except Exception:
+                pass
 
         elif new_status == BookingStatus.CANCELLED:
             if current not in [BookingStatus.REQUESTED, BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS]:

@@ -466,8 +466,19 @@ def download_verification_document(
     if not doc:
         raise HTTPException(status_code=404, detail="Verification document matching criteria not found.")
 
+    import os
     from fastapi.responses import FileResponse
-    return FileResponse(doc.file_path, media_type=doc.mime_type)
+    from app.core.config import settings
+
+    local_path = doc.file_path
+    if local_path.startswith("/uploads"):
+        local_rel = local_path.replace("/uploads/", "")
+        local_path = os.path.normpath(os.path.join(settings.UPLOAD_STORAGE_PATH, local_rel))
+
+    if not os.path.exists(local_path):
+        raise HTTPException(status_code=404, detail="Verification document file not found on local disk.")
+
+    return FileResponse(local_path, media_type=doc.mime_type)
 
 
 # ----------------------------------------------------

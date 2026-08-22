@@ -69,7 +69,8 @@ def test_payment_and_payout_ledger_pipeline(client, db):
         booking_date=datetime.now(),
         timezone="Asia/Kolkata",
         agreed_amount=package.price,
-        price=package.price
+        price=package.price,
+        deposit_amount=package.price
     )
     db.add(booking)
     db.commit()

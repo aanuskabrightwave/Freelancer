@@ -17,6 +17,7 @@ export default function FreelancerBookingsPage() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ActiveTab>("REQUESTS");
+  const [chatLoading, setChatLoading] = useState(false);
 
   async function loadBookings() {
     try {
@@ -37,13 +38,27 @@ export default function FreelancerBookingsPage() {
     }
   }, [user]);
 
-  const handleOpenChat = async (freelancerProfileId: number) => {
+  const handleOpenChat = async (booking: any) => {
+    if (chatLoading) return;
     try {
+      setChatLoading(true);
       setErrorMsg(null);
-      const convo = await messageService.createConversation(freelancerProfileId);
-      router.push(`/freelancer/messages?active=${convo.id}`);
+      
+      const conversations = await messageService.getConversations();
+      const existingConvo = conversations.find(
+        (c: any) => c.client_id === booking.client_id && c.freelancer_id === user?.id
+      );
+
+      if (existingConvo) {
+        router.push(`/freelancer/messages?active=${existingConvo.id}`);
+      } else {
+        const convo = await messageService.createConversation({ client_id: booking.client_id });
+        router.push(`/freelancer/messages?active=${convo.id}`);
+      }
     } catch (err: any) {
       setErrorMsg("Failed to open chat with client.");
+    } finally {
+      setChatLoading(false);
     }
   };
 
@@ -178,10 +193,11 @@ export default function FreelancerBookingsPage() {
                 
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleOpenChat(booking.freelancer_profile_id)}
-                    className="px-3.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-850 text-slate-300 text-xs font-bold rounded-lg transition"
+                    disabled={chatLoading}
+                    onClick={() => handleOpenChat(booking)}
+                    className="px-3.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-850 text-slate-300 text-xs font-bold rounded-lg transition disabled:opacity-50"
                   >
-                    Open Chat
+                    {chatLoading ? "Opening..." : "Open Chat"}
                   </button>
 
                   <Link

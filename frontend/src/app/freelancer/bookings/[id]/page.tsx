@@ -76,10 +76,20 @@ function BookingDetailsContent() {
   }, [user, id]);
 
   const handleOpenChat = async () => {
+    if (!booking) return;
     try {
       setActionLoading(true);
-      const convo = await messageService.createConversation(booking.freelancer_profile_id);
-      router.push(`/freelancer/messages?active=${convo.id}`);
+      const conversations = await messageService.getConversations();
+      const existingConvo = conversations.find(
+        (c: any) => c.client_id === booking.client_id && c.freelancer_id === user?.id
+      );
+
+      if (existingConvo) {
+        router.push(`/freelancer/messages?active=${existingConvo.id}`);
+      } else {
+        const convo = await messageService.createConversation({ client_id: booking.client_id });
+        router.push(`/freelancer/messages?active=${convo.id}`);
+      }
     } catch (err) {
       alert("Failed to initialize conversation thread.");
     } finally {

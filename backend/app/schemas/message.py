@@ -48,7 +48,8 @@ class MessageCreate(BaseModel):
 
 
 class ConversationCreate(BaseModel):
-    freelancer_id: int
+    freelancer_id: Optional[int] = None
+    client_id: Optional[int] = None
 
 
 class ConversationResponse(BaseModel):
