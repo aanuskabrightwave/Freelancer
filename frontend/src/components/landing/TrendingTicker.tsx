@@ -61,11 +61,11 @@ export default function TrendingTicker() {
   }, []);
 
   return (
-    <div className="w-full bg-[#101114] border-y border-white/5 py-6 overflow-hidden select-none whitespace-nowrap flex relative z-20">
-      <div ref={marqueeInnerRef} className="flex gap-16 pr-16 text-3xl sm:text-5xl font-black uppercase text-slate-400 tracking-wider">
+    <div className="w-full bg-bg-level-3 border-y border-border-subtle py-6 overflow-hidden select-none whitespace-nowrap flex relative z-20">
+      <div ref={marqueeInnerRef} className="flex gap-16 pr-16 text-3xl sm:text-5xl font-black uppercase text-text-sub tracking-wider">
         {/* Double content for seamless looping */}
         {[...CATEGORIES, ...CATEGORIES].map((cat, idx) => (
-          <span key={idx} className="hover:text-primary transition-colors cursor-default">
+          <span key={idx} className="hover:text-accent-coral transition-colors cursor-default">
             {cat}
           </span>
         ))}

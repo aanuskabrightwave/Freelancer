@@ -71,86 +71,86 @@ export default function PlatformStatsSection() {
   return (
     <section 
       ref={containerRef}
-      className="pt-8 md:pt-12 lg:pt-16 pb-8 md:pb-10 lg:pb-12 bg-[#101114] text-[#F7F3ED] border-y border-white/5 relative z-20 overflow-hidden"
+      className="pt-8 md:pt-12 lg:pt-16 pb-8 md:pb-10 lg:pb-12 bg-bg-level-1 text-text-body border-y border-border-subtle relative z-20 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-24">
         
         {/* Large Typography Header */}
         <div className="max-w-4xl space-y-6">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
             11 / TRUST & METRICS
           </span>
-          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-[0.92]">
+          <h2 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-text-heading leading-[0.92]">
             CREATIVITY<br />
             BACKED BY<br />
             A PLATFORM.
           </h2>
-          <p className="text-sm sm:text-base text-slate-400 max-w-lg leading-relaxed">
+          <p className="text-sm sm:text-base text-text-sub max-w-lg leading-relaxed">
             We built a secure, high-trust environment by replacing agency markup with transparent, direct collaborations.
           </p>
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 pt-8 border-t border-white/5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 pt-8 border-t border-border-subtle">
           
           {/* Active Creators */}
           <div className="space-y-2">
-            <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-none flex items-baseline">
+            <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-text-heading leading-none flex items-baseline">
               <span className="stat-counter" data-target={stats.creators}>
                 0
               </span>
-              <span className="text-primary text-3xl font-bold">+</span>
+              <span className="text-accent-coral text-3xl font-bold">+</span>
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 uppercase block">
+            <span className="text-[10px] font-black tracking-widest text-text-sub uppercase block">
               ACTIVE CREATORS
             </span>
-            <p className="text-[11px] text-slate-400 font-medium">
+            <p className="text-[11px] text-text-sub font-medium">
               Verified portfolio, kit checklist & verified identity.
             </p>
           </div>
 
           {/* Creative Cities */}
           <div className="space-y-2">
-            <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-none flex items-baseline">
+            <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-text-heading leading-none flex items-baseline">
               <span className="stat-counter" data-target={stats.cities}>
                 0
               </span>
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 uppercase block">
+            <span className="text-[10px] font-black tracking-widest text-text-sub uppercase block">
               CREATIVE HOTSPOTS
             </span>
-            <p className="text-[11px] text-slate-400 font-medium">
+            <p className="text-[11px] text-text-sub font-medium">
               Major Indian visual production centers supported.
             </p>
           </div>
 
           {/* Categories */}
           <div className="space-y-2">
-            <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-none flex items-baseline">
+            <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-text-heading leading-none flex items-baseline">
               <span className="stat-counter" data-target={stats.categories}>
                 0
               </span>
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 uppercase block">
+            <span className="text-[10px] font-black tracking-widest text-text-sub uppercase block">
               CREATIVE STYLES
             </span>
-            <p className="text-[11px] text-slate-400 font-medium">
+            <p className="text-[11px] text-text-sub font-medium">
               Standardized genres from social reels to cinematic docs.
             </p>
           </div>
 
           {/* Secure Escrow */}
           <div className="space-y-2">
-            <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-white leading-none flex items-baseline">
+            <div className="text-5xl sm:text-6xl lg:text-7xl font-black text-text-heading leading-none flex items-baseline">
               <span className="stat-counter" data-target={stats.escrowPercent}>
                 0
               </span>
-              <span className="text-primary text-3xl font-bold">%</span>
+              <span className="text-accent-coral text-3xl font-bold">%</span>
             </div>
-            <span className="text-[10px] font-black tracking-widest text-slate-500 uppercase block">
+            <span className="text-[10px] font-black tracking-widest text-text-sub uppercase block">
               ESCROW GUARANTEE
             </span>
-            <p className="text-[11px] text-slate-400 font-medium">
+            <p className="text-[11px] text-text-sub font-medium">
               Funds held securely until final master cut is approved.
             </p>
           </div>

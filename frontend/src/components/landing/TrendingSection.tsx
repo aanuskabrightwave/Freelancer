@@ -46,14 +46,14 @@ export default function TrendingSection() {
   };
 
   return (
-    <section className="py-32 bg-[#0B0C0E] border-t border-white/5 relative z-20 text-white overflow-hidden">
+    <section className="py-32 bg-bg-level-1 border-t border-border-subtle relative z-20 text-text-body overflow-hidden">
       
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-4 mb-20">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
           03 / WHAT&apos;S CUTTING THROUGH
         </span>
-        <h2 className="text-4xl sm:text-6xl lg:text-[72px] font-black tracking-tight text-white leading-none">
+        <h2 className="text-4xl sm:text-6xl lg:text-[72px] font-black tracking-tight text-text-heading leading-none">
           Trending right now.
         </h2>
       </div>
@@ -65,7 +65,7 @@ export default function TrendingSection() {
           {PROJECTS.map((project) => (
             <div
               key={project.id}
-              className={`${project.colSpan} relative bg-[#101114] rounded-2xl overflow-hidden border border-white/5 group cursor-none`}
+              className={`${project.colSpan} relative bg-bg-level-3 rounded-2xl overflow-hidden border border-border-subtle group cursor-none`}
               onMouseEnter={() => setHoveredCardId(project.id)}
               onMouseLeave={() => setHoveredCardId(null)}
               onMouseMove={handleMouseMove}
@@ -73,7 +73,7 @@ export default function TrendingSection() {
               {/* Custom Play Cursor Follower */}
               {hoveredCardId === project.id && (
                 <div
-                  className="absolute pointer-events-none z-30 w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-[10px] font-black uppercase tracking-wider shadow-2xl transition-transform duration-100 ease-out"
+                  className="absolute pointer-events-none z-30 w-16 h-16 rounded-full bg-accent-coral text-text-heading flex items-center justify-center text-[10px] font-black uppercase tracking-wider shadow-2xl transition-transform duration-100 ease-out"
                   style={{
                     left: `${mousePos.x - 32}px`,
                     top: `${mousePos.y - 32}px`,
@@ -102,18 +102,18 @@ export default function TrendingSection() {
                   playsInline
                 />
                 {/* Dark Vignette Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C0E]/90 via-[#0B0C0E]/30 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0/90 via-bg-level-0/30 to-transparent" />
               </div>
 
               {/* Project Card Text Content */}
               <div className="absolute bottom-0 left-0 right-0 p-8 sm:p-12 z-10 flex flex-col justify-end space-y-2 pointer-events-none">
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary">
+                <span className="text-[10px] font-black uppercase tracking-widest text-accent-coral">
                   {project.type}
                 </span>
-                <h3 className="text-3xl sm:text-4xl font-black tracking-tight leading-none group-hover:translate-x-2 transition-transform duration-500 ease-out">
+                <h3 className="text-3xl sm:text-4xl font-black tracking-tight leading-none group-hover:translate-x-2 transition-transform duration-500 ease-out text-text-heading">
                   {project.title}
                 </h3>
-                <p className="text-xs text-slate-400 font-medium opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-500 ease-out">
+                <p className="text-xs text-text-sub font-medium opacity-0 group-hover:opacity-100 translate-y-3 group-hover:translate-y-0 transition-all duration-500 ease-out">
                   Edited by {project.creator}
                 </p>
               </div>

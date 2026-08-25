@@ -69,19 +69,19 @@ export default function TrendingCitiesSection() {
   return (
     <section 
       onMouseMove={handleMouseMove}
-      className="pt-32 pb-8 md:pb-10 lg:pb-12 bg-[#0B0C0E] text-white border-t border-white/5 relative z-20 overflow-hidden"
+      className="pt-32 pb-8 md:pb-10 lg:pb-12 bg-bg-level-1 text-text-body border-t border-border-subtle relative z-20 overflow-hidden"
     >
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-16">
         
         {/* Header */}
         <div className="space-y-4 max-w-2xl">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
             05 / CREATIVE HOTSPOTS
           </span>
-          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-none">
+          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-text-heading leading-none">
             Talent doesn&apos;t live<br />in one place.
           </h2>
-          <p className="text-sm text-slate-400 max-w-md leading-relaxed">
+          <p className="text-sm text-text-sub max-w-md leading-relaxed">
             Discover editors, filmmakers, photographers and creators working from India&apos;s most active creative hubs.
           </p>
         </div>
@@ -95,18 +95,18 @@ export default function TrendingCitiesSection() {
               <div
                 key={city.code}
                 onMouseEnter={() => setActiveCityIdx(idx)}
-                className={`py-3 border-b border-white/5 flex items-center justify-between group transition-all duration-300 ${
+                className={`py-3 border-b border-border-subtle flex items-center justify-between group transition-all duration-300 ${
                   activeCityIdx === idx 
-                    ? "border-primary pl-4" 
+                    ? "border-accent-coral pl-4" 
                     : "opacity-45 hover:opacity-80"
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <span className="text-xs text-slate-500 font-bold tracking-widest">{city.num}</span>
+                  <span className="text-xs text-text-sub font-bold tracking-widest">{city.num}</span>
                   <Link
                     href={`/freelancers?city=${city.name}`}
                     className={`text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight uppercase transition-all duration-300 ${
-                      activeCityIdx === idx ? "text-primary scale-102" : "text-white"
+                      activeCityIdx === idx ? "text-accent-coral scale-102" : "text-text-heading"
                     }`}
                   >
                     {city.name}
@@ -114,7 +114,7 @@ export default function TrendingCitiesSection() {
                 </div>
                 <Link
                   href={`/freelancers?city=${city.name}`}
-                  className={`text-xs font-black uppercase tracking-wider text-primary flex items-center gap-1.5 transition-all duration-300 ${
+                  className={`text-xs font-black uppercase tracking-wider text-accent-coral flex items-center gap-1.5 transition-all duration-300 ${
                     activeCityIdx === idx ? "translate-x-0 opacity-100" : "translate-x-4 opacity-0"
                   }`}
                 >
@@ -126,7 +126,7 @@ export default function TrendingCitiesSection() {
           </div>
 
           {/* Right Column: Dynamic Background Frame with Parallax */}
-          <div className="col-span-6 h-[550px] relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl bg-black">
+          <div className="col-span-6 h-[550px] relative rounded-3xl overflow-hidden border border-border-subtle shadow-2xl bg-bg-level-0">
             {CITIES.map((city, idx) => (
               <div
                 key={city.code}
@@ -143,12 +143,12 @@ export default function TrendingCitiesSection() {
                   alt={city.name}
                   className="w-full h-full object-cover filter brightness-[0.8] saturate-[0.85] contrast-[1.05]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0/60 via-transparent to-transparent" />
                 <div className="absolute bottom-10 left-10 space-y-1">
-                  <span className="text-[10px] font-black tracking-[0.25em] text-primary uppercase block">
+                  <span className="text-[10px] font-black tracking-[0.25em] text-accent-coral uppercase block">
                     FEATURED CITY
                   </span>
-                  <h4 className="text-3xl font-black uppercase tracking-tight text-white">{city.name}</h4>
+                  <h4 className="text-3xl font-black uppercase tracking-tight text-text-heading">{city.name}</h4>
                 </div>
               </div>
             ))}
@@ -162,18 +162,18 @@ export default function TrendingCitiesSection() {
             <Link
               key={city.code}
               href={`/freelancers?city=${city.name}`}
-              className="flex-shrink-0 w-[80vw] aspect-[4/5] relative bg-slate-900 rounded-2xl overflow-hidden border border-white/5 snap-start shadow-xl"
+              className="flex-shrink-0 w-[80vw] aspect-[4/5] relative bg-bg-level-3 rounded-2xl overflow-hidden border border-border-subtle snap-start shadow-xl"
             >
               <img
                 src={city.image}
                 alt={city.name}
                 className="absolute inset-0 w-full h-full object-cover filter brightness-75"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C0E]/95 via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0/95 via-transparent to-transparent" />
               <div className="absolute bottom-8 left-8 space-y-1">
-                <span className="text-[9px] font-black tracking-widest text-primary uppercase block">{city.num}</span>
-                <h3 className="text-2xl font-black uppercase tracking-tight text-white">{city.name}</h3>
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mt-1">EXPLORE CITY &rarr;</span>
+                <span className="text-[9px] font-black tracking-widest text-accent-coral uppercase block">{city.num}</span>
+                <h3 className="text-2xl font-black uppercase tracking-tight text-text-heading">{city.name}</h3>
+                <span className="text-[10px] text-text-sub font-bold uppercase tracking-wider block mt-1">EXPLORE CITY &rarr;</span>
               </div>
             </Link>
           ))}

@@ -52,15 +52,15 @@ export default function TestimonialsSection() {
   const current = TESTIMONIALS[activeIdx];
 
   return (
-    <section className="pt-8 md:pt-12 lg:pt-16 pb-8 md:pb-10 lg:pb-12 bg-[#0B0C0E] text-white border-t border-white/5 relative z-20 overflow-hidden">
+    <section className="pt-8 md:pt-12 lg:pt-16 pb-8 md:pb-10 lg:pb-12 bg-bg-level-1 text-text-body border-t border-border-subtle relative z-20 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-16">
         
         {/* Header */}
         <div className="space-y-4 max-w-2xl">
-          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
             12 / DIRECTORS REVIEW
           </span>
-          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-none">
+          <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-text-heading leading-none">
             Trusted by visual creators.
           </h2>
         </div>
@@ -69,7 +69,7 @@ export default function TestimonialsSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-center pt-8">
           
           {/* Left Column: Widescreen Video Frame */}
-          <div className="lg:col-span-5 aspect-[4/5] bg-black rounded-2xl overflow-hidden relative border border-white/10 shadow-2xl">
+          <div className="lg:col-span-5 aspect-[4/5] bg-bg-level-0 rounded-2xl overflow-hidden relative border border-border-subtle shadow-2xl">
             <video
               key={current.video} // Forces video reload/fade transition on source change
               src={current.video}
@@ -81,10 +81,10 @@ export default function TestimonialsSection() {
               muted
               playsInline
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0B0C0E] via-transparent to-transparent opacity-85" />
+            <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0 via-transparent to-transparent opacity-85" />
             <div className="absolute bottom-6 left-6 space-y-1">
-              <span className="text-[9px] font-black tracking-widest text-primary uppercase block">TESTIMONIAL SCENE</span>
-              <h4 className="text-sm font-black uppercase text-white font-mono">{current.project}</h4>
+              <span className="text-[9px] font-black tracking-widest text-accent-coral uppercase block">TESTIMONIAL SCENE</span>
+              <h4 className="text-sm font-black uppercase text-text-heading font-mono">{current.project}</h4>
             </div>
           </div>
 
@@ -97,18 +97,18 @@ export default function TestimonialsSection() {
               }`}
             >
               {/* Quote Mark */}
-              <span className="text-primary text-6xl font-serif leading-none select-none block">&ldquo;</span>
+              <span className="text-accent-coral text-6xl font-serif leading-none select-none block">&ldquo;</span>
               
-              <blockquote className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight leading-snug">
+              <blockquote className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-text-heading tracking-tight leading-snug">
                 {current.quote}
               </blockquote>
 
-              <div className="pt-6 border-t border-white/5 space-y-1">
-                <h4 className="text-lg font-black text-white">{current.author}</h4>
-                <p className="text-xs text-slate-400 font-medium">
-                  {current.role} / <strong className="text-white font-bold">{current.company}</strong>
+              <div className="pt-6 border-t border-border-subtle space-y-1">
+                <h4 className="text-lg font-black text-text-heading">{current.author}</h4>
+                <p className="text-xs text-text-sub font-medium">
+                  {current.role} / <strong className="text-text-heading font-bold">{current.company}</strong>
                 </p>
-                <span className="text-[9px] font-black uppercase tracking-widest text-primary block pt-2">
+                <span className="text-[9px] font-black uppercase tracking-widest text-accent-coral block pt-2">
                   PROJECT CATEGORY: {current.project}
                 </span>
               </div>
@@ -118,18 +118,18 @@ export default function TestimonialsSection() {
             <div className="flex gap-4 items-center">
               <button 
                 onClick={handlePrev}
-                className="px-4 py-2 bg-[#101114] hover:bg-slate-800 border border-white/5 text-[9px] font-black uppercase tracking-widest rounded transition-all cursor-pointer"
+                className="px-4 py-2 bg-bg-level-3 hover:bg-bg-level-hover border border-border-subtle text-[9px] font-black uppercase tracking-widest rounded transition-all cursor-pointer text-text-heading"
               >
                 &larr; SCENE {activeIdx === 0 ? "02" : "01"}
               </button>
               
-              <span className="text-xs text-slate-500 font-mono font-bold tracking-widest">
+              <span className="text-xs text-text-sub font-mono font-bold tracking-widest">
                 0{activeIdx + 1} / 0{TESTIMONIALS.length}
               </span>
 
               <button 
                 onClick={handleNext}
-                className="px-4 py-2 bg-[#101114] hover:bg-slate-800 border border-white/5 text-[9px] font-black uppercase tracking-widest rounded transition-all cursor-pointer"
+                className="px-4 py-2 bg-bg-level-3 hover:bg-bg-level-hover border border-border-subtle text-[9px] font-black uppercase tracking-widest rounded transition-all cursor-pointer text-text-heading"
               >
                 SCENE {activeIdx === 0 ? "02" : "01"} &rarr;
               </button>

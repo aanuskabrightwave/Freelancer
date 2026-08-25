@@ -109,14 +109,14 @@ export default function ShowreelWallSection() {
   };
 
   return (
-    <section className="pt-32 pb-8 md:pb-10 lg:pb-12 bg-[#0B0C0E] border-t border-white/5 relative z-20 text-white overflow-hidden">
+    <section className="pt-32 pb-8 md:pb-10 lg:pb-12 bg-bg-level-0 border-t border-border-subtle relative z-20 text-text-body overflow-hidden">
       
       {/* Header */}
       <div className="max-w-7xl mx-auto px-6 sm:px-8 space-y-4 mb-20 text-center">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block">
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block">
           10 / MADE ON THE PLATFORM
         </span>
-        <h2 className="text-4xl sm:text-5xl font-black uppercase tracking-tight text-white leading-none">
+        <h2 className="text-4xl sm:text-5xl font-black uppercase tracking-tight text-text-heading leading-none">
           Showreel Wall
         </h2>
       </div>
@@ -136,12 +136,12 @@ export default function ShowreelWallSection() {
                 onMouseEnter={() => handleMouseEnter(item.id, 1)}
                 onMouseLeave={() => handleMouseLeave(1)}
                 onMouseMove={handleMouseMove}
-                className={`${item.aspect} relative bg-[#101114] border border-white/5 rounded-xl overflow-hidden group cursor-none flex-shrink-0 transition-transform duration-500 ease-out`}
+                className={`${item.aspect} relative bg-bg-level-3 border border-border-subtle rounded-xl overflow-hidden group cursor-none flex-shrink-0 transition-transform duration-500 ease-out`}
               >
                 {/* Custom pointer cursor inside card */}
                 {hoveredId === item.id && (
                   <div
-                    className="absolute pointer-events-none z-30 w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-[8px] font-black uppercase tracking-widest shadow-2xl transition-transform duration-100 ease-out"
+                    className="absolute pointer-events-none z-30 w-16 h-16 rounded-full bg-accent-coral text-text-heading flex items-center justify-center text-[8px] font-black uppercase tracking-widest shadow-2xl transition-transform duration-100 ease-out"
                     style={{
                       left: `${mousePos.x - 32}px`,
                       top: `${mousePos.y - 32}px`,
@@ -169,14 +169,14 @@ export default function ShowreelWallSection() {
                       playsInline
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0/80 via-bg-level-0/10 to-transparent" />
                 </div>
 
                 {/* Overlaid details */}
                 <div className="absolute bottom-4 left-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                  <span className="text-[8px] font-black uppercase tracking-widest text-primary block">{item.cat}</span>
-                  <h4 className="text-sm font-black tracking-tight text-white leading-tight">{item.title}</h4>
-                  <p className="text-[9px] text-slate-400 font-bold">By {item.creator}</p>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-accent-coral block">{item.cat}</span>
+                  <h4 className="text-sm font-black tracking-tight text-text-heading leading-tight">{item.title}</h4>
+                  <p className="text-[9px] text-text-sub font-bold">By {item.creator}</p>
                 </div>
               </div>
             ))}
@@ -195,12 +195,12 @@ export default function ShowreelWallSection() {
                 onMouseEnter={() => handleMouseEnter(item.id, 2)}
                 onMouseLeave={() => handleMouseLeave(2)}
                 onMouseMove={handleMouseMove}
-                className={`${item.aspect} relative bg-[#101114] border border-white/5 rounded-xl overflow-hidden group cursor-none flex-shrink-0 transition-transform duration-500 ease-out`}
+                className={`${item.aspect} relative bg-bg-level-3 border border-border-subtle rounded-xl overflow-hidden group cursor-none flex-shrink-0 transition-transform duration-500 ease-out`}
               >
                 {/* Custom pointer cursor inside card */}
                 {hoveredId === item.id && (
                   <div
-                    className="absolute pointer-events-none z-30 w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-[8px] font-black uppercase tracking-widest shadow-2xl transition-transform duration-100 ease-out"
+                    className="absolute pointer-events-none z-30 w-16 h-16 rounded-full bg-accent-coral text-text-heading flex items-center justify-center text-[8px] font-black uppercase tracking-widest shadow-2xl transition-transform duration-100 ease-out"
                     style={{
                       left: `${mousePos.x - 32}px`,
                       top: `${mousePos.y - 32}px`,
@@ -228,14 +228,14 @@ export default function ShowreelWallSection() {
                       playsInline
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0/80 via-bg-level-0/10 to-transparent" />
                 </div>
 
                 {/* Overlaid details */}
                 <div className="absolute bottom-4 left-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                  <span className="text-[8px] font-black uppercase tracking-widest text-primary block">{item.cat}</span>
-                  <h4 className="text-sm font-black tracking-tight text-white leading-tight">{item.title}</h4>
-                  <p className="text-[9px] text-slate-400 font-bold">By {item.creator}</p>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-accent-coral block">{item.cat}</span>
+                  <h4 className="text-sm font-black tracking-tight text-text-heading leading-tight">{item.title}</h4>
+                  <p className="text-[9px] text-text-sub font-bold">By {item.creator}</p>
                 </div>
               </div>
             ))}
@@ -254,12 +254,12 @@ export default function ShowreelWallSection() {
                 onMouseEnter={() => handleMouseEnter(item.id, 3)}
                 onMouseLeave={() => handleMouseLeave(3)}
                 onMouseMove={handleMouseMove}
-                className={`${item.aspect} relative bg-[#101114] border border-white/5 rounded-xl overflow-hidden group cursor-none flex-shrink-0 transition-transform duration-500 ease-out`}
+                className={`${item.aspect} relative bg-bg-level-3 border border-border-subtle rounded-xl overflow-hidden group cursor-none flex-shrink-0 transition-transform duration-500 ease-out`}
               >
                 {/* Custom pointer cursor inside card */}
                 {hoveredId === item.id && (
                   <div
-                    className="absolute pointer-events-none z-30 w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center text-[8px] font-black uppercase tracking-widest shadow-2xl transition-transform duration-100 ease-out"
+                    className="absolute pointer-events-none z-30 w-16 h-16 rounded-full bg-accent-coral text-text-heading flex items-center justify-center text-[8px] font-black uppercase tracking-widest shadow-2xl transition-transform duration-100 ease-out"
                     style={{
                       left: `${mousePos.x - 32}px`,
                       top: `${mousePos.y - 32}px`,
@@ -287,14 +287,14 @@ export default function ShowreelWallSection() {
                       playsInline
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-bg-level-0/80 via-bg-level-0/10 to-transparent" />
                 </div>
 
                 {/* Overlaid details */}
                 <div className="absolute bottom-4 left-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                  <span className="text-[8px] font-black uppercase tracking-widest text-primary block">{item.cat}</span>
-                  <h4 className="text-sm font-black tracking-tight text-white leading-tight">{item.title}</h4>
-                  <p className="text-[9px] text-slate-400 font-bold">By {item.creator}</p>
+                  <span className="text-[8px] font-black uppercase tracking-widest text-accent-coral block">{item.cat}</span>
+                  <h4 className="text-sm font-black tracking-tight text-text-heading leading-tight">{item.title}</h4>
+                  <p className="text-[9px] text-text-sub font-bold">By {item.creator}</p>
                 </div>
               </div>
             ))}

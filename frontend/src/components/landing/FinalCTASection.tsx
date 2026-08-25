@@ -70,14 +70,14 @@ export default function FinalCTASection() {
   return (
     <section
       ref={containerRef}
-      className="pt-8 md:pt-12 lg:pt-16 pb-12 md:pb-16 lg:pb-20 bg-[#050507] text-white relative z-20 flex flex-col justify-center items-center overflow-hidden border-t border-white/5"
+      className="pt-8 md:pt-12 lg:pt-16 pb-12 md:pb-16 lg:pb-20 bg-bg-level-1 text-text-body relative z-20 flex flex-col justify-center items-center overflow-hidden border-t border-border-subtle"
     >
       <div className="max-w-4xl mx-auto px-6 text-center space-y-12 relative z-10">
         
         {/* Ticking timecode timeline indicator */}
         <div 
           ref={timecodeRef}
-          className="font-mono text-xl sm:text-2xl font-black text-slate-500 tracking-[0.3em] select-none transition-colors duration-500"
+          className="font-mono text-xl sm:text-2xl font-black text-text-sub tracking-[0.3em] select-none transition-colors duration-500"
         >
           {formatTimecode(frames)}
         </div>
@@ -87,33 +87,33 @@ export default function FinalCTASection() {
           ref={contentRef}
           className="space-y-8 opacity-0 translate-y-8 transition-all duration-300"
         >
-          <h2 className="text-4xl sm:text-7xl lg:text-8xl font-black uppercase tracking-tight text-white leading-[0.92] max-w-3xl mx-auto">
+          <h2 className="text-4xl sm:text-7xl lg:text-8xl font-black uppercase tracking-tight text-text-heading leading-[0.92] max-w-3xl mx-auto">
             YOUR NEXT STORY<br />
             STARTS HERE.
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-400 max-w-lg mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-text-sub max-w-lg mx-auto leading-relaxed">
             Find the creative talent to bring your next project to life — or put your own talent in front of the right clients.
           </p>
 
           <div className="pt-4 flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-xs uppercase tracking-wider px-10 py-4 rounded-xl transition shadow-xl shadow-primary/20 inline-flex items-center justify-center gap-2 w-full sm:w-auto"
+              className="bg-accent-coral hover:bg-accent-hover text-text-heading font-extrabold text-xs uppercase tracking-wider px-10 py-4 rounded-xl transition shadow-xl shadow-accent-coral/20 inline-flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <span>FIND A CREATOR</span>
               <span>&rarr;</span>
             </Link>
             <Link
               href="/register"
-              className="bg-transparent hover:bg-white/10 text-white border border-white/20 font-extrabold text-xs uppercase tracking-wider px-10 py-4 rounded-xl transition inline-flex items-center justify-center gap-2 w-full sm:w-auto"
+              className="bg-transparent hover:bg-bg-level-hover text-text-heading border border-border-subtle font-extrabold text-xs uppercase tracking-wider px-10 py-4 rounded-xl transition inline-flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               <span>JOIN AS A CREATOR</span>
               <span>&rarr;</span>
             </Link>
           </div>
 
-          <div className="pt-10 text-[9px] font-black tracking-[0.4em] text-slate-600 uppercase select-none">
+          <div className="pt-10 text-[9px] font-black tracking-[0.4em] text-text-sub uppercase select-none">
             READY WHEN YOU ARE.
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function FinalCTASection() {
       </div>
 
       {/* Ambient Radial Vignette */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(228,82,61,0.03)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(240,90,71,0.03)_0%,transparent_70%)] pointer-events-none" />
     </section>
   );
 }

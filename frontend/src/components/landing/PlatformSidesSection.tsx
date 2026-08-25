@@ -95,17 +95,17 @@ export default function PlatformSidesSection() {
   return (
     <section
       ref={containerRef}
-      className="relative w-full h-screen bg-[#0B0C0E] text-white flex overflow-hidden z-20"
+      className="relative w-full h-screen bg-bg-level-0 text-text-body flex overflow-hidden z-20"
     >
       {/* Central Connect Title */}
       <div 
         ref={titleRef}
         className="absolute top-12 left-1/2 -translate-x-1/2 text-center z-30 pointer-events-none w-full max-w-lg px-6"
       >
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary block mb-2">
+        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent-coral block mb-2">
           TWO SIDES. ONE PLATFORM.
         </span>
-        <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
+        <h2 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-text-heading">
           Built for both sides of the lens.
         </h2>
       </div>
@@ -113,7 +113,7 @@ export default function PlatformSidesSection() {
       {/* Center Line Split */}
       <div
         ref={centerLineRef}
-        className={`absolute top-0 bottom-0 w-[1px] bg-white/20 ${centerLineLeft} -translate-x-1/2 z-20 pointer-events-none origin-top transition-all duration-700 ease-out-quint`}
+        className={`absolute top-0 bottom-0 w-[1px] bg-border-subtle ${centerLineLeft} -translate-x-1/2 z-20 pointer-events-none origin-top transition-all duration-700 ease-out-quint`}
       />
 
       {/* LEFT: CLIENTS */}
@@ -132,7 +132,7 @@ export default function PlatformSidesSection() {
             muted
             playsInline
           />
-          <div className="absolute inset-0 bg-[#0B0C0E]/70" />
+          <div className="absolute inset-0 bg-bg-level-0/70" />
         </div>
 
         {/* Content wrapper */}
@@ -140,13 +140,13 @@ export default function PlatformSidesSection() {
           ref={clientContentRef}
           className="relative z-10 max-w-md space-y-6 text-left pointer-events-auto"
         >
-          <span className="text-[10px] font-black tracking-widest text-primary uppercase">
+          <span className="text-[10px] font-black tracking-widest text-accent-coral uppercase">
             FOR CLIENTS & PRODUCTION
           </span>
-          <h3 className="text-3xl sm:text-5xl font-black uppercase tracking-tight leading-none">
+          <h3 className="text-3xl sm:text-5xl font-black uppercase tracking-tight leading-none text-text-heading">
             Find the creative mind your project deserves.
           </h3>
-          <ul className="text-xs sm:text-sm text-slate-300 space-y-2 list-disc pl-4 leading-relaxed font-medium">
+          <ul className="text-xs sm:text-sm text-text-body space-y-2 list-disc pl-4 leading-relaxed font-medium">
             <li>Post your project with reference imagery</li>
             <li>Explore verified kit specifications & portfolios</li>
             <li>Collaborate directly via custom project workspace</li>
@@ -155,7 +155,7 @@ export default function PlatformSidesSection() {
           <div className="pt-2">
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition inline-flex items-center gap-2 shadow-lg shadow-primary/20"
+              className="bg-accent-coral hover:bg-accent-hover text-text-heading font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition inline-flex items-center gap-2 shadow-lg shadow-accent-coral/20"
             >
               <span>FIND A CREATOR</span>
               <span>&rarr;</span>
@@ -180,7 +180,7 @@ export default function PlatformSidesSection() {
             muted
             playsInline
           />
-          <div className="absolute inset-0 bg-[#0B0C0E]/70" />
+          <div className="absolute inset-0 bg-bg-level-0/70" />
         </div>
 
         {/* Content wrapper */}
@@ -188,13 +188,13 @@ export default function PlatformSidesSection() {
           ref={creatorContentRef}
           className="relative z-10 max-w-md space-y-6 text-left pointer-events-auto"
         >
-          <span className="text-[10px] font-black tracking-widest text-primary uppercase">
+          <span className="text-[10px] font-black tracking-widest text-accent-coral uppercase">
             FOR CREATORS & EDITORS
           </span>
-          <h3 className="text-3xl sm:text-5xl font-black uppercase tracking-tight leading-none">
+          <h3 className="text-3xl sm:text-5xl font-black uppercase tracking-tight leading-none text-text-heading">
             Your talent deserves the right audience.
           </h3>
-          <ul className="text-xs sm:text-sm text-slate-300 space-y-2 list-disc pl-4 leading-relaxed font-medium">
+          <ul className="text-xs sm:text-sm text-text-body space-y-2 list-disc pl-4 leading-relaxed font-medium">
             <li>Showcase your gear packages (RED, Sony Cine, ARRI)</li>
             <li>Discover curated creative requests & bids</li>
             <li>Collaborate with elite brands and directors</li>
@@ -203,7 +203,7 @@ export default function PlatformSidesSection() {
           <div className="pt-2">
             <Link
               href="/register"
-              className="bg-white hover:bg-slate-200 text-black font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition inline-flex items-center gap-2"
+              className="bg-text-heading hover:opacity-90 text-bg-level-0 font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition inline-flex items-center gap-2"
             >
               <span>START CREATING</span>
               <span>&rarr;</span>
