@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { 
   LayoutDashboard, 
@@ -49,6 +49,8 @@ interface WorkspaceSidebarProps {
 
 export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, onOpenHelp }: WorkspaceSidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const isMyProjects = searchParams.get("my") === "true";
   const { user } = useAuth();
 
   // Define sidebar menu configurations
@@ -64,13 +66,13 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       items: [
         { name: "Explore Creatives", href: "/freelancers", icon: Users },
         { name: "Services", href: "/services", icon: Briefcase },
-        { name: "Browse Projects", href: "/services", icon: FileText }
+        { name: "Browse Projects", href: "/client/projects", icon: FileText }
       ]
     },
     {
       group: "Work",
       items: [
-        { name: "My Projects", href: "/client/projects", icon: FolderOpen },
+        { name: "My Projects", href: "/client/projects?my=true", icon: FolderOpen },
         { name: "Bookings", href: "/client/bookings", icon: Calendar },
         { name: "Messages", href: "/client/messages", icon: MessageSquare }
       ]
@@ -208,6 +210,12 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
                   if (itemHref === "#") return false;
                   if (itemHref === "/client/dashboard" || itemHref === "/freelancer/dashboard") {
                     return pathname === itemHref;
+                  }
+                  if (itemName === "My Projects") {
+                    return pathname === "/client/projects" && isMyProjects;
+                  }
+                  if (itemName === "Browse Projects") {
+                    return pathname === "/client/projects" && !isMyProjects;
                   }
                   if (itemName === "Earnings") {
                     return pathname === "/freelancer/earnings" || pathname === "/freelancer/earnings/transactions";
