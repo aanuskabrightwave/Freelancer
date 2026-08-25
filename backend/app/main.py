@@ -127,6 +127,8 @@ from app.services.service_service import ServiceService
 def on_startup():
     db = SessionLocal()
     try:
+        from app.api.v1.endpoints.settings import ensure_settings_columns
+        ensure_settings_columns(db)
         ServiceService.seed_categories_if_empty(db)
     finally:
         db.close()

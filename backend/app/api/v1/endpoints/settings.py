@@ -43,6 +43,12 @@ def ensure_settings_columns(db: Session):
             db.execute(text("ALTER TABLE freelancer_profiles ADD COLUMN preferred_locations VARCHAR(255) NULL"))
         if "open_to_remote" not in columns:
             db.execute(text("ALTER TABLE freelancer_profiles ADD COLUMN open_to_remote BOOLEAN DEFAULT 1 NULL"))
+        if "website" not in columns:
+            db.execute(text("ALTER TABLE freelancer_profiles ADD COLUMN website VARCHAR(500) NULL"))
+        if "instagram" not in columns:
+            db.execute(text("ALTER TABLE freelancer_profiles ADD COLUMN instagram VARCHAR(500) NULL"))
+        if "behance" not in columns:
+            db.execute(text("ALTER TABLE freelancer_profiles ADD COLUMN behance VARCHAR(500) NULL"))
         db.commit()
     except Exception as e:
         db.rollback()
