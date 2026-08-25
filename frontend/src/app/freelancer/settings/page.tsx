@@ -88,9 +88,9 @@ export default function FreelancerSettingsPage() {
 
         // Fetch settings
         const res: any = await settingsService.getSettings();
-        setFullName(res.full_name);
-        setEmail(res.email);
-        setPhone(res.phone);
+        setFullName(res.full_name || "");
+        setEmail(res.email || "");
+        setPhone(res.phone || "");
         setIsProfilePublic(res.is_profile_public);
         setProfileCompletion(res.profile_completion_percentage || 0);
         setVerificationStatus(res.verification_status || "NOT_SUBMITTED");

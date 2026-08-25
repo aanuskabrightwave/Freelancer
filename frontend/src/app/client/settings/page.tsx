@@ -52,9 +52,9 @@ export default function ClientSettingsPage() {
     async function loadSettings() {
       try {
         const res = await settingsService.getSettings();
-        setFullName(res.full_name);
-        setEmail(res.email);
-        setPhone(res.phone);
+        setFullName(res.full_name || "");
+        setEmail(res.email || "");
+        setPhone(res.phone || "");
       } catch (err: any) {
         console.error("Failed to load settings", err);
       } finally {
