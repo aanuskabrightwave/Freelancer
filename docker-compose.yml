@@ -12,11 +12,11 @@ services:
       - APP_ENV=${APP_ENV:-development}
       - APP_DEBUG=${APP_DEBUG:-true}
       - DB_HOST=host.docker.internal
-      - DB_PORT=3306
+      - DB_PORT=3307
       - DB_NAME=creative_marketplace
       - DB_USER=root
-      - DB_PASSWORD=root
-      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - DB_PASSWORD=password
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000,http://localhost:3001}
       - SECRET_KEY=${SECRET_KEY:-change-this-in-production}
     ports:
       - "8000:8000"
