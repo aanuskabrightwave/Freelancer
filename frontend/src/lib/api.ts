@@ -56,12 +56,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     throw apiError;
   }
 
-  if (response.status === 204) {
-    return undefined as unknown as T;
-  }
-
-  const text = await response.text();
-  return (text ? JSON.parse(text) : undefined) as T;
+  return response.json() as Promise<T>;
 }
 
 export const api = {
