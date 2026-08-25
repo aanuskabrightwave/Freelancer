@@ -64,7 +64,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       items: [
         { name: "Explore Creatives", href: "/freelancers", icon: Users },
         { name: "Services", href: "/services", icon: Briefcase },
-        { name: "Browse Projects", href: "/services", icon: FileText }
+        { name: "Browse Projects", href: "/client/projects", icon: FileText }
       ]
     },
     {
@@ -208,6 +208,9 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
                   if (itemHref === "#") return false;
                   if (itemHref === "/client/dashboard" || itemHref === "/freelancer/dashboard") {
                     return pathname === itemHref;
+                  }
+                  if (itemName === "My Projects") {
+                    return false;
                   }
                   if (itemName === "Earnings") {
                     return pathname === "/freelancer/earnings" || pathname === "/freelancer/earnings/transactions";
