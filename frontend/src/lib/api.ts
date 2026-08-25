@@ -33,11 +33,31 @@ export async function apiFetch<T>(endpoint: string, options: RequestOptions = {}
     delete finalHeaders["Content-Type"];
   }
 
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     headers: finalHeaders,
     credentials: "include", // Essential for HttpOnly cookies
     ...restOptions,
   });
+
+  if (response.status === 401 && endpoint !== "/auth/refresh" && endpoint !== "/auth/login") {
+    try {
+      const refreshResponse = await fetch(`${API_URL}/auth/refresh`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+        credentials: "include",
+      });
+      if (refreshResponse.ok) {
+        response = await fetch(url, {
+          headers: finalHeaders,
+          credentials: "include",
+          ...restOptions,
+        });
+      }
+    } catch (refreshErr) {
+      console.error("Auto token refresh failed", refreshErr);
+    }
+  }
 
   if (!response.ok) {
     let errorMessage = "An error occurred while fetching the data.";
