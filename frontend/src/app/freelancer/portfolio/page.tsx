@@ -316,7 +316,7 @@ export default function FreelancerPortfolioPage() {
 
                 <button
                   onClick={() => handleDeleteItem(item.id)}
-                  className="absolute top-3 right-3 p-1.5 bg-rose-600/90 text-white rounded-lg opacity-0 group-hover:opacity-100 transition hover:bg-rose-700 cursor-pointer"
+                  className="absolute top-3 right-3 p-1.5 bg-rose-600/90 text-text-main rounded-lg opacity-0 group-hover:opacity-100 transition hover:bg-rose-700 cursor-pointer"
                   title="Delete project"
                 >
                   <Trash2 className="w-3.5 h-3.5" />

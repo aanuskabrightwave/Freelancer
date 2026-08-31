@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Sidebar from "@/components/layout/Sidebar";
+import IdleSessionManager from "@/components/auth/IdleSessionManager";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -50,11 +51,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   else if (pathname.includes("/admin/audit")) activeItem = "Audit Logs";
 
   return (
-    <div className="flex flex-row flex-grow bg-background text-text-main">
-      <Sidebar role="admin" activeItem={activeItem} />
-      <div className="flex-grow flex flex-col min-w-0 bg-background">
-        {children}
+    <>
+      <IdleSessionManager />
+      <div className="flex flex-row flex-grow bg-background text-text-main">
+        <Sidebar role="admin" activeItem={activeItem} />
+        <div className="flex-grow flex flex-col min-w-0 bg-background">
+          {children}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -210,7 +210,7 @@ export default function FreelancerProposalsPage() {
                     <button
                       onClick={() => handleWithdraw(prop.id)}
                       disabled={actionLoading === prop.id}
-                      className="w-full py-2.5 bg-rose-600 hover:bg-rose-500 disabled:bg-rose-800 text-white text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 shadow-sm active:scale-[0.99] cursor-pointer"
+                      className="w-full py-2.5 bg-rose-600 hover:bg-rose-500 disabled:bg-rose-800 text-text-main text-[11px] font-extrabold uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1 shadow-sm active:scale-[0.99] cursor-pointer"
                     >
                       <XCircle className="w-3.5 h-3.5" />
                       {actionLoading === prop.id ? "Withdrawing..." : "Withdraw Bid"}
@@ -219,7 +219,7 @@ export default function FreelancerProposalsPage() {
                   {prop.status.toUpperCase() === "ACCEPTED" && (
                     <Link
                       href="/freelancer/bookings"
-                      className="w-full py-2.5 text-center bg-emerald-600 hover:bg-emerald-500 text-[11px] font-extrabold uppercase tracking-wider rounded-xl text-white transition flex items-center justify-center gap-1 shadow-sm"
+                      className="w-full py-2.5 text-center bg-emerald-600 hover:bg-emerald-500 text-[11px] font-extrabold uppercase tracking-wider rounded-xl text-text-main transition flex items-center justify-center gap-1 shadow-sm"
                     >
                       Go to Bookings
                     </Link>

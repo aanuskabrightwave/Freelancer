@@ -97,7 +97,7 @@ export default function FavouriteButton({
       type="button"
       onClick={handleToggle}
       disabled={loading}
-      className={`inline-flex items-center justify-center rounded-xl border border-slate-800 bg-slate-900/80 backdrop-blur text-slate-300 hover:text-rose-500 hover:border-rose-950/30 transition shadow-sm ${
+      className={`inline-flex items-center justify-center rounded-xl border border-border-custom bg-surface backdrop-blur text-text-sub hover:text-rose-500 hover:border-rose-950/30 transition shadow-sm ${
         sizeClasses[size]
       } ${loading ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
     >

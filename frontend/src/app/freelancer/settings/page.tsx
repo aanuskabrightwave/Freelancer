@@ -242,7 +242,7 @@ export default function FreelancerSettingsPage() {
     return (
       <Container className="py-8">
         <div className="flex flex-col items-center justify-center py-20 text-text-muted">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-2" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
           <p className="text-xs">Loading Settings...</p>
         </div>
       </Container>
@@ -288,7 +288,7 @@ export default function FreelancerSettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-left transition duration-200 cursor-pointer ${
                   activeTab === tab.id
-                    ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/10"
+                    ? "bg-primary-hover text-text-main shadow-md shadow-primary"
                     : "bg-surface hover:bg-surface-elevated text-text-sub border border-border-custom/50 hover:text-text-main"
                 }`}
               >
@@ -325,7 +325,7 @@ export default function FreelancerSettingsPage() {
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       required
-                      className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                      className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                     />
                   </div>
 
@@ -356,7 +356,7 @@ export default function FreelancerSettingsPage() {
                   <button
                     type="submit"
                     disabled={savingAccount}
-                    className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
+                    className="flex items-center gap-2 px-5 py-2.5 bg-primary-hover hover:bg-primary disabled:bg-primary-hover text-text-main text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
                   >
                     {savingAccount ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                     <span>Save Changes</span>
@@ -410,7 +410,7 @@ export default function FreelancerSettingsPage() {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     required
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   />
                 </div>
 
@@ -421,7 +421,7 @@ export default function FreelancerSettingsPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   />
                   <p className="text-[10px] text-text-muted">Must be at least 8 characters.</p>
                 </div>
@@ -433,7 +433,7 @@ export default function FreelancerSettingsPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   />
                 </div>
               </div>
@@ -442,7 +442,7 @@ export default function FreelancerSettingsPage() {
                 <button
                   type="submit"
                   disabled={savingPassword}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary-hover hover:bg-primary disabled:bg-primary-hover text-text-main text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
                 >
                   {savingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   <span>Change Password</span>
@@ -495,8 +495,8 @@ export default function FreelancerSettingsPage() {
                   <button
                     type="button"
                     onClick={() => setIsProfilePublic(!isProfilePublic)}
-                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      isProfilePublic ? "bg-indigo-500" : "bg-neutral-200"
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
+                      isProfilePublic ? "bg-primary-hover" : "bg-surface-elevated"
                     }`}
                   >
                     <span
@@ -510,7 +510,7 @@ export default function FreelancerSettingsPage() {
                 <div className="p-4 bg-surface-elevated border border-border-custom/50 rounded-2xl space-y-2">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-text-sub">Profile Completion Score</span>
-                    <span className="text-indigo-500">{profileCompletion}%</span>
+                    <span className="text-primary">{profileCompletion}%</span>
                   </div>
                   
                   {/* Publication Gate info */}
@@ -524,7 +524,7 @@ export default function FreelancerSettingsPage() {
                 <button
                   type="submit"
                   disabled={savingPrivacy}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary-hover hover:bg-primary disabled:bg-primary-hover text-text-main text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
                 >
                   {savingPrivacy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   <span>Save Privacy</span>
@@ -569,12 +569,12 @@ export default function FreelancerSettingsPage() {
                           onClick={() => handleCategoryToggle(cat.id)}
                           className={`flex items-center gap-2 px-3 py-2 border rounded-xl text-left text-xs font-bold transition cursor-pointer ${
                             isSelected
-                              ? "bg-indigo-500/10 border-indigo-500/40 text-indigo-500"
+                              ? "bg-primary-hover border-primary/40 text-primary"
                               : "bg-surface-elevated hover:bg-surface border-border-custom text-text-sub hover:text-text-main"
                           }`}
                         >
                           <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center text-[8px] font-black ${
-                            isSelected ? "bg-indigo-500 border-indigo-500 text-white" : "border-neutral-400"
+                            isSelected ? "bg-primary-hover border-primary text-text-main" : "border-border-custom"
                           }`}>
                             {isSelected && "✓"}
                           </div>
@@ -594,7 +594,7 @@ export default function FreelancerSettingsPage() {
                       value={preferredBudgetMin}
                       onChange={(e) => setPreferredBudgetMin(e.target.value)}
                       placeholder="e.g. 10000"
-                      className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                      className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                     />
                   </div>
                   <div className="space-y-1.5">
@@ -604,7 +604,7 @@ export default function FreelancerSettingsPage() {
                       value={preferredBudgetMax}
                       onChange={(e) => setPreferredBudgetMax(e.target.value)}
                       placeholder="e.g. 50000"
-                      className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                      className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                     />
                   </div>
                 </div>
@@ -615,7 +615,7 @@ export default function FreelancerSettingsPage() {
                   <select
                     value={preferredWorkMode}
                     onChange={(e) => setPreferredWorkMode(e.target.value)}
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   >
                     <option value="">Select Mode</option>
                     <option value="REMOTE">Remote Only</option>
@@ -632,7 +632,7 @@ export default function FreelancerSettingsPage() {
                     value={preferredLocations}
                     onChange={(e) => setPreferredLocations(e.target.value)}
                     placeholder="e.g. Mumbai, Bangalore, Remote"
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   />
                   <p className="text-[10px] text-text-muted">Enter location names, comma-separated.</p>
                 </div>
@@ -650,8 +650,8 @@ export default function FreelancerSettingsPage() {
                   <button
                     type="button"
                     onClick={() => setOpenToRemote(!openToRemote)}
-                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      openToRemote ? "bg-indigo-500" : "bg-neutral-200"
+                    className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background ${
+                      openToRemote ? "bg-primary-hover" : "bg-surface-elevated"
                     }`}
                   >
                     <span
@@ -668,7 +668,7 @@ export default function FreelancerSettingsPage() {
                 <button
                   type="submit"
                   disabled={savingWork}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary-hover hover:bg-primary disabled:bg-primary-hover text-text-main text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
                 >
                   {savingWork ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   <span>Save Preferences</span>
@@ -710,7 +710,7 @@ export default function FreelancerSettingsPage() {
                 <div className="pt-2">
                   <Link
                     href="/freelancer/verification"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition shadow-xs"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-hover hover:bg-primary text-text-main text-xs font-bold rounded-xl transition shadow-xs"
                   >
                     <span>Manage Verification Document Uploads</span>
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -747,7 +747,7 @@ export default function FreelancerSettingsPage() {
                 <div className="pt-2">
                   <Link
                     href="/freelancer/earnings"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition shadow-xs"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-hover hover:bg-primary text-text-main text-xs font-bold rounded-xl transition shadow-xs"
                   >
                     <span>Manage Payout Settings & Earnings</span>
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -773,7 +773,7 @@ export default function FreelancerSettingsPage() {
                 <div className="pt-2">
                   <Link
                     href="/freelancer/availability"
-                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-indigo-500 hover:bg-indigo-600 text-white text-xs font-bold rounded-xl transition shadow-xs"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-primary-hover hover:bg-primary text-text-main text-xs font-bold rounded-xl transition shadow-xs"
                   >
                     <span>Open Availability Scheduling Calendar</span>
                     <Calendar className="w-3.5 h-3.5" />
@@ -824,7 +824,7 @@ export default function FreelancerSettingsPage() {
                       <button
                         onClick={handleDeactivate}
                         disabled={deactivating}
-                        className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-600/50 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                        className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-600/50 text-text-main text-xs font-bold rounded-xl transition cursor-pointer"
                       >
                         {deactivating ? "Deactivating..." : "Confirm Deactivate"}
                       </button>

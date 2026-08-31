@@ -70,13 +70,13 @@ export default function NotificationBell() {
       <button
         id="notification-bell-trigger"
         onClick={() => setDropdownOpen(!dropdownOpen)}
-        className="relative p-2.5 bg-white/5 border border-white/5 rounded-xl hover:bg-white/10 text-white/80 hover:text-white transition-all duration-300 focus:outline-none"
+        className="relative p-2.5 bg-white/5 border border-border-custom rounded-xl hover:bg-white/10 text-text-main/80 hover:text-text-main transition-all duration-300 focus:outline-none"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
           <span 
             id="notification-bell-badge"
-            className="absolute -top-1 -right-1 flex items-center justify-center min-w-5 h-5 px-1.5 bg-indigo-500 border-2 border-slate-950 text-[10px] font-black text-white rounded-full animate-bounce"
+            className="absolute -top-1 -right-1 flex items-center justify-center min-w-5 h-5 px-1.5 bg-primary-hover border-2 border-border-custom text-[10px] font-black text-text-main rounded-full animate-bounce"
           >
             {unreadCount}
           </span>
@@ -87,15 +87,15 @@ export default function NotificationBell() {
       {dropdownOpen && (
         <div 
           id="notification-bell-dropdown"
-          className="absolute right-0 mt-3 w-80 md:w-96 bg-slate-900/95 backdrop-blur-xl border border-white/5 rounded-2xl shadow-2xl z-50 overflow-hidden"
+          className="absolute right-0 mt-3 w-80 md:w-96 bg-surface backdrop-blur-xl border border-border-custom rounded-2xl shadow-2xl z-50 overflow-hidden"
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-white/5">
-            <span className="font-bold text-sm text-white">Notifications</span>
+          <div className="flex items-center justify-between p-4 border-b border-border-custom">
+            <span className="font-bold text-sm text-text-main">Notifications</span>
             {unreadCount > 0 && (
               <button
                 onClick={handleMarkAllRead}
-                className="flex items-center gap-1.5 text-xs text-indigo-400 hover:text-indigo-300 font-bold transition-all"
+                className="flex items-center gap-1.5 text-xs text-primary hover:text-indigo-300 font-bold transition-all"
               >
                 <CheckSquare className="w-3.5 h-3.5" />
                 Mark all read
@@ -114,19 +114,19 @@ export default function NotificationBell() {
                 />
               ))
             ) : (
-              <div className="py-12 text-center text-white/40">
-                <Bell className="w-8 h-8 mx-auto mb-2 text-white/10" />
+              <div className="py-12 text-center text-text-main/40">
+                <Bell className="w-8 h-8 mx-auto mb-2 text-text-main/10" />
                 <p className="text-xs">No notifications yet</p>
               </div>
             )}
           </div>
 
           {/* Footer CTA */}
-          <div className="p-3 bg-white/[0.01] border-t border-white/5 text-center">
+          <div className="p-3 bg-white/[0.01] border-t border-border-custom text-center">
             <Link
               href="/notifications"
               onClick={() => setDropdownOpen(false)}
-              className="block text-xs font-bold text-indigo-400 hover:text-indigo-300 transition-all py-1.5 rounded-lg hover:bg-white/5"
+              className="block text-xs font-bold text-primary hover:text-indigo-300 transition-all py-1.5 rounded-lg hover:bg-white/5"
             >
               View All Notifications
             </Link>

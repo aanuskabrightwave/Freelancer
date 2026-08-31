@@ -60,14 +60,14 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-2xl space-y-6"
+      className="bg-surface border border-border-custom rounded-3xl p-6 md:p-8 shadow-2xl space-y-6"
     >
       <div>
-        <span className="text-[10px] text-indigo-400 font-black uppercase tracking-wider block mb-1">
+        <span className="text-[10px] text-primary font-black uppercase tracking-wider block mb-1">
           Share Your Experience
         </span>
-        <h2 className="text-lg font-black text-white">How was your booking experience?</h2>
-        <p className="text-xs text-slate-400 mt-1">
+        <h2 className="text-lg font-black text-text-main">How was your booking experience?</h2>
+        <p className="text-xs text-text-sub mt-1">
           Your feedback helps other clients find verified creative professionals.
         </p>
       </div>
@@ -81,18 +81,18 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
       {/* Ratings Categories Grid */}
       <div className="space-y-4">
         {/* Overall Rating (Mandatory) */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-slate-950/40 p-4 border border-slate-850 rounded-2xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-background p-4 border border-border-custom rounded-2xl">
           <div>
-            <span className="text-xs font-black text-white uppercase tracking-wide block">Overall Experience *</span>
-            <span className="text-[10px] text-slate-500 mt-0.5 block">Required rating score</span>
+            <span className="text-xs font-black text-text-main uppercase tracking-wide block">Overall Experience *</span>
+            <span className="text-[10px] text-text-muted mt-0.5 block">Required rating score</span>
           </div>
           <StarRating rating={overall} interactive size="lg" onChange={setOverall} />
         </div>
 
         {/* Detailed Ratings */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-slate-950/20 border border-slate-850/50 p-4 rounded-2xl flex items-center justify-between gap-4">
-            <span className="text-xs font-bold text-slate-300">Quality of Work</span>
+          <div className="bg-background border border-border-custom p-4 rounded-2xl flex items-center justify-between gap-4">
+            <span className="text-xs font-bold text-text-sub">Quality of Work</span>
             <StarRating
               rating={quality || 0}
               interactive
@@ -101,8 +101,8 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
             />
           </div>
 
-          <div className="bg-slate-950/20 border border-slate-850/50 p-4 rounded-2xl flex items-center justify-between gap-4">
-            <span className="text-xs font-bold text-slate-300">Communication</span>
+          <div className="bg-background border border-border-custom p-4 rounded-2xl flex items-center justify-between gap-4">
+            <span className="text-xs font-bold text-text-sub">Communication</span>
             <StarRating
               rating={communication || 0}
               interactive
@@ -111,8 +111,8 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
             />
           </div>
 
-          <div className="bg-slate-950/20 border border-slate-850/50 p-4 rounded-2xl flex items-center justify-between gap-4">
-            <span className="text-xs font-bold text-slate-300">Professionalism</span>
+          <div className="bg-background border border-border-custom p-4 rounded-2xl flex items-center justify-between gap-4">
+            <span className="text-xs font-bold text-text-sub">Professionalism</span>
             <StarRating
               rating={professionalism || 0}
               interactive
@@ -121,8 +121,8 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
             />
           </div>
 
-          <div className="bg-slate-950/20 border border-slate-850/50 p-4 rounded-2xl flex items-center justify-between gap-4">
-            <span className="text-xs font-bold text-slate-300">Timeliness</span>
+          <div className="bg-background border border-border-custom p-4 rounded-2xl flex items-center justify-between gap-4">
+            <span className="text-xs font-bold text-text-sub">Timeliness</span>
             <StarRating
               rating={timeliness || 0}
               interactive
@@ -131,8 +131,8 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
             />
           </div>
 
-          <div className="bg-slate-950/20 border border-slate-850/50 p-4 rounded-2xl flex items-center justify-between gap-4">
-            <span className="text-xs font-bold text-slate-300">Value for Money</span>
+          <div className="bg-background border border-border-custom p-4 rounded-2xl flex items-center justify-between gap-4">
+            <span className="text-xs font-bold text-text-sub">Value for Money</span>
             <StarRating
               rating={value || 0}
               interactive
@@ -146,7 +146,7 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
       {/* Review Details */}
       <div className="space-y-4 pt-2">
         <div>
-          <label className="block text-[10px] text-slate-400 uppercase font-black mb-1">
+          <label className="block text-[10px] text-text-sub uppercase font-black mb-1">
             Review Title (Optional)
           </label>
           <input
@@ -155,12 +155,12 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
             placeholder="Summarize your review experience..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-2.5 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none transition"
+            className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-xs text-text-main placeholder-text-muted focus:border-primary focus:outline-none transition"
           />
         </div>
 
         <div>
-          <label className="block text-[10px] text-slate-400 uppercase font-black mb-1">
+          <label className="block text-[10px] text-text-sub uppercase font-black mb-1">
             Tell us about your experience * (min 20 chars)
           </label>
           <textarea
@@ -171,9 +171,9 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
             placeholder="Aarav Sharma and his team were professional, arrived on time and delivered beautiful wedding photographs..."
             value={comment}
             onChange={(e) => setComment(e.target.value)}
-            className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-600 focus:border-indigo-500 focus:outline-none resize-none transition"
+            className="w-full bg-background border border-border-custom rounded-xl px-4 py-3 text-xs text-text-main placeholder-text-muted focus:border-primary focus:outline-none resize-none transition"
           />
-          <div className="flex justify-between items-center text-[10px] text-slate-500 mt-1">
+          <div className="flex justify-between items-center text-[10px] text-text-muted mt-1">
             <span>Minimum 20 characters</span>
             <span className={comment.length < 20 ? "text-rose-500" : "text-emerald-500"}>
               {comment.length} / 3000
@@ -185,7 +185,7 @@ export default function ReviewForm({ bookingId, onSuccess }: ReviewFormProps) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white text-xs font-black rounded-xl transition uppercase tracking-wider shadow-lg shadow-indigo-950/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-text-main text-xs font-black rounded-xl transition uppercase tracking-wider shadow-lg shadow-indigo-950/20 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading ? "Submitting Review..." : "Submit Review"}
       </button>

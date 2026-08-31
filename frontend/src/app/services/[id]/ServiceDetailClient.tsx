@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { getMediaUrl } from "@/lib/api";
 import { marketplaceService } from "@/services/service.service";
 import { useAuth } from "@/context/AuthContext";
 import { bookingService } from "@/services/booking.service";
@@ -175,7 +176,7 @@ export default function ServiceDetailClient({ id }: { id: string }) {
       {/* Cover Banner */}
       <div className="h-48 md:h-64 w-full bg-dark relative overflow-hidden">
         {activeMediaUrl ? (
-          <img src={activeMediaUrl} alt="" className="w-full h-full object-cover opacity-60 filter blur-sm" />
+          <img src={getMediaUrl(activeMediaUrl)} alt="" className="w-full h-full object-cover opacity-60 filter blur-sm" />
         ) : (
           <div className="w-full h-full bg-gradient-to-r from-dark to-dark-soft opacity-60"></div>
         )}
@@ -195,7 +196,7 @@ export default function ServiceDetailClient({ id }: { id: string }) {
             <div className="flex items-center gap-3 mt-4">
               <div className="w-8 h-8 rounded-full bg-surface border border-border-custom overflow-hidden">
                 {service.freelancer?.profile_photo_url ? (
-                  <img src={service.freelancer.profile_photo_url} alt="" className="w-full h-full object-cover" />
+                  <img src={getMediaUrl(service.freelancer.profile_photo_url)} alt="" className="w-full h-full object-cover" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-[10px] text-text-muted">P</div>
                 )}
@@ -231,7 +232,7 @@ export default function ServiceDetailClient({ id }: { id: string }) {
             <div className="bg-surface-elevated border border-border-custom rounded-3xl p-4 md:p-6 shadow-sm">
               <div className="aspect-[16/9] w-full rounded-2xl bg-surface overflow-hidden flex items-center justify-center border border-border-custom/60">
                 {activeMediaUrl ? (
-                  <img src={activeMediaUrl} alt="Showcase Preview" className="w-full h-full object-contain" />
+                  <img src={getMediaUrl(activeMediaUrl)} alt="Showcase Preview" className="w-full h-full object-contain" />
                 ) : (
                   <span className="text-xs text-text-muted font-bold uppercase">No Active Preview</span>
                 )}
@@ -247,7 +248,7 @@ export default function ServiceDetailClient({ id }: { id: string }) {
                       activeMediaUrl === m.media_url ? "border-primary" : "border-border-custom"
                     }`}
                   >
-                    <img src={m.media_url} alt="" className="w-full h-full object-cover" />
+                    <img src={getMediaUrl(m.media_url)} alt="" className="w-full h-full object-cover" />
                   </button>
                 ))}
                 

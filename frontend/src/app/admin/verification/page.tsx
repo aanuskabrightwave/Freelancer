@@ -112,38 +112,38 @@ export default function AdminVerificationPage() {
   };
 
   return (
-    <div className="p-8 space-y-6 bg-slate-950 min-h-screen text-slate-100">
+    <div className="p-8 space-y-6 bg-background min-h-screen text-text-main">
       {/* Header */}
-      <div className="border-b border-slate-800 pb-6">
-        <h1 className="text-3xl font-extrabold text-white">Identity Verifications Queue</h1>
-        <p className="text-slate-400 text-sm mt-1">Review government IDs and award authenticity trust badges to creators.</p>
+      <div className="border-b border-border-custom pb-6">
+        <h1 className="text-3xl font-extrabold text-text-main">Identity Verifications Queue</h1>
+        <p className="text-text-sub text-sm mt-1">Review government IDs and award authenticity trust badges to creators.</p>
       </div>
 
       {loading ? (
-        <div className="py-20 text-center text-slate-400">Loading review verifications queue...</div>
+        <div className="py-20 text-center text-text-sub">Loading review verifications queue...</div>
       ) : error ? (
         <div className="bg-red-950/20 border border-red-900 text-red-400 p-4 rounded-xl">{error}</div>
       ) : queue.length === 0 ? (
-        <div className="text-center py-20 text-slate-500 bg-slate-900/40 border border-slate-800 rounded-xl">
+        <div className="text-center py-20 text-text-muted bg-surface border border-border-custom rounded-xl">
           Verification queue is currently empty. Excellent work!
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main List */}
           <div className="lg:col-span-2 space-y-4">
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Awaiting Verification ({queue.length})</h3>
-            <div className="bg-slate-900/60 border border-slate-800 rounded-xl divide-y divide-slate-850 overflow-hidden shadow-xl">
+            <h3 className="text-xs font-bold text-text-sub uppercase tracking-wider">Awaiting Verification ({queue.length})</h3>
+            <div className="bg-surface border border-border-custom rounded-xl divide-y divide-border-custom overflow-hidden shadow-xl">
               {queue.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => viewDetails(item)}
-                  className={`p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:bg-slate-900/90 transition-colors ${
-                    selectedRequest?.id === item.id ? "bg-slate-900/90 border-l-4 border-blue-500" : ""
+                  className={`p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 cursor-pointer hover:bg-surface transition-colors ${
+                    selectedRequest?.id === item.id ? "bg-surface border-l-4 border-blue-500" : ""
                   }`}
                 >
                   <div>
-                    <h4 className="font-bold text-white text-base">{item.full_name}</h4>
-                    <p className="text-xs text-slate-400 mt-0.5">Submitted: {new Date(item.submitted_at).toLocaleDateString()}</p>
+                    <h4 className="font-bold text-text-main text-base">{item.full_name}</h4>
+                    <p className="text-xs text-text-sub mt-0.5">Submitted: {new Date(item.submitted_at).toLocaleDateString()}</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -162,25 +162,25 @@ export default function AdminVerificationPage() {
           </div>
 
           {/* Details & Actions Panel */}
-          <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-6 shadow-xl space-y-6">
-            <h3 className="text-lg font-bold text-white border-b border-slate-800 pb-3">Review Panel</h3>
+          <div className="bg-surface border border-border-custom rounded-xl p-6 shadow-xl space-y-6">
+            <h3 className="text-lg font-bold text-text-main border-b border-border-custom pb-3">Review Panel</h3>
 
             {loadingDetail ? (
-              <div className="py-20 text-center text-slate-400">Loading document verification details...</div>
+              <div className="py-20 text-center text-text-sub">Loading document verification details...</div>
             ) : selectedRequest ? (
               <div className="space-y-6 animate-in fade-in duration-200">
                 <div className="space-y-2">
-                  <span className="text-xs text-slate-400 uppercase font-semibold">Applicant</span>
-                  <h4 className="text-xl font-bold text-white">{selectedRequest.full_name}</h4>
-                  <p className="text-xs text-slate-400 font-mono">Profile ID: #{selectedRequest.freelancer_profile_id}</p>
-                  <p className="text-xs text-slate-400">Status: <strong className="text-white">{selectedRequest.status}</strong></p>
+                  <span className="text-xs text-text-sub uppercase font-semibold">Applicant</span>
+                  <h4 className="text-xl font-bold text-text-main">{selectedRequest.full_name}</h4>
+                  <p className="text-xs text-text-sub font-mono">Profile ID: #{selectedRequest.freelancer_profile_id}</p>
+                  <p className="text-xs text-text-sub">Status: <strong className="text-text-main">{selectedRequest.status}</strong></p>
                 </div>
 
                 {/* Queue Transition to Review state */}
                 {selectedRequest.status === "PENDING" && (
                   <button
                     onClick={handleStartReview}
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors"
+                    className="w-full bg-blue-600 hover:bg-blue-700 text-text-main font-semibold py-2 rounded-lg text-sm transition-colors"
                   >
                     Start Documents Review
                   </button>
@@ -188,21 +188,21 @@ export default function AdminVerificationPage() {
 
                 {/* Secure Files Uploads List */}
                 <div className="space-y-3">
-                  <span className="text-xs text-slate-400 uppercase font-semibold">Submitted Files</span>
+                  <span className="text-xs text-text-sub uppercase font-semibold">Submitted Files</span>
                   {selectedRequest.documents && selectedRequest.documents.length > 0 ? (
                     <div className="space-y-2">
                       {selectedRequest.documents.map((doc) => (
-                        <div key={doc.id} className="bg-slate-950 border border-slate-850 p-3 rounded-lg flex items-center justify-between">
+                        <div key={doc.id} className="bg-background border border-border-custom p-3 rounded-lg flex items-center justify-between">
                           <div>
-                            <span className="text-xs font-semibold text-white block">{doc.document_type.replace("_", " ")}</span>
-                            <span className="text-[10px] text-slate-500 font-mono">{doc.mime_type}</span>
+                            <span className="text-xs font-semibold text-text-main block">{doc.document_type.replace("_", " ")}</span>
+                            <span className="text-[10px] text-text-muted font-mono">{doc.mime_type}</span>
                           </div>
                           {/* Secure File Fetch Link */}
                           <a
                             href={getDocDownloadUrl(doc.id)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="bg-slate-900 border border-slate-800 text-blue-400 hover:text-blue-300 font-semibold px-2.5 py-1 rounded text-xs transition-colors"
+                            className="bg-surface border border-border-custom text-blue-400 hover:text-blue-300 font-semibold px-2.5 py-1 rounded text-xs transition-colors"
                           >
                             Open File
                           </a>
@@ -210,29 +210,29 @@ export default function AdminVerificationPage() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-xs text-slate-500">No documents found attached to this verification claim.</p>
+                    <p className="text-xs text-text-muted">No documents found attached to this verification claim.</p>
                   )}
                 </div>
 
                 {/* Decision Actions */}
                 {selectedRequest.status !== "PENDING" && (
-                  <div className="space-y-2 pt-4 border-t border-slate-800">
+                  <div className="space-y-2 pt-4 border-t border-border-custom">
                     <button
                       onClick={() => setActionType("APPROVE")}
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-text-main font-semibold py-2 rounded-lg text-sm transition-colors"
                     >
                       Approve & Verify Identity
                     </button>
                     <div className="grid grid-cols-2 gap-3">
                       <button
                         onClick={() => setActionType("RESUBMIT")}
-                        className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-yellow-500 hover:text-yellow-400 font-semibold py-2 rounded-lg text-sm transition-colors text-center"
+                        className="bg-background hover:bg-surface-elevated border border-border-custom text-yellow-500 hover:text-yellow-400 font-semibold py-2 rounded-lg text-sm transition-colors text-center"
                       >
                         Ask Resubmit
                       </button>
                       <button
                         onClick={() => setActionType("REJECT")}
-                        className="bg-slate-950 hover:bg-slate-800 border border-slate-800 text-red-500 hover:text-red-400 font-semibold py-2 rounded-lg text-sm transition-colors text-center"
+                        className="bg-background hover:bg-surface-elevated border border-border-custom text-red-500 hover:text-red-400 font-semibold py-2 rounded-lg text-sm transition-colors text-center"
                       >
                         Reject Request
                       </button>
@@ -241,7 +241,7 @@ export default function AdminVerificationPage() {
                 )}
               </div>
             ) : (
-              <div className="text-center py-20 text-slate-500 text-sm">
+              <div className="text-center py-20 text-text-muted text-sm">
                 Select a verification request from the list to preview documents.
               </div>
             )}
@@ -252,19 +252,19 @@ export default function AdminVerificationPage() {
       {/* Decision Action Modal */}
       {actionType && selectedRequest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="bg-surface border border-border-custom w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
             <div>
-              <h3 className="text-lg font-bold text-white">
+              <h3 className="text-lg font-bold text-text-main">
                 {actionType === "APPROVE" ? "Approve Verification" :
                  actionType === "REJECT" ? "Reject Verification" :
                  "Request Files Resubmission"}
               </h3>
-              <p className="text-xs text-slate-400 mt-1">
-                Confirm decision for <strong className="text-slate-200">{selectedRequest.full_name}</strong>.
+              <p className="text-xs text-text-sub mt-1">
+                Confirm decision for <strong className="text-text-main">{selectedRequest.full_name}</strong>.
               </p>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-slate-400 font-bold uppercase">
+              <label className="text-xs text-text-sub font-bold uppercase">
                 {actionType === "APPROVE" ? "Internal Notes (Optional)" : "Instruction / Reason Description"}
               </label>
               <textarea
@@ -275,7 +275,7 @@ export default function AdminVerificationPage() {
                 }
                 value={actionReason}
                 onChange={(e) => setActionReason(e.target.value)}
-                className="bg-slate-950 border border-slate-800 text-slate-200 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none placeholder-slate-600"
+                className="bg-background border border-border-custom text-text-main text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:outline-none placeholder-text-muted"
               />
             </div>
             <div className="flex justify-end gap-3 pt-2">
@@ -285,14 +285,14 @@ export default function AdminVerificationPage() {
                   setActionType(null);
                   setActionReason("");
                 }}
-                className="bg-slate-950 border border-slate-850 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-sm transition-colors"
+                className="bg-background border border-border-custom hover:bg-surface-elevated text-text-sub px-4 py-2 rounded-lg text-sm transition-colors"
               >
                 Cancel
               </button>
               <button
                 disabled={submitting || (actionType !== "APPROVE" && !actionReason.trim())}
                 onClick={handleActionSubmit}
-                className={`text-white font-semibold px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors ${
+                className={`text-text-main font-semibold px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors ${
                   actionType === "APPROVE" ? "bg-emerald-600 hover:bg-emerald-700" :
                   actionType === "REJECT" ? "bg-red-600 hover:bg-red-700" :
                   "bg-yellow-600 hover:bg-yellow-700"

@@ -75,14 +75,14 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className="flex flex-col flex-grow justify-center bg-slate-950 py-12 px-4 text-slate-100">
+    <div className="flex flex-col flex-grow justify-center bg-background py-12 px-4 text-text-main">
       <Container size="sm">
-        <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-8 shadow-2xl backdrop-blur-xl space-y-6">
+        <div className="bg-surface border border-border-custom rounded-2xl p-8 shadow-2xl backdrop-blur-xl space-y-6">
           <div className="text-center">
-            <h2 className="text-3xl font-extrabold tracking-tight text-white">
+            <h2 className="text-3xl font-extrabold tracking-tight text-text-main">
               Reset Password
             </h2>
-            <p className="mt-2 text-slate-400 text-sm">
+            <p className="mt-2 text-text-sub text-sm">
               Please enter your new password below.
             </p>
           </div>
@@ -90,7 +90,7 @@ function ResetPasswordForm() {
           {!token && (
             <div className="bg-red-950/30 border border-red-900/50 text-red-400 p-4 rounded-lg text-sm text-center">
               Missing token. Please request a new password reset link from the{" "}
-              <Link href="/forgot-password" className="underline font-bold text-white">
+              <Link href="/forgot-password" className="underline font-bold text-text-main">
                 Forgot Password page
               </Link>
               .
@@ -112,7 +112,7 @@ function ResetPasswordForm() {
           {token && !message && (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-1">
+                <label className="block text-sm font-semibold text-text-sub mb-1">
                   New Password
                 </label>
                 <input
@@ -122,14 +122,14 @@ function ResetPasswordForm() {
                     setNewPassword(e.target.value);
                     if (error) setError(null);
                   }}
-                  className="w-full px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                  className="w-full px-4 py-2.5 rounded-lg bg-background border border-border-custom text-text-main placeholder-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
                   placeholder="••••••••"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-300 mb-1">
+                <label className="block text-sm font-semibold text-text-sub mb-1">
                   Confirm New Password
                 </label>
                 <input
@@ -139,7 +139,7 @@ function ResetPasswordForm() {
                     setConfirmPassword(e.target.value);
                     if (error) setError(null);
                   }}
-                  className="w-full px-4 py-2.5 rounded-lg bg-slate-950 border border-slate-800 text-white placeholder-slate-600 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-sm"
+                  className="w-full px-4 py-2.5 rounded-lg bg-background border border-border-custom text-text-main placeholder-text-muted focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm"
                   placeholder="••••••••"
                   required
                 />
@@ -148,14 +148,14 @@ function ResetPasswordForm() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold transition-colors flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:bg-blue-800 disabled:text-slate-400 disabled:cursor-not-allowed"
+                className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 text-text-main font-semibold transition-colors flex items-center justify-center gap-2 mt-6 cursor-pointer disabled:bg-blue-800 disabled:text-text-sub disabled:cursor-not-allowed"
               >
                 {isLoading ? "Resetting Password..." : "Update Password"}
               </button>
             </form>
           )}
 
-          <div className="text-center text-sm text-slate-400 pt-4 border-t border-slate-800">
+          <div className="text-center text-sm text-text-sub pt-4 border-t border-border-custom">
             Back to{" "}
             <Link href="/login" className="text-blue-400 hover:underline">
               Login
@@ -170,7 +170,7 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <Suspense fallback={
-      <div className="flex flex-col flex-grow justify-center bg-slate-950 py-12 px-4 text-slate-100 text-center">
+      <div className="flex flex-col flex-grow justify-center bg-background py-12 px-4 text-text-main text-center">
         Loading...
       </div>
     }>

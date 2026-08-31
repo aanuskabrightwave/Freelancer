@@ -557,6 +557,23 @@ Manual testing flows for booking state changes:
   * [x] PASS
   * [ ] FAIL
 
+### Razorpay Webhook & Payment Eligibility Integration
+
+* **ROLE**: CLIENT
+* **START**: Open a booking checkout page `/client/bookings/[id]/payment`
+* **ACTION**:
+  1. Observe the "Total Price Due" panel. It must reflect the eligibility phase (e.g., Initial Deposit vs Remaining Balance).
+  2. If the payment is blocked (e.g., waiting on freelancer confirmation), verify that the amber "Payment Not Available" alert displays the blocking reason.
+  3. When eligible, click **Simulate Sandbox Checkout Success** or process a test card via the Razorpay gateway.
+  4. Ensure the backend `/webhooks/razorpay` captures the successful transaction signature and updates the booking ledger.
+* **EXPECTED**: 
+  * The frontend gracefully prevents invalid payments.
+  * Successful webhook processing transitions the booking state automatically.
+* **STATUS**:
+  * [ ] NOT TESTED
+  * [ ] PASS
+  * [ ] FAIL
+
 ---
 
 ## 12. Admin Management Workspace
@@ -819,6 +836,7 @@ This suite verifies the client requirements posting, freelancer jobs feed browsi
 - [x] Explore Creatives Directory filters
 - [x] Public Freelancer profiles visibility
 - [x] Service order checkout
+- [ ] Razorpay Checkout & Webhook Processing
 - [x] Bookings history details
 - [x] Chat conversation portal
 - [x] Workspace delivery approval

@@ -183,7 +183,7 @@ export default function FreelancerDashboardPage() {
     switch (type) {
       case "booking": return <Calendar className="w-4 h-4 text-primary" />;
       case "profile": return <AlertCircle className="w-4 h-4 text-primary" />;
-      default: return <MessageSquare className="w-4 h-4 text-indigo-500" />;
+      default: return <MessageSquare className="w-4 h-4 text-primary" />;
     }
   };
 

@@ -50,7 +50,7 @@ export default function NotificationPreferencesForm() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-text-muted">
-        <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-2" />
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
         <p className="text-xs">Loading preferences...</p>
       </div>
     );
@@ -122,7 +122,7 @@ export default function NotificationPreferencesForm() {
               type="button"
               onClick={() => handleToggle(item.key)}
               className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                prefs[item.key] ? "bg-indigo-500" : "bg-neutral-200"
+                prefs[item.key] ? "bg-primary-hover" : "bg-neutral-200"
               }`}
             >
               <span
@@ -139,7 +139,7 @@ export default function NotificationPreferencesForm() {
         <button
           type="submit"
           disabled={saving}
-          className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
+          className="flex items-center gap-2 px-5 py-2.5 bg-primary-hover hover:bg-primary disabled:bg-primary-hover text-text-main text-xs font-bold uppercase tracking-wider rounded-xl transition-all"
         >
           {saving ? (
             <>

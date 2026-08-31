@@ -429,30 +429,30 @@ export default function CreateServiceWizard() {
   const selectedParentCategory = categories.find(c => String(c.id) === selectedParentId);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 md:px-8">
+    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8">
       <div className="max-w-4xl mx-auto">
         
         {/* Wizard Progress Header */}
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
-            <span className="text-[10px] bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
+            <span className="text-[10px] bg-primary-hover border border-primary/30 text-primary font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">
               Step {step} of 8: {STEPS[step - 1]}
             </span>
             {serviceId && (
               <button 
                 onClick={handleSaveDraftAndExit}
-                className="text-xs text-slate-400 hover:text-white transition"
+                className="text-xs text-text-sub hover:text-text-main transition"
               >
                 Save Draft & Exit
               </button>
             )}
           </div>
           
-          <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden flex gap-1">
+          <div className="w-full bg-surface h-2 rounded-full overflow-hidden flex gap-1">
             {STEPS.map((_, idx) => (
               <div 
                 key={idx} 
-                className={`flex-grow h-full transition ${idx + 1 <= step ? "bg-indigo-500" : "bg-slate-800"}`}
+                className={`flex-grow h-full transition ${idx + 1 <= step ? "bg-primary-hover" : "bg-surface-elevated"}`}
               ></div>
             ))}
           </div>
@@ -470,47 +470,47 @@ export default function CreateServiceWizard() {
         )}
 
         {/* STEP CONTENT BLOCKS */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl">
+        <div className="bg-surface border border-border-custom rounded-3xl p-6 md:p-8 shadow-xl">
           
           {/* STEP 1: Basic Information */}
           {step === 1 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-2">Service Basic Information</h2>
+              <h2 className="text-lg font-bold text-text-main mb-2">Service Basic Information</h2>
               <div>
-                <label className="block text-xs text-slate-400 font-semibold mb-2">Service Title</label>
+                <label className="block text-xs text-text-sub font-semibold mb-2">Service Title</label>
                 <input 
                   type="text" 
                   value={title} 
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Professional Wedding Photography in Mumbai"
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary"
                 />
-                <span className="text-[10px] text-slate-500 mt-1 block">Title must be between 10 and 150 characters.</span>
+                <span className="text-[10px] text-text-muted mt-1 block">Title must be between 10 and 150 characters.</span>
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 font-semibold mb-2">Short Summary Description</label>
+                <label className="block text-xs text-text-sub font-semibold mb-2">Short Summary Description</label>
                 <textarea 
                   value={shortDesc} 
                   onChange={(e) => setShortDesc(e.target.value)}
                   maxLength={300}
                   rows={2}
                   placeholder="Briefly describe the highlights of what you deliver..."
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-indigo-500 resize-none"
+                  className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary resize-none"
                 />
-                <span className="text-[10px] text-slate-500 mt-1 block">Maximum 300 characters.</span>
+                <span className="text-[10px] text-text-muted mt-1 block">Maximum 300 characters.</span>
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 font-semibold mb-2">Full Detailed Description</label>
+                <label className="block text-xs text-text-sub font-semibold mb-2">Full Detailed Description</label>
                 <textarea 
                   value={fullDesc} 
                   onChange={(e) => setFullDesc(e.target.value)}
                   rows={6}
                   placeholder="Provide in-depth details of your coverage, gear, deliverables and terms..."
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-indigo-500 resize-none"
+                  className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary resize-none"
                 />
-                <span className="text-[10px] text-slate-500 mt-1 block">Describe the workflow and post-processing specifics. Max 5,000 characters.</span>
+                <span className="text-[10px] text-text-muted mt-1 block">Describe the workflow and post-processing specifics. Max 5,000 characters.</span>
               </div>
             </div>
           )}
@@ -518,18 +518,18 @@ export default function CreateServiceWizard() {
           {/* STEP 2: Category & Service Type */}
           {step === 2 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-2">Select Category & Service Type</h2>
+              <h2 className="text-lg font-bold text-text-main mb-2">Select Category & Service Type</h2>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs text-slate-400 font-semibold mb-2">Parent Category</label>
+                  <label className="block text-xs text-text-sub font-semibold mb-2">Parent Category</label>
                   <select 
                     value={selectedParentId}
                     onChange={(e) => {
                       setSelectedParentId(e.target.value);
                       setSelectedChildId("");
                     }}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none"
+                    className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none"
                   >
                     <option value="">Select Category</option>
                     {categories.map((c) => (
@@ -539,12 +539,12 @@ export default function CreateServiceWizard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-400 font-semibold mb-2">Subcategory</label>
+                  <label className="block text-xs text-text-sub font-semibold mb-2">Subcategory</label>
                   <select 
                     value={selectedChildId}
                     onChange={(e) => setSelectedChildId(e.target.value)}
                     disabled={!selectedParentId}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none disabled:opacity-40"
+                    className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none disabled:opacity-40"
                   >
                     <option value="">Select Subcategory</option>
                     {selectedParentCategory?.subcategories?.map((sub: any) => (
@@ -555,7 +555,7 @@ export default function CreateServiceWizard() {
               </div>
 
               <div>
-                <label className="block text-xs text-slate-400 font-semibold mb-2">Service Type</label>
+                <label className="block text-xs text-text-sub font-semibold mb-2">Service Type</label>
                 <div className="grid grid-cols-3 gap-4">
                   {(["REMOTE", "ON_SITE", "HYBRID"] as const).map((t) => (
                     <button
@@ -564,15 +564,15 @@ export default function CreateServiceWizard() {
                       onClick={() => setServiceType(t)}
                       className={`px-4 py-3 rounded-xl border text-xs font-bold transition ${
                         serviceType === t 
-                          ? "bg-indigo-600 border-indigo-500 text-white" 
-                          : "bg-slate-950 border-slate-800 text-slate-400 hover:text-slate-200"
+                          ? "bg-primary border-primary text-text-main" 
+                          : "bg-background border-border-custom text-text-sub hover:text-text-main"
                       }`}
                     >
                       {t === "ON_SITE" ? "On-Site" : t === "REMOTE" ? "Remote" : "Hybrid"}
                     </button>
                   ))}
                 </div>
-                <p className="text-[10px] text-slate-500 mt-2">
+                <p className="text-[10px] text-text-muted mt-2">
                   {serviceType === "REMOTE" && "Work is completely done online. No location checks required."}
                   {serviceType === "ON_SITE" && "Requires client location details. You will travel to the site."}
                   {serviceType === "HYBRID" && "Combines both physical on-site shoots and remote editing tasks."}
@@ -584,10 +584,10 @@ export default function CreateServiceWizard() {
           {/* STEP 3: Packages Editor */}
           {step === 3 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-2">Configure Packages</h2>
+              <h2 className="text-lg font-bold text-text-main mb-2">Configure Packages</h2>
 
               {/* Package Tabs */}
-              <div className="grid grid-cols-3 gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-850">
+              <div className="grid grid-cols-3 gap-2 bg-background p-1.5 rounded-xl border border-border-custom">
                 {(["BASIC", "STANDARD", "PREMIUM"] as const).map((type) => {
                   const isEnabled = packages[type].enabled;
                   return (
@@ -604,8 +604,8 @@ export default function CreateServiceWizard() {
                       }}
                       className={`py-2 rounded-lg text-xs font-extrabold transition ${
                         isEnabled 
-                          ? "bg-indigo-600 text-white" 
-                          : "text-slate-400 hover:text-slate-200"
+                          ? "bg-primary text-text-main" 
+                          : "text-text-sub hover:text-text-main"
                       }`}
                     >
                       {type} {type !== "BASIC" && (isEnabled ? "(On)" : "(Off)")}
@@ -620,12 +620,12 @@ export default function CreateServiceWizard() {
                   const pkg = packages[type];
                   if (!pkg.enabled) return null;
                   return (
-                    <div key={type} className="border border-slate-800 rounded-2xl p-4 bg-slate-950 space-y-4">
-                      <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest">{type} Package Config</h4>
+                    <div key={type} className="border border-border-custom rounded-2xl p-4 bg-background space-y-4">
+                      <h4 className="text-xs font-bold text-primary uppercase tracking-widest">{type} Package Config</h4>
                       
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Package Name</label>
+                          <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Package Name</label>
                           <input 
                             type="text" 
                             value={pkg.name}
@@ -634,11 +634,11 @@ export default function CreateServiceWizard() {
                               [type]: { ...prev[type], name: e.target.value }
                             }))}
                             placeholder="e.g. Basic Coverage, Gold Video Edit"
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white"
+                            className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Price (₹)</label>
+                          <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Price (₹)</label>
                           <input 
                             type="number" 
                             value={pkg.price}
@@ -647,14 +647,14 @@ export default function CreateServiceWizard() {
                               [type]: { ...prev[type], price: e.target.value }
                             }))}
                             placeholder="e.g. 5000"
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white"
+                            className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Delivery Time (Days)</label>
+                          <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Delivery Time (Days)</label>
                           <input 
                             type="number" 
                             value={pkg.delivery}
@@ -663,11 +663,11 @@ export default function CreateServiceWizard() {
                               [type]: { ...prev[type], delivery: e.target.value }
                             }))}
                             placeholder="e.g. 3"
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white"
+                            className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main"
                           />
                         </div>
                         <div>
-                          <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Revisions Allowed</label>
+                          <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Revisions Allowed</label>
                           <input 
                             type="number" 
                             value={pkg.revisions}
@@ -676,13 +676,13 @@ export default function CreateServiceWizard() {
                               [type]: { ...prev[type], revisions: e.target.value }
                             }))}
                             placeholder="e.g. 3"
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white"
+                            className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Description of Scope</label>
+                        <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Description of Scope</label>
                         <textarea 
                           value={pkg.description}
                           onChange={(e) => setPackages(prev => ({
@@ -691,7 +691,7 @@ export default function CreateServiceWizard() {
                           }))}
                           rows={2}
                           placeholder="What is included in this package..."
-                          className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white resize-none"
+                          className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main resize-none"
                         />
                       </div>
                     </div>
@@ -704,18 +704,18 @@ export default function CreateServiceWizard() {
           {/* STEP 4: Package Deliverables */}
           {step === 4 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-2">Structured Deliverables Comparison</h2>
-              <p className="text-xs text-slate-400">Map specific rows (e.g. Coverage Hours, Edited Photos) to comparison cards.</p>
+              <h2 className="text-lg font-bold text-text-main mb-2">Structured Deliverables Comparison</h2>
+              <p className="text-xs text-text-sub">Map specific rows (e.g. Coverage Hours, Edited Photos) to comparison cards.</p>
 
               {/* Add deliverable row */}
-              <div className="bg-slate-950 border border-slate-850 p-4 rounded-xl space-y-4">
+              <div className="bg-background border border-border-custom p-4 rounded-xl space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Target Package</label>
+                    <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Target Package</label>
                     <select 
                       value={newDelivPkg} 
                       onChange={(e: any) => setNewDelivPkg(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white"
+                      className="w-full bg-surface border border-border-custom rounded-lg px-2 py-1.5 text-xs text-text-main"
                     >
                       {Object.entries(packages).filter(([_, pkg]) => pkg.enabled).map(([type]) => (
                         <option key={type} value={type}>{type}</option>
@@ -723,29 +723,29 @@ export default function CreateServiceWizard() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Deliverable Label</label>
+                    <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Deliverable Label</label>
                     <input 
                       type="text" 
                       value={newDelivLabel} 
                       onChange={(e) => setNewDelivLabel(e.target.value)} 
                       placeholder="e.g. Coverage Hours"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                      className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main"
                     />
                   </div>
                   <div>
-                    <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Deliverable Value</label>
+                    <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Deliverable Value</label>
                     <input 
                       type="text" 
                       value={newDelivValue} 
                       onChange={(e) => setNewDelivValue(e.target.value)} 
                       placeholder="e.g. 4 Hours"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                      className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main"
                     />
                   </div>
                 </div>
                 <button 
                   onClick={handleAddDeliverable}
-                  className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg"
+                  className="px-3 py-1.5 bg-primary hover:bg-primary-hover text-xs font-bold text-text-main rounded-lg"
                 >
                   Add Row
                 </button>
@@ -756,14 +756,14 @@ export default function CreateServiceWizard() {
                 {Object.entries(packages).filter(([_, pkg]) => pkg.enabled).map(([type]) => {
                   const pkgDelivs = deliverables.filter(d => d.package_type === type);
                   return (
-                    <div key={type} className="bg-slate-950/60 p-4 rounded-xl border border-slate-850">
-                      <h4 className="text-xs font-bold text-white mb-2">{type} Package Deliverables</h4>
+                    <div key={type} className="bg-background p-4 rounded-xl border border-border-custom">
+                      <h4 className="text-xs font-bold text-text-main mb-2">{type} Package Deliverables</h4>
                       <div className="space-y-2">
                         {pkgDelivs.map((d, index) => {
                           const globalIdx = deliverables.findIndex(item => item === d);
                           return (
-                            <div key={index} className="flex justify-between items-center bg-slate-900 px-3 py-2 rounded-lg text-xs">
-                              <span>{d.label}: <strong className="text-indigo-400">{d.value}</strong></span>
+                            <div key={index} className="flex justify-between items-center bg-surface px-3 py-2 rounded-lg text-xs">
+                              <span>{d.label}: <strong className="text-primary">{d.value}</strong></span>
                               <button 
                                 onClick={() => handleDeleteDeliverable(globalIdx)}
                                 className="text-rose-500 hover:text-rose-400"
@@ -773,7 +773,7 @@ export default function CreateServiceWizard() {
                             </div>
                           );
                         })}
-                        {pkgDelivs.length === 0 && <span className="text-[10px] text-slate-600 block">No specific deliverables added yet.</span>}
+                        {pkgDelivs.length === 0 && <span className="text-[10px] text-text-muted block">No specific deliverables added yet.</span>}
                       </div>
                     </div>
                   );
@@ -785,17 +785,17 @@ export default function CreateServiceWizard() {
           {/* STEP 5: Media Showcase */}
           {step === 5 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-2">Showcase Showcase Gallery</h2>
+              <h2 className="text-lg font-bold text-text-main mb-2">Showcase Showcase Gallery</h2>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-xs text-slate-400 font-semibold mb-2">Upload Showcase Image</label>
+                  <label className="block text-xs text-text-sub font-semibold mb-2">Upload Showcase Image</label>
                   <button 
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full h-32 border-2 border-dashed border-slate-800 hover:border-indigo-500 rounded-2xl flex flex-col justify-center items-center gap-2 cursor-pointer bg-slate-950 transition"
+                    className="w-full h-32 border-2 border-dashed border-border-custom hover:border-primary rounded-2xl flex flex-col justify-center items-center gap-2 cursor-pointer bg-background transition"
                   >
                     <span className="text-2xl">📸</span>
-                    <span className="text-xs text-slate-400">Choose Image File (Max 5MB)</span>
+                    <span className="text-xs text-text-sub">Choose Image File (Max 5MB)</span>
                   </button>
                   <input 
                     type="file" 
@@ -807,18 +807,18 @@ export default function CreateServiceWizard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-400 font-semibold mb-2">Add Video Link</label>
-                  <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-3">
+                  <label className="block text-xs text-text-sub font-semibold mb-2">Add Video Link</label>
+                  <div className="bg-background border border-border-custom p-4 rounded-2xl space-y-3">
                     <input 
                       type="text" 
                       value={externalVideoUrl}
                       onChange={(e) => setExternalVideoUrl(e.target.value)}
                       placeholder="YouTube or Vimeo URL"
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                      className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main"
                     />
                     <button 
                       onClick={handleAddExternalVideo}
-                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg w-full"
+                      className="px-4 py-2 bg-primary hover:bg-primary-hover text-xs font-bold text-text-main rounded-lg w-full"
                     >
                       Add Video URL
                     </button>
@@ -828,18 +828,18 @@ export default function CreateServiceWizard() {
 
               {/* Uploaded media list cards */}
               <div>
-                <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-3">Service Gallery</h4>
+                <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-3">Service Gallery</h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {mediaList.map((m) => (
-                    <div key={m.id} className="bg-slate-950 border border-slate-850 rounded-xl overflow-hidden flex flex-col justify-between group">
-                      <div className="aspect-video relative overflow-hidden bg-slate-900 flex items-center justify-center">
+                    <div key={m.id} className="bg-background border border-border-custom rounded-xl overflow-hidden flex flex-col justify-between group">
+                      <div className="aspect-video relative overflow-hidden bg-surface flex items-center justify-center">
                         {m.media_type === "IMAGE" ? (
                           <img src={m.media_url} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-[10px] text-indigo-400 font-extrabold">{m.media_type}</span>
+                          <span className="text-[10px] text-primary font-extrabold">{m.media_type}</span>
                         )}
                         {m.is_cover && (
-                          <span className="absolute top-1.5 left-1.5 bg-indigo-600 text-white text-[8px] font-black px-1 py-0.5 rounded">
+                          <span className="absolute top-1.5 left-1.5 bg-primary text-text-main text-[8px] font-black px-1 py-0.5 rounded">
                             COVER
                           </span>
                         )}
@@ -847,7 +847,7 @@ export default function CreateServiceWizard() {
                       <div className="p-2 flex justify-between items-center text-[10px]">
                         <button 
                           onClick={() => handleSetCover(m.id)}
-                          className={m.is_cover ? "text-indigo-400 font-bold" : "text-slate-500"}
+                          className={m.is_cover ? "text-primary font-bold" : "text-text-muted"}
                           disabled={m.is_cover}
                         >
                           Make Cover
@@ -861,7 +861,7 @@ export default function CreateServiceWizard() {
                       </div>
                     </div>
                   ))}
-                  {mediaList.length === 0 && <span className="text-xs text-slate-500 col-span-full">No media showcase uploaded. At least 1 image cover is required.</span>}
+                  {mediaList.length === 0 && <span className="text-xs text-text-muted col-span-full">No media showcase uploaded. At least 1 image cover is required.</span>}
                 </div>
               </div>
             </div>
@@ -870,7 +870,7 @@ export default function CreateServiceWizard() {
           {/* STEP 6: Location Details */}
           {step === 6 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-2">Location & Coverage Coordinates</h2>
+              <h2 className="text-lg font-bold text-text-main mb-2">Location & Coverage Coordinates</h2>
               
               {serviceType === "REMOTE" ? (
                 <div className="bg-emerald-950/20 border border-emerald-900/30 p-6 rounded-2xl text-xs text-emerald-400">
@@ -878,7 +878,7 @@ export default function CreateServiceWizard() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  <div className="flex items-center gap-2 bg-slate-950 p-4 rounded-xl border border-slate-850">
+                  <div className="flex items-center gap-2 bg-background p-4 rounded-xl border border-border-custom">
                     <input 
                       type="checkbox" 
                       id="profileLoc" 
@@ -886,57 +886,57 @@ export default function CreateServiceWizard() {
                       onChange={(e) => setUseProfileLocation(e.target.checked)}
                       className="rounded accent-indigo-500"
                     />
-                    <label htmlFor="profileLoc" className="text-xs text-slate-300 cursor-pointer select-none">
+                    <label htmlFor="profileLoc" className="text-xs text-text-sub cursor-pointer select-none">
                       Synchronize and use my professional profile location details
                     </label>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">City</label>
+                      <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">City</label>
                       <input 
                         type="text" 
                         value={city} 
                         onChange={(e) => setCity(e.target.value)} 
                         disabled={useProfileLocation}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white disabled:opacity-40"
+                        className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main disabled:opacity-40"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">State</label>
+                      <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">State</label>
                       <input 
                         type="text" 
                         value={stateName} 
                         onChange={(e) => setStateName(e.target.value)} 
                         disabled={useProfileLocation}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white disabled:opacity-40"
+                        className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main disabled:opacity-40"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Country</label>
+                      <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Country</label>
                       <input 
                         type="text" 
                         value={country} 
                         onChange={(e) => setCountry(e.target.value)} 
                         disabled={useProfileLocation}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white disabled:opacity-40"
+                        className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main disabled:opacity-40"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Coverage Radius (km)</label>
+                      <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Coverage Radius (km)</label>
                       <input 
                         type="number" 
                         value={radius} 
                         onChange={(e) => setRadius(e.target.value)} 
                         disabled={useProfileLocation}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white disabled:opacity-40"
+                        className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main disabled:opacity-40"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Willing to travel?</label>
+                      <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Willing to travel?</label>
                       <div className="flex items-center h-9">
                         <input 
                           type="checkbox" 
@@ -946,17 +946,17 @@ export default function CreateServiceWizard() {
                           disabled={useProfileLocation}
                           className="accent-indigo-500 mr-2"
                         />
-                        <label htmlFor="travelAvail" className="text-xs text-slate-400">Yes, travel to client site</label>
+                        <label htmlFor="travelAvail" className="text-xs text-text-sub">Yes, travel to client site</label>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Additional Travel Fee (₹/km)</label>
+                      <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Additional Travel Fee (₹/km)</label>
                       <input 
                         type="number" 
                         value={travelFee} 
                         onChange={(e) => setTravelFee(e.target.value)} 
                         placeholder="e.g. 20"
-                        className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                        className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main"
                       />
                     </div>
                   </div>
@@ -968,29 +968,29 @@ export default function CreateServiceWizard() {
           {/* STEP 7: Client Requirements Questions */}
           {step === 7 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-2">Configure Client Requirements</h2>
-              <p className="text-xs text-slate-400">Add questions clients must answer during checkout (e.g. event date, footage link).</p>
+              <h2 className="text-lg font-bold text-text-main mb-2">Configure Client Requirements</h2>
+              <p className="text-xs text-text-sub">Add questions clients must answer during checkout (e.g. event date, footage link).</p>
 
               {/* Requirement Creator block */}
-              <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-4">
+              <div className="bg-background border border-border-custom p-4 rounded-2xl space-y-4">
                 <div>
-                  <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Question Text</label>
+                  <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Question Text</label>
                   <input 
                     type="text" 
                     value={newQuestion}
                     onChange={(e) => setNewQuestion(e.target.value)}
                     placeholder="e.g. What is your preferred final duration?"
-                    className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs text-white"
+                    className="w-full bg-surface border border-border-custom rounded-lg px-3 py-2 text-xs text-text-main"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Answer Field Type</label>
+                    <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Answer Field Type</label>
                     <select 
                       value={newFieldType}
                       onChange={(e: any) => setNewFieldType(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                      className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main"
                     >
                       <option value="TEXT">Short Text</option>
                       <option value="TEXTAREA">Paragraph Description</option>
@@ -1009,13 +1009,13 @@ export default function CreateServiceWizard() {
                       onChange={(e) => setNewIsRequired(e.target.checked)}
                       className="accent-indigo-500 mr-2"
                     />
-                    <label htmlFor="isRequired" className="text-xs text-slate-400 cursor-pointer">Required to submit?</label>
+                    <label htmlFor="isRequired" className="text-xs text-text-sub cursor-pointer">Required to submit?</label>
                   </div>
                 </div>
 
                 <button 
                   onClick={handleAddRequirement}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg"
+                  className="px-4 py-2 bg-primary hover:bg-primary-hover text-xs font-bold text-text-main rounded-lg"
                 >
                   Add Requirement Question
                 </button>
@@ -1023,13 +1023,13 @@ export default function CreateServiceWizard() {
 
               {/* Requirement question items list */}
               <div>
-                <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-widest mb-3">Configured Questions</h4>
+                <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-3">Configured Questions</h4>
                 <div className="space-y-2">
                   {requirements.map((r, index) => (
-                    <div key={r.id || index} className="flex justify-between items-center bg-slate-950 border border-slate-850 px-4 py-3 rounded-xl text-xs">
+                    <div key={r.id || index} className="flex justify-between items-center bg-background border border-border-custom px-4 py-3 rounded-xl text-xs">
                       <div>
-                        <span className="text-[9px] bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-slate-400 uppercase mr-2">{r.field_type}</span>
-                        <span className="text-white font-bold">{r.question}</span>
+                        <span className="text-[9px] bg-surface-elevated border border-border-custom px-1.5 py-0.5 rounded text-text-sub uppercase mr-2">{r.field_type}</span>
+                        <span className="text-text-main font-bold">{r.question}</span>
                         {r.is_required && <span className="text-rose-400 text-[10px] ml-1">*Required</span>}
                       </div>
                       <button 
@@ -1040,7 +1040,7 @@ export default function CreateServiceWizard() {
                       </button>
                     </div>
                   ))}
-                  {requirements.length === 0 && <span className="text-xs text-slate-500">No questions added yet.</span>}
+                  {requirements.length === 0 && <span className="text-xs text-text-muted">No questions added yet.</span>}
                 </div>
               </div>
             </div>
@@ -1049,52 +1049,52 @@ export default function CreateServiceWizard() {
           {/* STEP 8: Review & Publish */}
           {step === 8 && (
             <div className="space-y-6">
-              <h2 className="text-lg font-bold text-white mb-2">Review & Publish Listing</h2>
+              <h2 className="text-lg font-bold text-text-main mb-2">Review & Publish Listing</h2>
               
-              <div className="border border-slate-800 rounded-2xl p-4 bg-slate-950 space-y-4 text-xs">
-                <div className="flex justify-between border-b border-slate-900 pb-2">
-                  <span className="text-slate-400 font-semibold">Service Title</span>
-                  <span className="text-white font-bold max-w-sm truncate">{title}</span>
+              <div className="border border-border-custom rounded-2xl p-4 bg-background space-y-4 text-xs">
+                <div className="flex justify-between border-b border-border-custom pb-2">
+                  <span className="text-text-sub font-semibold">Service Title</span>
+                  <span className="text-text-main font-bold max-w-sm truncate">{title}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-900 pb-2">
-                  <span className="text-slate-400 font-semibold">Delivery Coordinates</span>
-                  <span className="text-white font-bold uppercase">{serviceType}</span>
+                <div className="flex justify-between border-b border-border-custom pb-2">
+                  <span className="text-text-sub font-semibold">Delivery Coordinates</span>
+                  <span className="text-text-main font-bold uppercase">{serviceType}</span>
                 </div>
                 {serviceType !== "REMOTE" && (
-                  <div className="flex justify-between border-b border-slate-900 pb-2">
-                    <span className="text-slate-400 font-semibold">Location Area</span>
-                    <span className="text-white font-bold">{city}, {stateName}, {country}</span>
+                  <div className="flex justify-between border-b border-border-custom pb-2">
+                    <span className="text-text-sub font-semibold">Location Area</span>
+                    <span className="text-text-main font-bold">{city}, {stateName}, {country}</span>
                   </div>
                 )}
-                <div className="flex justify-between border-b border-slate-900 pb-2">
-                  <span className="text-slate-400 font-semibold">Active Packages</span>
-                  <span className="text-white font-bold">
+                <div className="flex justify-between border-b border-border-custom pb-2">
+                  <span className="text-text-sub font-semibold">Active Packages</span>
+                  <span className="text-text-main font-bold">
                     {Object.entries(packages).filter(([_, p]) => p.enabled).map(([t]) => t).join(", ")}
                   </span>
                 </div>
-                <div className="flex justify-between border-b border-slate-900 pb-2">
-                  <span className="text-slate-400 font-semibold">Gallery media items</span>
-                  <span className="text-white font-bold">{mediaList.length} Uploaded</span>
+                <div className="flex justify-between border-b border-border-custom pb-2">
+                  <span className="text-text-sub font-semibold">Gallery media items</span>
+                  <span className="text-text-main font-bold">{mediaList.length} Uploaded</span>
                 </div>
                 <div className="flex justify-between pb-2">
-                  <span className="text-slate-400 font-semibold">Requirement Questions</span>
-                  <span className="text-white font-bold">{requirements.length} Configured</span>
+                  <span className="text-text-sub font-semibold">Requirement Questions</span>
+                  <span className="text-text-main font-bold">{requirements.length} Configured</span>
                 </div>
               </div>
 
-              <div className="bg-indigo-950/20 border border-indigo-900/30 p-4 rounded-xl text-xs text-indigo-400">
+              <div className="bg-primary/20 border border-indigo-900/30 p-4 rounded-xl text-xs text-primary">
                 <strong>Publication Ready Notice:</strong> Clicking publish will validate pricing, details, location requirements, and list your service in the marketplace explore directory.
               </div>
             </div>
           )}
 
           {/* Nav Controls */}
-          <div className="mt-8 pt-6 border-t border-slate-800 flex justify-between items-center">
+          <div className="mt-8 pt-6 border-t border-border-custom flex justify-between items-center">
             <button
               type="button"
               onClick={handleBack}
               disabled={step === 1 || loading}
-              className="px-4 py-2.5 bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-300 text-xs font-bold rounded-xl disabled:opacity-30 disabled:pointer-events-none transition"
+              className="px-4 py-2.5 bg-background border border-border-custom hover:bg-surface-elevated text-text-sub text-xs font-bold rounded-xl disabled:opacity-30 disabled:pointer-events-none transition"
             >
               Back
             </button>
@@ -1104,7 +1104,7 @@ export default function CreateServiceWizard() {
                 <button
                   type="button"
                   onClick={handleSaveDraftAndExit}
-                  className="px-4 py-2.5 bg-slate-950 border border-slate-800 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs font-bold rounded-xl transition"
+                  className="px-4 py-2.5 bg-background border border-border-custom hover:bg-surface-elevated text-text-sub hover:text-text-main text-xs font-bold rounded-xl transition"
                 >
                   Save Draft
                 </button>
@@ -1114,7 +1114,7 @@ export default function CreateServiceWizard() {
                   type="button"
                   onClick={handleNext}
                   disabled={loading}
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition"
+                  className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-xl transition"
                 >
                   {loading ? "Saving..." : "Save & Continue"}
                 </button>
@@ -1123,7 +1123,7 @@ export default function CreateServiceWizard() {
                   type="button"
                   onClick={handleFinalPublish}
                   disabled={loading}
-                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-indigo-600/10"
+                  className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-xl transition shadow-lg shadow-primary"
                 >
                   {loading ? "Publishing..." : "Finish & Publish Service"}
                 </button>

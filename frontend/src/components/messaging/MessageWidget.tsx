@@ -171,7 +171,7 @@ export default function MessageWidget() {
           <MessageSquare className="w-5 h-5 text-text-on-dark" />
           <span className="text-xs uppercase tracking-wider">Messages</span>
           {unreadCount > 0 && (
-            <span className="flex items-center justify-center min-w-5 h-5 px-1.5 bg-rose-600 border border-white text-[10px] font-black text-white rounded-full">
+            <span className="flex items-center justify-center min-w-5 h-5 px-1.5 bg-rose-600 border border-white text-[10px] font-black text-text-main rounded-full">
               {unreadCount}
             </span>
           )}

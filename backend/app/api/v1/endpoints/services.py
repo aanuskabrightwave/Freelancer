@@ -20,6 +20,7 @@ def list_public_services(
     city: Optional[str] = Query(None),
     min_price: Optional[float] = Query(None),
     max_price: Optional[float] = Query(None),
+    freelancer_id: Optional[int] = Query(None),
     db: Session = Depends(get_db)
 ):
     services = ServiceRepository.get_all_public_services(
@@ -31,7 +32,8 @@ def list_public_services(
         service_type=service_type,
         city=city,
         min_price=min_price,
-        max_price=max_price
+        max_price=max_price,
+        freelancer_id=freelancer_id
     )
     
     # Map to schema output formatting to attach freelancer profile details

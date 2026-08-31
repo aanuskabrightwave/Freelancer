@@ -24,45 +24,103 @@ class PaymentService:
         return f"PAY-2026-{count + 1:06d}"
 
     @staticmethod
-    def create_payment_order(db: Session, user: User, booking_id: int) -> Dict[str, Any]:
+    def get_payment_eligibility(db: Session, user: User, booking_id: int) -> Dict[str, Any]:
         booking = BookingRepository.get_by_id(db, booking_id)
         if not booking:
             raise HTTPException(status_code=404, detail="Booking not found")
 
         # Security check: only booking client owner can pay
         if booking.client_id != user.id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only the client owner of this booking can initiate payment."
-            )
+            return {
+                "booking_id": booking.id,
+                "total_amount": float(booking.agreed_amount),
+                "amount_paid": float(booking.total_paid),
+                "remaining_amount": float(booking.remaining_balance),
+                "payment_stage": "UNKNOWN",
+                "can_pay": False,
+                "blocking_reason": "Only the client owner of this booking can initiate payment."
+            }
 
         if booking.status == BookingStatus.CANCELLED:
-            raise HTTPException(status_code=400, detail="Cannot pay for a cancelled booking.")
+            return {
+                "booking_id": booking.id,
+                "total_amount": float(booking.agreed_amount),
+                "amount_paid": float(booking.total_paid),
+                "remaining_amount": float(booking.remaining_balance),
+                "payment_stage": "UNKNOWN",
+                "can_pay": False,
+                "blocking_reason": "Cannot pay for a cancelled booking."
+            }
 
-        # Determine charge amount and payment type based on booking stage
+        charge_amount = booking.remaining_balance
+        payment_type_val = "UNKNOWN"
+        can_pay = False
+        blocking_reason = None
+
         if booking.payment_completion_state == "UNPAID":
             charge_amount = booking.deposit_amount
             payment_type_val = "DEPOSIT"
+            can_pay = True
         elif booking.payment_completion_state == "DEPOSIT_PAID":
             # Client pays remaining balance only after preview/draft has been submitted (or if it's already approved)
-            from app.models.delivery import Delivery, DeliveryType, DeliveryStatus
+            from app.models.delivery import Delivery, DeliveryType
             preview_approved = db.query(Delivery).filter(
                 Delivery.booking_id == booking.id,
                 Delivery.delivery_type.in_([DeliveryType.PREVIEW, DeliveryType.REVISION])
             ).first()
-            if not preview_approved:
-                raise HTTPException(
-                    status_code=400,
-                    detail="You must receive a preview draft before paying the remaining balance."
-                )
             
-            charge_amount = booking.remaining_balance
             payment_type_val = "FINAL_BALANCE"
-        else:
-            raise HTTPException(status_code=400, detail="This booking has already been fully paid.")
+            charge_amount = booking.remaining_balance
 
-        if charge_amount <= 0:
-            raise HTTPException(status_code=400, detail="Payment amount must be greater than zero.")
+            if not preview_approved:
+                can_pay = False
+                blocking_reason = "You must receive a preview draft before paying the remaining balance."
+            else:
+                can_pay = True
+        else:
+            can_pay = False
+            blocking_reason = "This booking has already been fully paid."
+
+        if can_pay and charge_amount <= 0:
+            can_pay = False
+            blocking_reason = "Payment amount must be greater than zero."
+
+        return {
+            "booking_id": booking.id,
+            "total_amount": float(booking.agreed_amount),
+            "amount_paid": float(booking.total_paid),
+            "remaining_amount": float(charge_amount),
+            "payment_stage": payment_type_val,
+            "can_pay": can_pay,
+            "blocking_reason": blocking_reason
+        }
+
+    @staticmethod
+    def create_payment_order(db: Session, user: User, booking_id: int) -> Dict[str, Any]:
+        eligibility = PaymentService.get_payment_eligibility(db, user, booking_id)
+        if not eligibility["can_pay"]:
+            raise HTTPException(status_code=400, detail=eligibility["blocking_reason"] or "Payment not eligible")
+            
+        booking = BookingRepository.get_by_id(db, booking_id)
+        charge_amount = booking.deposit_amount if eligibility["payment_stage"] == "DEPOSIT" else booking.remaining_balance
+        payment_type_val = eligibility["payment_stage"]
+
+        # Check for existing CREATED order to prevent duplicates
+        existing_payment = db.query(Payment).filter(
+            Payment.booking_id == booking.id,
+            Payment.payment_type == payment_type_val,
+            Payment.status == "CREATED"
+        ).first()
+
+        if existing_payment:
+            return {
+                "payment_number": existing_payment.payment_number,
+                "provider": "RAZORPAY",
+                "provider_order_id": existing_payment.provider_order_id,
+                "amount": int(existing_payment.gross_amount * 100),  # in paise
+                "currency": "INR",
+                "razorpay_key_id": RazorpayProvider().key_id
+            }
 
         # Financial split splits based on charge amount
         splits = FinancialService.calculate_splits(charge_amount)
@@ -124,49 +182,59 @@ class PaymentService:
         # Signature check
         provider = RazorpayProvider()
         is_valid = provider.verify_payment(payload)
-        if not is_valid:
-            # Mark attempt as failed
-            attempt_data = {
-                "payment_id": payment.id,
-                "provider_order_id": order_id,
-                "provider_payment_id": payload.get("razorpay_payment_id"),
-                "status": "FAILED",
-                "failure_code": "BAD_SIGNATURE"
-            }
-            PaymentRepository.create_attempt(db, attempt_data)
-            
-            payment.status = "FAILED"
-            payment.failure_code = "BAD_SIGNATURE"
-            payment.failure_description = "Returned signature mismatch."
-            db.commit()
-
-            # Trigger PAYMENT_FAILED notification to client
-            try:
-                from app.services.notification_service import NotificationService
-                NotificationService.dispatch(
-                    db=db,
-                    recipient_id=payment.client_id,
-                    event_code="PAYMENT_FAILED",
-                    title="Payment Failed",
-                    message=f"An attempt to capture payment for booking '{booking.booking_number}' failed.",
-                    action_url=f"/client/bookings/{booking.id}/payment",
-                    entity_type="payment",
-                    entity_id=payment.id,
-                    deduplication_key=f"payment:{payment.id}:failed:client:{payment.client_id}",
-                    payload_meta={
-                        "booking_number": booking.booking_number,
-                        "amount": str(int(payment.gross_amount)),
-                        "booking_id": booking.id
+        
+        try:
+            with db.begin_nested():
+                if not is_valid:
+                    # Mark attempt as failed
+                    attempt_data = {
+                        "payment_id": payment.id,
+                        "provider_order_id": order_id,
+                        "provider_payment_id": payload.get("razorpay_payment_id"),
+                        "status": "FAILED",
+                        "failure_code": "BAD_SIGNATURE"
                     }
-                )
-            except Exception as e:
-                import logging
-                logging.getLogger("payment_service").exception("Payment failure notification failed")
+                    PaymentRepository.create_attempt(db, attempt_data)
+                    
+                    payment.status = "FAILED"
+                    payment.failure_code = "BAD_SIGNATURE"
+                    payment.failure_description = "Returned signature mismatch."
+                    
+                    # Trigger PAYMENT_FAILED notification to client
+                    try:
+                        from app.services.notification_service import NotificationService
+                        NotificationService.dispatch(
+                            db=db,
+                            recipient_id=payment.client_id,
+                            event_code="PAYMENT_FAILED",
+                            title="Payment Failed",
+                            message=f"An attempt to capture payment for booking '{booking.booking_number}' failed.",
+                            action_url=f"/client/bookings/{booking.id}/payment",
+                            entity_type="payment",
+                            entity_id=payment.id,
+                            deduplication_key=f"payment:{payment.id}:failed:client:{payment.client_id}",
+                            payload_meta={
+                                "booking_number": booking.booking_number,
+                                "amount": str(int(payment.gross_amount)),
+                                "booking_id": booking.id
+                            }
+                        )
+                    except Exception as e:
+                        import logging
+                        logging.getLogger("payment_service").exception("Payment failure notification failed")
 
-            raise HTTPException(status_code=400, detail="Invalid payment signature returned.")
+                    raise HTTPException(status_code=400, detail="Invalid payment signature returned.")
 
-        # Process successful capture
-        PaymentService.mark_payment_captured(db, payment, payload.get("razorpay_payment_id"), "verify_signature")
+                # Process successful capture within transaction
+                PaymentService.mark_payment_captured(db, payment, payload.get("razorpay_payment_id"), "verify_signature")
+            db.commit()
+        except HTTPException:
+            db.commit()
+            raise
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=500, detail=f"Database transaction failed: {str(e)}")
+
         return payment
 
     @staticmethod

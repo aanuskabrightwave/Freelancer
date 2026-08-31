@@ -56,6 +56,7 @@ export const marketplaceService = {
     city?: string;
     min_price?: number;
     max_price?: number;
+    freelancer_id?: number;
   }): Promise<any[]> {
     const stringParams: Record<string, string> = {};
     Object.entries(params).forEach(([key, val]) => {

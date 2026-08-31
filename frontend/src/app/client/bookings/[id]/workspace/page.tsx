@@ -10,7 +10,7 @@ function ClientWorkspaceContent() {
   if (!id) return null;
   
   return (
-    <div className="bg-slate-950 min-h-screen text-slate-100 font-sans antialiased">
+    <div className="bg-background min-h-screen text-text-main font-sans antialiased">
       <ProjectWorkspace bookingId={id as string} role="CLIENT" />
     </div>
   );
@@ -19,8 +19,8 @@ function ClientWorkspaceContent() {
 export default function ClientWorkspacePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-slate-400 py-12">
-        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-sub py-12">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-xs uppercase tracking-widest font-black animate-pulse">Loading Client Workspace...</p>
       </div>
     }>

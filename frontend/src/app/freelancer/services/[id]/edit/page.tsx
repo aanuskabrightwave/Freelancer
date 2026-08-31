@@ -381,21 +381,21 @@ export default function EditServiceDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-white">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 md:px-8">
+    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8">
       <div className="max-w-5xl mx-auto">
 
         {/* Dashboard Header */}
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl">
           <div>
-            <h1 className="text-xl md:text-2xl font-black text-white">Edit Service Listing</h1>
-            <p className="text-slate-400 text-xs mt-1">Configure packages, descriptions, requirements and media.</p>
+            <h1 className="text-xl md:text-2xl font-black text-text-main">Edit Service Listing</h1>
+            <p className="text-text-sub text-xs mt-1">Configure packages, descriptions, requirements and media.</p>
           </div>
 
           <div className="mt-4 sm:mt-0 flex gap-3">
@@ -405,14 +405,14 @@ export default function EditServiceDashboard() {
               className={`px-4 py-2 text-xs font-bold rounded-xl border transition ${
                 serviceStatus === "PUBLISHED" 
                   ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
-                  : "bg-indigo-600 hover:bg-indigo-500 border-indigo-500 text-white"
+                  : "bg-primary hover:bg-primary-hover border-primary text-text-main"
               }`}
             >
               {serviceStatus === "PUBLISHED" ? "Active / Published (Pause)" : "Publish Service"}
             </button>
             <button
               onClick={() => router.push("/freelancer/services")}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl transition border border-slate-700"
+              className="px-4 py-2 bg-surface-elevated hover:bg-surface-elevated text-text-main text-xs font-bold rounded-xl transition border border-border-custom"
             >
               Back to List
             </button>
@@ -437,7 +437,7 @@ export default function EditServiceDashboard() {
             <button
               onClick={() => { setActiveTab("info"); setErrorMsg(null); setSuccessMsg(null); }}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "info" ? "bg-slate-900 border border-slate-855 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "info" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Basic & Category
@@ -445,7 +445,7 @@ export default function EditServiceDashboard() {
             <button
               onClick={() => { setActiveTab("packages"); setErrorMsg(null); setSuccessMsg(null); }}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "packages" ? "bg-slate-900 border border-slate-855 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "packages" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Packages & Deliverables
@@ -453,7 +453,7 @@ export default function EditServiceDashboard() {
             <button
               onClick={() => { setActiveTab("media"); setErrorMsg(null); setSuccessMsg(null); }}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "media" ? "bg-slate-900 border border-slate-855 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "media" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Showcase Media ({mediaList.length})
@@ -461,7 +461,7 @@ export default function EditServiceDashboard() {
             <button
               onClick={() => { setActiveTab("location"); setErrorMsg(null); setSuccessMsg(null); }}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "location" ? "bg-slate-900 border border-slate-855 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "location" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Location Coordinates
@@ -469,7 +469,7 @@ export default function EditServiceDashboard() {
             <button
               onClick={() => { setActiveTab("requirements"); setErrorMsg(null); setSuccessMsg(null); }}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "requirements" ? "bg-slate-900 border border-slate-855 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "requirements" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Client Requirements ({requirements.length})
@@ -477,33 +477,33 @@ export default function EditServiceDashboard() {
           </div>
 
           {/* Form Panel */}
-          <div className="md:col-span-3 bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl">
+          <div className="md:col-span-3 bg-surface border border-border-custom rounded-3xl p-6 md:p-8 shadow-xl">
             
             {/* INFO TAB */}
             {activeTab === "info" && (
               <form onSubmit={handleUpdateInfo} className="space-y-6">
-                <h2 className="text-lg font-bold text-white mb-2">Edit Basic Details</h2>
+                <h2 className="text-lg font-bold text-text-main mb-2">Edit Basic Details</h2>
                 
                 <div>
-                  <label className="block text-xs text-slate-400 font-semibold mb-2">Service Title</label>
+                  <label className="block text-xs text-text-sub font-semibold mb-2">Service Title</label>
                   <input 
                     type="text" 
                     value={title} 
                     onChange={(e) => setTitle(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none"
+                    className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-400 font-semibold mb-2">Parent Category</label>
+                    <label className="block text-xs text-text-sub font-semibold mb-2">Parent Category</label>
                     <select 
                       value={selectedParentId}
                       onChange={(e) => {
                         setSelectedParentId(e.target.value);
                         setSelectedChildId("");
                       }}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none"
+                      className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none"
                     >
                       <option value="">Select Category</option>
                       {categories.map((c) => (
@@ -512,12 +512,12 @@ export default function EditServiceDashboard() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs text-slate-400 font-semibold mb-2">Subcategory</label>
+                    <label className="block text-xs text-text-sub font-semibold mb-2">Subcategory</label>
                     <select 
                       value={selectedChildId}
                       onChange={(e) => setSelectedChildId(e.target.value)}
                       disabled={!selectedParentId}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none disabled:opacity-40"
+                      className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none disabled:opacity-40"
                     >
                       <option value="">Select Subcategory</option>
                       {selectedParentCategory?.subcategories?.map((sub: any) => (
@@ -529,11 +529,11 @@ export default function EditServiceDashboard() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-400 font-semibold mb-2">Service Type</label>
+                    <label className="block text-xs text-text-sub font-semibold mb-2">Service Type</label>
                     <select 
                       value={serviceType} 
                       onChange={(e: any) => setServiceType(e.target.value)}
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none"
+                      className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none"
                     >
                       <option value="REMOTE">Remote Delivery</option>
                       <option value="ON_SITE">On-Site Delivery</option>
@@ -541,36 +541,36 @@ export default function EditServiceDashboard() {
                     </select>
                   </div>
                   <div className="flex flex-col justify-end">
-                    <span className="text-[10px] text-slate-500">
+                    <span className="text-[10px] text-text-muted">
                       ON_SITE/HYBRID options will enable location coordinates config tab.
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-400 font-semibold mb-2">Short Summary Description</label>
+                  <label className="block text-xs text-text-sub font-semibold mb-2">Short Summary Description</label>
                   <input 
                     type="text" 
                     value={shortDesc} 
                     onChange={(e) => setShortDesc(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none"
+                    className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs text-slate-400 font-semibold mb-2">Full Description</label>
+                  <label className="block text-xs text-text-sub font-semibold mb-2">Full Description</label>
                   <textarea 
                     value={fullDesc} 
                     onChange={(e) => setFullDesc(e.target.value)}
                     rows={6}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none resize-none"
+                    className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none resize-none"
                   />
                 </div>
 
                 <button 
                   type="submit" 
                   disabled={saving}
-                  className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition"
+                  className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-xl transition"
                 >
                   {saving ? "Saving..." : "Save Basic Info"}
                 </button>
@@ -580,10 +580,10 @@ export default function EditServiceDashboard() {
             {/* PACKAGES TAB */}
             {activeTab === "packages" && (
               <div className="space-y-6">
-                <h2 className="text-lg font-bold text-white mb-2">Configure Packages & Deliverables</h2>
+                <h2 className="text-lg font-bold text-text-main mb-2">Configure Packages & Deliverables</h2>
 
                 {/* Packages selector tabs */}
-                <div className="grid grid-cols-3 gap-2 bg-slate-950 p-1.5 rounded-xl border border-slate-850">
+                <div className="grid grid-cols-3 gap-2 bg-background p-1.5 rounded-xl border border-border-custom">
                   {(["BASIC", "STANDARD", "PREMIUM"] as const).map((type) => {
                     const isEnabled = packages[type].enabled;
                     return (
@@ -598,7 +598,7 @@ export default function EditServiceDashboard() {
                           }));
                         }}
                         className={`py-2 rounded-lg text-xs font-extrabold transition ${
-                          isEnabled ? "bg-indigo-600 text-white" : "text-slate-400 hover:text-slate-200"
+                          isEnabled ? "bg-primary text-text-main" : "text-text-sub hover:text-text-main"
                         }`}
                       >
                         {type} {type !== "BASIC" && (isEnabled ? "(On)" : "(Off)")}
@@ -613,11 +613,11 @@ export default function EditServiceDashboard() {
                     const pkg = packages[type];
                     if (!pkg.enabled) return null;
                     return (
-                      <div key={type} className="border border-slate-800 rounded-2xl p-4 bg-slate-950 space-y-4">
-                        <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest">{type} Package Config</span>
+                      <div key={type} className="border border-border-custom rounded-2xl p-4 bg-background space-y-4">
+                        <span className="text-[10px] font-black text-primary uppercase tracking-widest">{type} Package Config</span>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Package Name</label>
+                            <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Package Name</label>
                             <input 
                               type="text" 
                               value={pkg.name} 
@@ -625,11 +625,11 @@ export default function EditServiceDashboard() {
                                 ...prev,
                                 [type]: { ...prev[type], name: e.target.value }
                               }))}
-                              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white"
+                              className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main"
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Price (₹)</label>
+                            <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Price (₹)</label>
                             <input 
                               type="number" 
                               value={pkg.price} 
@@ -637,14 +637,14 @@ export default function EditServiceDashboard() {
                                 ...prev,
                                 [type]: { ...prev[type], price: e.target.value }
                               }))}
-                              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white"
+                              className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main"
                             />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
-                            <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Delivery Time (Days)</label>
+                            <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Delivery Time (Days)</label>
                             <input 
                               type="number" 
                               value={pkg.delivery} 
@@ -652,11 +652,11 @@ export default function EditServiceDashboard() {
                                 ...prev,
                                 [type]: { ...prev[type], delivery: e.target.value }
                               }))}
-                              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white"
+                              className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main"
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Revisions Allowed</label>
+                            <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Revisions Allowed</label>
                             <input 
                               type="number" 
                               value={pkg.revisions} 
@@ -664,13 +664,13 @@ export default function EditServiceDashboard() {
                                 ...prev,
                                 [type]: { ...prev[type], revisions: e.target.value }
                               }))}
-                              className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white"
+                              className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main"
                             />
                           </div>
                         </div>
 
                         <div>
-                          <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Scope Description</label>
+                          <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Scope Description</label>
                           <textarea 
                             value={pkg.description} 
                             onChange={(e) => setPackages(prev => ({
@@ -678,7 +678,7 @@ export default function EditServiceDashboard() {
                               [type]: { ...prev[type], description: e.target.value }
                             }))}
                             rows={2}
-                            className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white resize-none"
+                            className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main resize-none"
                           />
                         </div>
                       </div>
@@ -687,14 +687,14 @@ export default function EditServiceDashboard() {
                 </div>
 
                 {/* Deliverables selector */}
-                <div className="bg-slate-950 border border-slate-850 p-4 rounded-2xl space-y-4">
-                  <h3 className="text-xs font-bold text-white mb-2">Add deliverable row</h3>
+                <div className="bg-background border border-border-custom p-4 rounded-2xl space-y-4">
+                  <h3 className="text-xs font-bold text-text-main mb-2">Add deliverable row</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <div>
                       <select 
                         value={newDelivPkg} 
                         onChange={(e: any) => setNewDelivPkg(e.target.value)}
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-white"
+                        className="w-full bg-surface border border-border-custom rounded-lg px-2 py-1.5 text-xs text-text-main"
                       >
                         {Object.entries(packages).filter(([_, pkg]) => pkg.enabled).map(([type]) => (
                           <option key={type} value={type}>{type}</option>
@@ -707,7 +707,7 @@ export default function EditServiceDashboard() {
                         value={newDelivLabel} 
                         onChange={(e) => setNewDelivLabel(e.target.value)} 
                         placeholder="Label (e.g. Duration)"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                        className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main"
                       />
                     </div>
                     <div>
@@ -716,11 +716,11 @@ export default function EditServiceDashboard() {
                         value={newDelivValue} 
                         onChange={(e) => setNewDelivValue(e.target.value)} 
                         placeholder="Value (e.g. 5 Mins)"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                        className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main"
                       />
                     </div>
                   </div>
-                  <button onClick={handleAddDeliverable} className="px-3 py-1.5 bg-indigo-600 text-xs font-bold text-white rounded-lg">
+                  <button onClick={handleAddDeliverable} className="px-3 py-1.5 bg-primary text-xs font-bold text-text-main rounded-lg">
                     Add Row
                   </button>
                 </div>
@@ -730,14 +730,14 @@ export default function EditServiceDashboard() {
                   {Object.entries(packages).filter(([_, pkg]) => pkg.enabled).map(([type]) => {
                     const pkgDelivs = deliverables.filter(d => d.package_type === type);
                     return (
-                      <div key={type} className="bg-slate-950/60 p-4 rounded-xl border border-slate-850">
-                        <h4 className="text-xs font-bold text-white mb-2">{type} deliverables</h4>
+                      <div key={type} className="bg-background p-4 rounded-xl border border-border-custom">
+                        <h4 className="text-xs font-bold text-text-main mb-2">{type} deliverables</h4>
                         <div className="space-y-2">
                           {pkgDelivs.map((d, index) => {
                             const globalIdx = deliverables.findIndex(item => item === d);
                             return (
-                              <div key={index} className="flex justify-between items-center bg-slate-900 px-3 py-2 rounded-lg text-xs">
-                                <span>{d.label}: <strong className="text-indigo-400">{d.value}</strong></span>
+                              <div key={index} className="flex justify-between items-center bg-surface px-3 py-2 rounded-lg text-xs">
+                                <span>{d.label}: <strong className="text-primary">{d.value}</strong></span>
                                 <button onClick={() => handleDeleteDeliverable(globalIdx)} className="text-rose-500 text-xs hover:underline">Remove</button>
                               </div>
                             );
@@ -748,7 +748,7 @@ export default function EditServiceDashboard() {
                   })}
                 </div>
 
-                <button onClick={handleUpdatePackages} disabled={saving} className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
+                <button onClick={handleUpdatePackages} disabled={saving} className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-xl transition">
                   {saving ? "Saving..." : "Save Packages & Deliverables"}
                 </button>
               </div>
@@ -757,53 +757,53 @@ export default function EditServiceDashboard() {
             {/* MEDIA TAB */}
             {activeTab === "media" && (
               <div className="space-y-6">
-                <h2 className="text-lg font-bold text-white mb-2">Showcase Media Gallery</h2>
+                <h2 className="text-lg font-bold text-text-main mb-2">Showcase Media Gallery</h2>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs text-slate-400 font-semibold mb-2">Upload Image File</label>
+                    <label className="block text-xs text-text-sub font-semibold mb-2">Upload Image File</label>
                     <button 
                       onClick={() => fileInputRef.current?.click()}
-                      className="w-full h-28 border-2 border-dashed border-slate-800 hover:border-indigo-500 rounded-xl flex flex-col justify-center items-center gap-1 cursor-pointer bg-slate-950 transition"
+                      className="w-full h-28 border-2 border-dashed border-border-custom hover:border-primary rounded-xl flex flex-col justify-center items-center gap-1 cursor-pointer bg-background transition"
                     >
                       <span className="text-xl">📸</span>
-                      <span className="text-xs text-slate-400">Choose Image File (Max 5MB)</span>
+                      <span className="text-xs text-text-sub">Choose Image File (Max 5MB)</span>
                     </button>
                     <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleImageUpload} />
                   </div>
 
                   <div>
-                    <label className="block text-xs text-slate-400 font-semibold mb-2">Add Video Link</label>
-                    <div className="bg-slate-950 border border-slate-850 p-4 rounded-xl space-y-2">
+                    <label className="block text-xs text-text-sub font-semibold mb-2">Add Video Link</label>
+                    <div className="bg-background border border-border-custom p-4 rounded-xl space-y-2">
                       <input 
                         type="text" 
                         value={externalVideoUrl} 
                         onChange={(e) => setExternalVideoUrl(e.target.value)} 
                         placeholder="YouTube/Vimeo video link"
-                        className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white"
+                        className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main"
                       />
-                      <button onClick={handleAddVideo} className="px-4 py-1.5 bg-indigo-600 text-xs font-bold text-white rounded-lg w-full">Add Video</button>
+                      <button onClick={handleAddVideo} className="px-4 py-1.5 bg-primary text-xs font-bold text-text-main rounded-lg w-full">Add Video</button>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
                   {mediaList.map((m) => (
-                    <div key={m.id} className="bg-slate-950 border border-slate-850 rounded-xl overflow-hidden">
-                      <div className="aspect-video relative bg-slate-900 flex items-center justify-center">
+                    <div key={m.id} className="bg-background border border-border-custom rounded-xl overflow-hidden">
+                      <div className="aspect-video relative bg-surface flex items-center justify-center">
                         {m.media_type === "IMAGE" ? (
                           <img src={m.media_url} alt="" className="w-full h-full object-cover" />
                         ) : (
-                          <span className="text-[10px] text-indigo-400 font-bold">{m.media_type}</span>
+                          <span className="text-[10px] text-primary font-bold">{m.media_type}</span>
                         )}
                         {m.is_cover && (
-                          <span className="absolute top-1 right-1 bg-indigo-600 text-white text-[8px] font-black px-1.5 py-0.5 rounded shadow">
+                          <span className="absolute top-1 right-1 bg-primary text-text-main text-[8px] font-black px-1.5 py-0.5 rounded shadow">
                             COVER
                           </span>
                         )}
                       </div>
                       <div className="p-2 flex justify-between items-center text-[10px]">
-                        <button onClick={() => handleSetCover(m.id)} disabled={m.is_cover} className={m.is_cover ? "text-indigo-400" : "text-slate-500"}>Make Cover</button>
+                        <button onClick={() => handleSetCover(m.id)} disabled={m.is_cover} className={m.is_cover ? "text-primary" : "text-text-muted"}>Make Cover</button>
                         <button onClick={() => handleDeleteMedia(m.id)} className="text-rose-500">Delete</button>
                       </div>
                     </div>
@@ -815,7 +815,7 @@ export default function EditServiceDashboard() {
             {/* LOCATION TAB */}
             {activeTab === "location" && (
               <form onSubmit={handleUpdateLocation} className="space-y-6">
-                <h2 className="text-lg font-bold text-white mb-2">Configure Location Coverage</h2>
+                <h2 className="text-lg font-bold text-text-main mb-2">Configure Location Coverage</h2>
                 
                 {serviceType === "REMOTE" ? (
                   <div className="bg-emerald-950/20 border border-emerald-900/30 p-6 rounded-2xl text-xs text-emerald-400">
@@ -825,37 +825,37 @@ export default function EditServiceDashboard() {
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">City</label>
-                        <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white" />
+                        <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">City</label>
+                        <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main" />
                       </div>
                       <div>
-                        <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">State</label>
-                        <input type="text" value={stateName} onChange={(e) => setStateName(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white" />
+                        <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">State</label>
+                        <input type="text" value={stateName} onChange={(e) => setStateName(e.target.value)} className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main" />
                       </div>
                       <div>
-                        <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Country</label>
-                        <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white" />
+                        <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Country</label>
+                        <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main" />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Service Radius (km)</label>
-                        <input type="number" value={radius} onChange={(e) => setRadius(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white" />
+                        <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Service Radius (km)</label>
+                        <input type="number" value={radius} onChange={(e) => setRadius(e.target.value)} className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main" />
                       </div>
                       <div className="flex items-center h-14">
-                        <input type="checkbox" id="travelAvail" checked={travelAvailable} onChange={(e) => setTravelAvailable(e.target.checked)} className="accent-indigo-500 mr-2" />
-                        <label htmlFor="travelAvail" className="text-xs text-slate-400">Willing to travel to client</label>
+                        <input type="checkbox" id="travelAvail" checked={travelAvailable} onChange={(e) => setTravelAvailable(e.target.checked)} className="accent-primary mr-2" />
+                        <label htmlFor="travelAvail" className="text-xs text-text-sub">Willing to travel to client</label>
                       </div>
                       <div>
-                        <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Additional Travel Fee (₹/km)</label>
-                        <input type="number" value={travelFee} onChange={(e) => setTravelFee(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white" />
+                        <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Additional Travel Fee (₹/km)</label>
+                        <input type="number" value={travelFee} onChange={(e) => setTravelFee(e.target.value)} className="w-full bg-background border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main" />
                       </div>
                     </div>
                   </div>
                 )}
 
-                <button type="submit" disabled={saving || serviceType === "REMOTE"} className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition disabled:opacity-40">
+                <button type="submit" disabled={saving || serviceType === "REMOTE"} className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-xl transition disabled:opacity-40">
                   {saving ? "Saving..." : "Save Location Specs"}
                 </button>
               </form>
@@ -864,16 +864,16 @@ export default function EditServiceDashboard() {
             {/* REQUIREMENTS TAB */}
             {activeTab === "requirements" && (
               <div className="space-y-6">
-                <h2 className="text-lg font-bold text-white mb-2">Configure Client Questions</h2>
+                <h2 className="text-lg font-bold text-text-main mb-2">Configure Client Questions</h2>
                 
-                <div className="bg-slate-950 border border-slate-850 p-4 rounded-xl space-y-4">
+                <div className="bg-background border border-border-custom p-4 rounded-xl space-y-4">
                   <div>
-                    <label className="block text-[10px] text-slate-500 font-bold uppercase mb-1">Question Text</label>
-                    <input type="text" value={newQuestion} onChange={(e) => setNewQuestion(e.target.value)} placeholder="e.g. Please provide footage google drive link" className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs text-white" />
+                    <label className="block text-[10px] text-text-muted font-bold uppercase mb-1">Question Text</label>
+                    <input type="text" value={newQuestion} onChange={(e) => setNewQuestion(e.target.value)} placeholder="e.g. Please provide footage google drive link" className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-xs text-text-main" />
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <select value={newFieldType} onChange={(e: any) => setNewFieldType(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white">
+                      <select value={newFieldType} onChange={(e: any) => setNewFieldType(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-xs text-text-main">
                         <option value="TEXT">Short Text</option>
                         <option value="TEXTAREA">Paragraph Description</option>
                         <option value="NUMBER">Number Field</option>
@@ -883,19 +883,19 @@ export default function EditServiceDashboard() {
                       </select>
                     </div>
                     <div className="flex items-center h-10">
-                      <input type="checkbox" id="isRequired" checked={newIsRequired} onChange={(e) => setNewIsRequired(e.target.checked)} className="accent-indigo-500 mr-2" />
-                      <label htmlFor="isRequired" className="text-xs text-slate-400">Required</label>
+                      <input type="checkbox" id="isRequired" checked={newIsRequired} onChange={(e) => setNewIsRequired(e.target.checked)} className="accent-primary mr-2" />
+                      <label htmlFor="isRequired" className="text-xs text-text-sub">Required</label>
                     </div>
                   </div>
-                  <button onClick={handleAddRequirement} className="px-4 py-1.5 bg-indigo-600 text-xs font-bold text-white rounded-lg">Add Question</button>
+                  <button onClick={handleAddRequirement} className="px-4 py-1.5 bg-primary text-xs font-bold text-text-main rounded-lg">Add Question</button>
                 </div>
 
                 <div className="space-y-2 mt-6">
                   {requirements.map((r, idx) => (
-                    <div key={r.id || idx} className="flex justify-between items-center bg-slate-950 border border-slate-850 px-4 py-3 rounded-xl text-xs">
+                    <div key={r.id || idx} className="flex justify-between items-center bg-background border border-border-custom px-4 py-3 rounded-xl text-xs">
                       <div>
-                        <span className="text-[9px] bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-slate-400 uppercase mr-2">{r.field_type}</span>
-                        <span className="text-white font-bold">{r.question}</span>
+                        <span className="text-[9px] bg-surface-elevated border border-border-custom px-2 py-0.5 rounded text-text-sub uppercase mr-2">{r.field_type}</span>
+                        <span className="text-text-main font-bold">{r.question}</span>
                         {r.is_required && <span className="text-rose-400 text-[10px] ml-1">*Required</span>}
                       </div>
                       <button onClick={() => handleDeleteRequirement(r.id)} className="text-rose-500 hover:underline">Delete</button>

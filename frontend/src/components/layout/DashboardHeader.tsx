@@ -16,7 +16,7 @@ export default function DashboardHeader({ title, role }: DashboardHeaderProps) {
         <span className="text-xs uppercase px-2.5 py-0.5 rounded-full font-semibold bg-blue-900/30 text-blue-400 border border-blue-800">
           {role}
         </span>
-        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-white text-sm">
+        <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-text-main text-sm">
           U
         </div>
       </div>

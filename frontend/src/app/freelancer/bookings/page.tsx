@@ -70,7 +70,7 @@ export default function FreelancerBookingsPage() {
       case "PENDING_CONFIRMATION":
         return "bg-amber-500/10 border-amber-500/30 text-amber-400";
       case "IN_PROGRESS":
-        return "bg-indigo-500/10 border-indigo-500/30 text-indigo-400";
+        return "bg-primary-hover border-primary/30 text-primary";
       case "DELIVERY_PENDING":
         return "bg-blue-500/10 border-blue-500/30 text-blue-400";
       case "COMPLETED":
@@ -81,7 +81,7 @@ export default function FreelancerBookingsPage() {
       case "RESCHEDULE_REQUESTED":
         return "bg-cyan-500/10 border-cyan-500/30 text-cyan-400";
       default:
-        return "bg-slate-800 border-slate-700 text-slate-400";
+        return "bg-surface-elevated border-border-custom text-text-sub";
     }
   };
 
@@ -107,20 +107,20 @@ export default function FreelancerBookingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-white">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 md:px-8 font-sans">
+    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header card */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
-          <h1 className="text-xl md:text-2xl font-black text-white">Received Gig Bookings</h1>
-          <p className="text-slate-400 text-xs mt-1">Accept booking requests, start jobs, and communicate fulfillment schedules.</p>
+        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+          <h1 className="text-xl md:text-2xl font-black text-text-main">Received Gig Bookings</h1>
+          <p className="text-text-sub text-xs mt-1">Accept booking requests, start jobs, and communicate fulfillment schedules.</p>
         </div>
 
         {errorMsg && (
@@ -130,15 +130,15 @@ export default function FreelancerBookingsPage() {
         )}
 
         {/* Tab Filters */}
-        <div className="flex flex-wrap gap-2 border-b border-slate-850 pb-2">
+        <div className="flex flex-wrap gap-2 border-b border-border-custom pb-2">
           {(["REQUESTS", "UPCOMING", "IN_PROGRESS", "COMPLETED", "CANCELLED"] as ActiveTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
                 activeTab === tab
-                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/10"
-                  : "bg-slate-900 hover:bg-slate-855 text-slate-400 border border-slate-800"
+                  ? "bg-primary text-text-main shadow-lg shadow-primary"
+                  : "bg-surface hover:bg-surface-elevated text-text-sub border border-border-custom"
               }`}
             >
               {tab === "REQUESTS" ? "Requests" : tab.toLowerCase().replace("_", " ")}
@@ -151,43 +151,43 @@ export default function FreelancerBookingsPage() {
           {filteredBookings.map((booking) => (
             <div 
               key={booking.id}
-              className="bg-slate-900 border border-slate-850 rounded-3xl p-6 shadow-lg hover:border-slate-800 transition space-y-4"
+              className="bg-surface border border-border-custom rounded-3xl p-6 shadow-lg hover:border-border-custom transition space-y-4"
             >
               {/* Row 1: Header metadata */}
-              <div className="flex flex-wrap justify-between items-center gap-3 border-b border-slate-850 pb-4">
+              <div className="flex flex-wrap justify-between items-center gap-3 border-b border-border-custom pb-4">
                 <div className="flex items-center gap-3">
-                  <span className="text-xs text-indigo-400 font-mono font-bold">{booking.booking_number}</span>
+                  <span className="text-xs text-primary font-mono font-bold">{booking.booking_number}</span>
                   <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black border uppercase tracking-wider ${getStatusBadge(booking.status)}`}>
                     {booking.status}
                   </span>
                 </div>
                 <div className="text-right">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Agreed Amount</span>
-                  <span className="text-sm font-black text-indigo-400">₹{parseInt(booking.agreed_amount).toLocaleString()}</span>
+                  <span className="text-[10px] text-text-muted font-bold uppercase tracking-wider block">Agreed Amount</span>
+                  <span className="text-sm font-black text-primary">₹{parseInt(booking.agreed_amount).toLocaleString()}</span>
                 </div>
               </div>
 
               {/* Row 2: Service & Client specifics */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                 <div>
-                  <h4 className="text-slate-500 font-semibold mb-1 uppercase tracking-wider text-[10px]">Client Request Title</h4>
-                  <span className="text-white font-extrabold block">{booking.title || "Creative Listing"}</span>
-                  <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold text-indigo-400">
+                  <h4 className="text-text-muted font-semibold mb-1 uppercase tracking-wider text-[10px]">Client Request Title</h4>
+                  <span className="text-text-main font-extrabold block">{booking.title || "Creative Listing"}</span>
+                  <p className="text-[10px] text-text-sub mt-1 uppercase font-bold text-primary">
                     Client: {booking.client?.full_name}
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="text-slate-500 font-semibold mb-1 uppercase tracking-wider text-[10px]">Scheduled Execution</h4>
-                  <span className="text-slate-200 font-bold">
+                  <h4 className="text-text-muted font-semibold mb-1 uppercase tracking-wider text-[10px]">Scheduled Execution</h4>
+                  <span className="text-text-main font-bold">
                     {booking.scheduled_date ? `${booking.scheduled_date} (${String(booking.start_time).substring(0,5)} - ${String(booking.end_time).substring(0,5)})` : "Not scheduled"}
                   </span>
                 </div>
               </div>
 
               {/* Row 3: Actions */}
-              <div className="flex justify-between items-center pt-2 border-t border-slate-850">
-                <span className="text-[10px] text-slate-500">
+              <div className="flex justify-between items-center pt-2 border-t border-border-custom">
+                <span className="text-[10px] text-text-muted">
                   Received on {new Date(booking.created_at).toLocaleDateString()}
                 </span>
                 
@@ -195,14 +195,14 @@ export default function FreelancerBookingsPage() {
                   <button
                     disabled={chatLoading}
                     onClick={() => handleOpenChat(booking)}
-                    className="px-3.5 py-1.5 bg-slate-950 border border-slate-800 hover:bg-slate-850 text-slate-300 text-xs font-bold rounded-lg transition disabled:opacity-50"
+                    className="px-3.5 py-1.5 bg-background border border-border-custom hover:bg-surface-elevated text-text-sub text-xs font-bold rounded-lg transition disabled:opacity-50"
                   >
                     {chatLoading ? "Opening..." : "Open Chat"}
                   </button>
 
                   <Link
                     href={`/freelancer/bookings/${booking.id}`}
-                    className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition"
+                    className="px-3.5 py-1.5 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-lg transition"
                   >
                     View Details
                   </Link>
@@ -213,10 +213,10 @@ export default function FreelancerBookingsPage() {
           ))}
 
           {filteredBookings.length === 0 && (
-            <div className="py-20 text-center text-slate-500 border border-dashed border-slate-800 rounded-3xl flex flex-col justify-center items-center">
+            <div className="py-20 text-center text-text-muted border border-dashed border-border-custom rounded-3xl flex flex-col justify-center items-center">
               <span className="text-3xl mb-4">💼</span>
-              <h3 className="font-bold text-white text-sm">No Bookings Found</h3>
-              <p className="text-xs text-slate-400 mt-2 max-w-sm">
+              <h3 className="font-bold text-text-main text-sm">No Bookings Found</h3>
+              <p className="text-xs text-text-sub mt-2 max-w-sm">
                 No client bookings in the "{activeTab.toLowerCase().replace("_", " ")}" status category.
               </p>
             </div>

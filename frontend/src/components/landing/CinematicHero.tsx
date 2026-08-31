@@ -242,7 +242,7 @@ export default function CinematicHero() {
             <div className="pt-2">
               <Link
                 href="/freelancers"
-                className="bg-primary hover:bg-primary-hover text-white font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+                className="bg-primary hover:bg-primary-hover text-text-main font-extrabold text-xs uppercase tracking-wider px-8 py-4 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
               >
                 <span>Explore Creatives</span>
                 <span>&rarr;</span>
@@ -314,7 +314,7 @@ export default function CinematicHero() {
           <div className="flex gap-4 pt-2">
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-text-main font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
             >
               <span>Explore Creatives</span>
               <span>&rarr;</span>
@@ -353,7 +353,7 @@ export default function CinematicHero() {
           <div className="flex gap-4 pt-2">
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-text-main font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
             >
               <span>Discover Talent</span>
               <span>&rarr;</span>
@@ -386,7 +386,7 @@ export default function CinematicHero() {
           <div className="flex gap-4 pt-2">
             <Link
               href="/#how-it-works"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-text-main font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
             >
               <span>How It Works</span>
               <span>&rarr;</span>
@@ -420,7 +420,7 @@ export default function CinematicHero() {
           <div className="flex gap-4 pt-2">
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-text-main font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
             >
               <span>Explore Services</span>
               <span>&rarr;</span>
@@ -453,7 +453,7 @@ export default function CinematicHero() {
           <div className="flex gap-4 pt-2">
             <Link
               href="/freelancers"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-text-main font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
             >
               <span>Start a Project</span>
               <span>&rarr;</span>
@@ -486,7 +486,7 @@ export default function CinematicHero() {
           <div className="flex gap-4 pt-2">
             <Link
               href="/register"
-              className="bg-primary hover:bg-primary-hover text-white font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-text-main font-extrabold text-[10px] sm:text-xs uppercase tracking-wider px-8 py-3.5 rounded-xl transition shadow-lg shadow-primary/25 inline-flex items-center gap-2"
             >
               <span>Join Marketplace</span>
               <span>&rarr;</span>

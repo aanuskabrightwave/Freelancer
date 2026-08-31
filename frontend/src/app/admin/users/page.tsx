@@ -99,31 +99,31 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="p-8 space-y-6 bg-slate-950 min-h-screen text-slate-100">
+    <div className="p-8 space-y-6 bg-background min-h-screen text-text-main">
       {/* Header */}
-      <div className="border-b border-slate-800 pb-6">
-        <h1 className="text-3xl font-extrabold text-white">Users Moderation</h1>
-        <p className="text-slate-400 text-sm mt-1">Suspend, reactivate, and audit all clients and freelancer accounts.</p>
+      <div className="border-b border-border-custom pb-6">
+        <h1 className="text-3xl font-extrabold text-text-main">Users Moderation</h1>
+        <p className="text-text-sub text-sm mt-1">Suspend, reactivate, and audit all clients and freelancer accounts.</p>
       </div>
 
       {/* Filters Form */}
-      <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-900/60 p-4 border border-slate-800 rounded-xl">
+      <form onSubmit={handleSearchSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 bg-surface p-4 border border-border-custom rounded-xl">
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-slate-400 font-bold uppercase">Search</label>
+          <label className="text-xs text-text-sub font-bold uppercase">Search</label>
           <input
             type="text"
             placeholder="Name, email, phone..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-200 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="bg-background border border-border-custom text-text-main text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:outline-none"
           />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-slate-400 font-bold uppercase">Role</label>
+          <label className="text-xs text-text-sub font-bold uppercase">Role</label>
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-200 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="bg-background border border-border-custom text-text-main text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <option value="">All Roles</option>
             <option value="CLIENT">Client</option>
@@ -132,11 +132,11 @@ export default function AdminUsersPage() {
           </select>
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-slate-400 font-bold uppercase">Status</label>
+          <label className="text-xs text-text-sub font-bold uppercase">Status</label>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-slate-950 border border-slate-800 text-slate-200 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className="bg-background border border-border-custom text-text-main text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-primary focus:outline-none"
           >
             <option value="">All Statuses</option>
             <option value="ACTIVE">Active Only</option>
@@ -146,7 +146,7 @@ export default function AdminUsersPage() {
         <div className="flex items-end">
           <button
             type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm transition-colors"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-text-main font-semibold py-2.5 rounded-lg text-sm transition-colors"
           >
             Apply Filters
           </button>
@@ -155,17 +155,17 @@ export default function AdminUsersPage() {
 
       {/* Users Database Table */}
       {loading ? (
-        <div className="py-20 text-center text-slate-400">Loading user database registry...</div>
+        <div className="py-20 text-center text-text-sub">Loading user database registry...</div>
       ) : error ? (
         <div className="bg-red-950/20 border border-red-900 text-red-400 p-4 rounded-xl">{error}</div>
       ) : users.length === 0 ? (
-        <div className="text-center py-20 text-slate-500">No users match the search parameters.</div>
+        <div className="text-center py-20 text-text-muted">No users match the search parameters.</div>
       ) : (
-        <div className="bg-slate-900/60 border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+        <div className="bg-surface border border-border-custom rounded-xl overflow-hidden shadow-xl">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-950 border-b border-slate-800 text-xs font-bold text-slate-400 uppercase">
+                <tr className="bg-background border-b border-border-custom text-xs font-bold text-text-sub uppercase">
                   <th className="p-4">Name</th>
                   <th className="p-4">Email</th>
                   <th className="p-4">Phone</th>
@@ -175,12 +175,12 @@ export default function AdminUsersPage() {
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-850 text-sm text-slate-300">
+              <tbody className="divide-y divide-border-custom text-sm text-text-sub">
                 {users.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="p-4 font-semibold text-white">{user.full_name}</td>
+                  <tr key={user.id} className="hover:bg-surface transition-colors">
+                    <td className="p-4 font-semibold text-text-main">{user.full_name}</td>
                     <td className="p-4">{user.email}</td>
-                    <td className="p-4 font-mono text-slate-400">{user.phone}</td>
+                    <td className="p-4 font-mono text-text-sub">{user.phone}</td>
                     <td className="p-4">
                       <span className={`px-2 py-0.5 rounded text-xs font-semibold ${
                         user.role === "ADMIN" ? "bg-red-950/50 border border-red-800 text-red-400" :
@@ -201,7 +201,7 @@ export default function AdminUsersPage() {
                         </span>
                       )}
                     </td>
-                    <td className="p-4 text-slate-400 text-xs">{new Date(user.created_at).toLocaleDateString()}</td>
+                    <td className="p-4 text-text-sub text-xs">{new Date(user.created_at).toLocaleDateString()}</td>
                     <td className="p-4 text-right">
                       {user.is_active ? (
                         <button
@@ -226,20 +226,20 @@ export default function AdminUsersPage() {
           </div>
 
           {/* Simple Pagination */}
-          <div className="bg-slate-950 border-t border-slate-800 p-4 flex justify-between items-center text-xs text-slate-400">
+          <div className="bg-background border-t border-border-custom p-4 flex justify-between items-center text-xs text-text-sub">
             <span>Showing {users.length} of {total} records</span>
             <div className="flex gap-2">
               <button
                 disabled={page <= 1}
                 onClick={() => setPage(page - 1)}
-                className="bg-slate-900 border border-slate-800 text-slate-300 px-3 py-1.5 rounded hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-slate-900 transition-colors"
+                className="bg-surface border border-border-custom text-text-sub px-3 py-1.5 rounded hover:bg-surface-elevated disabled:opacity-50 disabled:hover:bg-surface transition-colors"
               >
                 Previous
               </button>
               <button
                 disabled={page * 10 >= total}
                 onClick={() => setPage(page + 1)}
-                className="bg-slate-900 border border-slate-800 text-slate-300 px-3 py-1.5 rounded hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-slate-900 transition-colors"
+                className="bg-surface border border-border-custom text-text-sub px-3 py-1.5 rounded hover:bg-surface-elevated disabled:opacity-50 disabled:hover:bg-surface transition-colors"
               >
                 Next
               </button>
@@ -251,35 +251,35 @@ export default function AdminUsersPage() {
       {/* Suspension Modal Dialog */}
       {selectedUser && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
+          <div className="bg-surface border border-border-custom w-full max-w-md rounded-2xl p-6 space-y-4 shadow-2xl animate-in fade-in zoom-in duration-200">
             <div>
-              <h3 className="text-lg font-bold text-white">Suspend Account</h3>
-              <p className="text-xs text-slate-400 mt-1">
-                You are about to suspend <strong className="text-slate-200">{selectedUser.full_name}</strong> ({selectedUser.email}).
+              <h3 className="text-lg font-bold text-text-main">Suspend Account</h3>
+              <p className="text-xs text-text-sub mt-1">
+                You are about to suspend <strong className="text-text-main">{selectedUser.full_name}</strong> ({selectedUser.email}).
               </p>
             </div>
             <div className="flex flex-col gap-1.5">
-              <label className="text-xs text-slate-400 font-bold uppercase">Suspension Reason</label>
+              <label className="text-xs text-text-sub font-bold uppercase">Suspension Reason</label>
               <textarea
                 rows={4}
                 placeholder="Detail the breach of terms or client reports..."
                 value={suspendReason}
                 onChange={(e) => setSuspendReason(e.target.value)}
-                className="bg-slate-950 border border-slate-800 text-slate-200 text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none placeholder-slate-600"
+                className="bg-background border border-border-custom text-text-main text-sm rounded-lg p-2.5 focus:ring-2 focus:ring-red-500 focus:outline-none placeholder-text-muted"
               />
             </div>
             <div className="flex justify-end gap-3 pt-2">
               <button
                 disabled={submitting}
                 onClick={() => setSelectedUser(null)}
-                className="bg-slate-950 border border-slate-850 hover:bg-slate-800 text-slate-300 px-4 py-2 rounded-lg text-sm transition-colors"
+                className="bg-background border border-border-custom hover:bg-surface-elevated text-text-sub px-4 py-2 rounded-lg text-sm transition-colors"
               >
                 Cancel
               </button>
               <button
                 disabled={submitting || !suspendReason.trim()}
                 onClick={handleSuspendSubmit}
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors"
+                className="bg-red-600 hover:bg-red-700 text-text-main font-semibold px-4 py-2 rounded-lg text-sm disabled:opacity-50 transition-colors"
               >
                 {submitting ? "Suspending..." : "Confirm Suspension"}
               </button>

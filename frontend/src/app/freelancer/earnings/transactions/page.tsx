@@ -23,23 +23,23 @@ export default function FreelancerTransactionsHistoryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-slate-400 py-12">
-        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-sub py-12">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-xs uppercase tracking-widest font-black animate-pulse">Loading transaction history...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-background text-text-main font-sans selection:bg-primary-hover selection:text-text-main">
       <div className="max-w-6xl mx-auto px-4 py-12">
         
         <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-black tracking-tight">Ledger Audits & Transactions</h1>
-            <p className="text-sm text-slate-400 mt-1">Review complete historical credits, payouts debits, and adjustments logs.</p>
+            <p className="text-sm text-text-sub mt-1">Review complete historical credits, payouts debits, and adjustments logs.</p>
           </div>
-          <Link href="/freelancer/earnings" className="text-xs uppercase tracking-widest font-black text-slate-400 hover:text-indigo-400 flex items-center gap-2 group transition">
+          <Link href="/freelancer/earnings" className="text-xs uppercase tracking-widest font-black text-text-sub hover:text-primary flex items-center gap-2 group transition">
             <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -56,14 +56,14 @@ export default function FreelancerTransactionsHistoryPage() {
           </div>
         )}
 
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+        <div className="bg-surface border border-border-custom rounded-3xl overflow-hidden shadow-xl">
           <div className="overflow-x-auto">
             {transactions.length === 0 ? (
-              <div className="p-12 text-center text-slate-555">No ledger transactions found.</div>
+              <div className="p-12 text-center text-text-muted">No ledger transactions found.</div>
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800/80 text-xxs uppercase tracking-widest text-slate-400 font-black bg-slate-950/40">
+                  <tr className="border-b border-border-custom text-xxs uppercase tracking-widest text-text-sub font-black bg-background">
                     <th className="py-4 px-6">Date</th>
                     <th className="py-4 px-6">Description</th>
                     <th className="py-4 px-6">Entry Type</th>
@@ -71,21 +71,21 @@ export default function FreelancerTransactionsHistoryPage() {
                     <th className="py-4 px-6 text-right">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-border-custom">
                   {transactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-slate-850/30 transition text-sm">
-                      <td className="py-5 px-6 text-slate-400 text-xs font-mono">
+                    <tr key={tx.id} className="hover:bg-surface-elevated transition text-sm">
+                      <td className="py-5 px-6 text-text-sub text-xs font-mono">
                         {new Date(tx.created_at).toLocaleString("en-IN", {
                           day: "numeric",
                           month: "short",
                           year: "numeric"
                         })}
                       </td>
-                      <td className="py-5 px-6 font-semibold text-slate-200">
+                      <td className="py-5 px-6 font-semibold text-text-main">
                         {tx.description}
                       </td>
                       <td className="py-5 px-6">
-                        <span className="text-[10px] uppercase font-mono bg-slate-800 text-slate-350 py-1 px-2 rounded-md font-bold border border-slate-700/50">
+                        <span className="text-[10px] uppercase font-mono bg-surface-elevated text-text-sub py-1 px-2 rounded-md font-bold border border-border-custom">
                           {tx.entry_type}
                         </span>
                       </td>

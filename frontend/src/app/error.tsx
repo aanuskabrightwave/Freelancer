@@ -37,7 +37,7 @@ export default function ErrorBoundary({
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center bg-background text-text-main font-sans">
       <h1 className="text-9xl font-extrabold text-primary tracking-widest">500</h1>
-      <div className="bg-primary text-white px-2 text-sm font-bold rounded rotate-12 absolute mb-16 font-mono">
+      <div className="bg-primary text-text-main px-2 text-sm font-bold rounded rotate-12 absolute mb-16 font-mono">
         System Error
       </div>
       <h2 className="text-2xl font-bold mt-6 text-text-main">Something went wrong on our end.</h2>

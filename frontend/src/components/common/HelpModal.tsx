@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { X, Mail, Phone, Clock, FileText, ChevronDown, ChevronUp } from "lucide-react";
 
 interface HelpModalProps {
@@ -10,6 +10,26 @@ interface HelpModalProps {
 
 export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -41,8 +61,20 @@ export default function HelpModal({ isOpen, onClose }: HelpModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-dark/40 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="bg-surface border border-border-custom rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Separate Backdrop overlay */}
+      <div 
+        className="fixed inset-0 z-[9998] bg-[rgba(0,0,0,0.55)] backdrop-blur-[8px]"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+      
+      {/* Modal Box */}
+      <div 
+        className="relative z-[9999] bg-surface border border-border-custom rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl animate-in fade-in zoom-in duration-200 flex flex-col"
+        role="dialog"
+        aria-modal="true"
+      >
         
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-border-custom/50">

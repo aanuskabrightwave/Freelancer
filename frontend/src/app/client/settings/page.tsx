@@ -130,7 +130,7 @@ export default function ClientSettingsPage() {
     return (
       <Container className="py-8">
         <div className="flex flex-col items-center justify-center py-20 text-text-muted">
-          <Loader2 className="w-8 h-8 animate-spin text-indigo-500 mb-2" />
+          <Loader2 className="w-8 h-8 animate-spin text-primary mb-2" />
           <p className="text-xs">Loading Settings...</p>
         </div>
       </Container>
@@ -164,7 +164,7 @@ export default function ClientSettingsPage() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-left transition duration-200 cursor-pointer ${
                   activeTab === tab.id
-                    ? "bg-indigo-500 text-white shadow-md shadow-indigo-500/10"
+                    ? "bg-primary-hover text-text-main shadow-md shadow-primary"
                     : "bg-surface hover:bg-surface-elevated text-text-sub border border-border-custom/50 hover:text-text-main"
                 }`}
               >
@@ -200,7 +200,7 @@ export default function ClientSettingsPage() {
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   />
                 </div>
 
@@ -231,7 +231,7 @@ export default function ClientSettingsPage() {
                 <button
                   type="submit"
                   disabled={savingAccount}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary-hover hover:bg-primary disabled:bg-primary-hover text-text-main text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
                 >
                   {savingAccount ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   <span>Save Changes</span>
@@ -268,7 +268,7 @@ export default function ClientSettingsPage() {
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     required
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   />
                 </div>
 
@@ -279,7 +279,7 @@ export default function ClientSettingsPage() {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     required
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   />
                   <p className="text-[10px] text-text-muted">Must be at least 8 characters.</p>
                 </div>
@@ -291,7 +291,7 @@ export default function ClientSettingsPage() {
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
-                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-indigo-500 transition"
+                    className="w-full bg-surface-elevated border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary transition"
                   />
                 </div>
               </div>
@@ -300,7 +300,7 @@ export default function ClientSettingsPage() {
                 <button
                   type="submit"
                   disabled={savingPassword}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-indigo-500 hover:bg-indigo-600 disabled:bg-indigo-500/50 text-white text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary-hover hover:bg-primary disabled:bg-primary-hover text-text-main text-xs font-bold uppercase tracking-wider rounded-xl transition cursor-pointer"
                 >
                   {savingPassword ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                   <span>Change Password</span>
@@ -360,7 +360,7 @@ export default function ClientSettingsPage() {
                 <p className="text-xs text-text-sub leading-relaxed">
                   To prevent transaction spam, freelancers are only permitted to message you once you have shortlisted/accepted their proposal or generated a direct booking request. 
                 </p>
-                <div className="flex items-center gap-2 pt-2 text-[10px] text-indigo-500 font-bold">
+                <div className="flex items-center gap-2 pt-2 text-[10px] text-primary font-bold">
                   <MessageSquare className="w-4 h-4" />
                   <span>Spam prevention filters are enabled.</span>
                 </div>
@@ -409,7 +409,7 @@ export default function ClientSettingsPage() {
                       <button
                         onClick={handleDeactivate}
                         disabled={deactivating}
-                        className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-600/50 text-white text-xs font-bold rounded-xl transition cursor-pointer"
+                        className="px-4 py-2 bg-rose-600 hover:bg-rose-700 disabled:bg-rose-600/50 text-text-main text-xs font-bold rounded-xl transition cursor-pointer"
                       >
                         {deactivating ? "Deactivating..." : "Confirm Deactivate"}
                       </button>

@@ -280,7 +280,7 @@ class BookingService:
             "title": project.title,
             "description": project.description,
             "booking_type": project.project_type,
-            "status": BookingStatus.CONFIRMED, # Confirmed directly on proposal accept!
+            "status": BookingStatus.PENDING_CONFIRMATION, # Confirmed requires freelancer acceptance
             "scheduled_date": scheduled_date_val,
             "booking_date": datetime.combine(scheduled_date_val, start_t),
             "start_time": start_t,

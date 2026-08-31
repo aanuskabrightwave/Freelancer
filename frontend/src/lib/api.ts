@@ -1,4 +1,12 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+const BACKEND_BASE = API_URL.replace("/api/v1", "");
+
+export function getMediaUrl(path: string | null | undefined): string {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://") || path.startsWith("blob:")) return path;
+  if (path.startsWith("/")) return `${BACKEND_BASE}${path}`;
+  return `${BACKEND_BASE}/${path}`;
+}
 
 interface RequestOptions extends RequestInit {
   params?: Record<string, string>;

@@ -23,23 +23,23 @@ export default function FreelancerPayoutsListPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-slate-400 py-12">
-        <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-sub py-12">
+        <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-xs uppercase tracking-widest font-black animate-pulse">Loading payouts logs...</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="min-h-screen bg-background text-text-main font-sans selection:bg-primary-hover selection:text-text-main">
       <div className="max-w-6xl mx-auto px-4 py-12">
         
         <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-black tracking-tight">Payout Transfers Logs</h1>
-            <p className="text-sm text-slate-400 mt-1">Review transfer reference codes and capture status.</p>
+            <p className="text-sm text-text-sub mt-1">Review transfer reference codes and capture status.</p>
           </div>
-          <Link href="/freelancer/earnings" className="text-xs uppercase tracking-widest font-black text-slate-400 hover:text-indigo-400 flex items-center gap-2 group transition">
+          <Link href="/freelancer/earnings" className="text-xs uppercase tracking-widest font-black text-text-sub hover:text-primary flex items-center gap-2 group transition">
             <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -56,14 +56,14 @@ export default function FreelancerPayoutsListPage() {
           </div>
         )}
 
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+        <div className="bg-surface border border-border-custom rounded-3xl overflow-hidden shadow-xl">
           <div className="overflow-x-auto">
             {payouts.length === 0 ? (
-              <div className="p-12 text-center text-slate-550">No payouts transfer history logged yet.</div>
+              <div className="p-12 text-center text-text-muted">No payouts transfer history logged yet.</div>
             ) : (
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800/80 text-xxs uppercase tracking-widest text-slate-400 font-black bg-slate-950/40">
+                  <tr className="border-b border-border-custom text-xxs uppercase tracking-widest text-text-sub font-black bg-background">
                     <th className="py-4 px-6">Payout ID</th>
                     <th className="py-4 px-6">Razorpay Transfer ID</th>
                     <th className="py-4 px-6">Amount</th>
@@ -71,16 +71,16 @@ export default function FreelancerPayoutsListPage() {
                     <th className="py-4 px-6">Processed On</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/60">
+                <tbody className="divide-y divide-border-custom">
                   {payouts.map((po) => (
-                    <tr key={po.id} className="hover:bg-slate-850/30 transition text-sm">
-                      <td className="py-5 px-6 font-mono text-xs font-bold text-slate-300">
+                    <tr key={po.id} className="hover:bg-surface-elevated transition text-sm">
+                      <td className="py-5 px-6 font-mono text-xs font-bold text-text-sub">
                         {po.payout_number}
                       </td>
-                      <td className="py-5 px-6 font-mono text-xs text-slate-400">
+                      <td className="py-5 px-6 font-mono text-xs text-text-sub">
                         {po.provider_transfer_id || "-"}
                       </td>
-                      <td className="py-5 px-6 font-bold text-indigo-400 font-mono">
+                      <td className="py-5 px-6 font-bold text-primary font-mono">
                         ₹{Number(po.amount).toLocaleString("en-IN")}
                       </td>
                       <td className="py-5 px-6">
@@ -94,7 +94,7 @@ export default function FreelancerPayoutsListPage() {
                           {po.status}
                         </span>
                       </td>
-                      <td className="py-5 px-6 text-slate-400 text-xs font-mono">
+                      <td className="py-5 px-6 text-text-sub text-xs font-mono">
                         {po.processed_at ? new Date(po.processed_at).toLocaleString("en-IN", {
                           day: "numeric",
                           month: "short",

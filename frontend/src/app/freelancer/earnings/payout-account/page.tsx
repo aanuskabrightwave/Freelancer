@@ -35,11 +35,11 @@ export default function PayoutAccountSetupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-center items-center py-12 px-4 font-sans selection:bg-indigo-500 selection:text-white">
-      <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+    <div className="min-h-screen bg-background text-text-main flex flex-col justify-center items-center py-12 px-4 font-sans selection:bg-primary-hover selection:text-text-main">
+      <div className="max-w-md w-full bg-surface border border-border-custom rounded-3xl p-8 shadow-2xl relative overflow-hidden">
         {/* Navigation Breadcrumb */}
         <div className="mb-6 text-left">
-          <Link href="/freelancer/earnings" className="text-xs uppercase tracking-widest font-black text-slate-400 hover:text-indigo-400 flex items-center gap-2 group transition">
+          <Link href="/freelancer/earnings" className="text-xs uppercase tracking-widest font-black text-text-sub hover:text-primary flex items-center gap-2 group transition">
             <svg className="w-4 h-4 transform group-hover:-translate-x-1 transition" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
@@ -48,7 +48,7 @@ export default function PayoutAccountSetupPage() {
         </div>
 
         <h1 className="text-2xl font-black mb-2 tracking-tight">Configure Payout Account</h1>
-        <p className="text-slate-400 text-sm mb-6 leading-relaxed">
+        <p className="text-text-sub text-sm mb-6 leading-relaxed">
           Link your Razorpay Route account credentials to receive marketplace payouts.
         </p>
 
@@ -72,7 +72,7 @@ export default function PayoutAccountSetupPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xxs font-black uppercase tracking-widest text-slate-400 mb-2">
+            <label className="block text-xxs font-black uppercase tracking-widest text-text-sub mb-2">
               Razorpay Connected Account ID
             </label>
             <input
@@ -81,12 +81,12 @@ export default function PayoutAccountSetupPage() {
               placeholder="e.g. acc_Nxxxxxxxxx"
               value={accountId}
               onChange={(e) => setAccountId(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-650 transition outline-none"
+              className="w-full bg-background border border-border-custom focus:border-primary focus:ring-1 focus:ring-primary rounded-xl py-3 px-4 text-sm text-text-main placeholder-text-muted transition outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xxs font-black uppercase tracking-widest text-slate-400 mb-2">
+            <label className="block text-xxs font-black uppercase tracking-widest text-text-sub mb-2">
               Account Holder Name
             </label>
             <input
@@ -94,18 +94,18 @@ export default function PayoutAccountSetupPage() {
               placeholder="e.g. Jane Freelancer"
               value={holderName}
               onChange={(e) => setHolderName(e.target.value)}
-              className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl py-3 px-4 text-sm text-slate-100 placeholder-slate-650 transition outline-none"
+              className="w-full bg-background border border-border-custom focus:border-primary focus:ring-1 focus:ring-primary rounded-xl py-3 px-4 text-sm text-text-main placeholder-text-muted transition outline-none"
             />
           </div>
 
-          <div className="bg-slate-950 border border-slate-800 p-4 rounded-xl">
-            <h4 className="text-xxs font-black uppercase tracking-widest text-slate-400 mb-1 flex items-center gap-1.5">
-              <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="bg-background border border-border-custom p-4 rounded-xl">
+            <h4 className="text-xxs font-black uppercase tracking-widest text-text-sub mb-1 flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Payment Protection Policy
             </h4>
-            <p className="text-[10px] text-slate-500 leading-normal">
+            <p className="text-[10px] text-text-muted leading-normal">
               We never store sensitive bank credentials (IFSC/Passwords) on our database servers. 
               Actual fund routing transfers are managed by Razorpay's verified distribution infrastructure.
             </p>
@@ -114,7 +114,7 @@ export default function PayoutAccountSetupPage() {
           <button
             type="submit"
             disabled={submitting || !accountId}
-            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-800 text-white font-black text-sm py-3.5 px-6 rounded-2xl transition duration-200 shadow-lg shadow-indigo-600/10 active:scale-[0.99]"
+            className="w-full bg-primary hover:bg-primary-hover disabled:bg-primary/20 text-text-main font-black text-sm py-3.5 px-6 rounded-2xl transition duration-200 shadow-lg shadow-primary active:scale-[0.99]"
           >
             {submitting ? "Linking Payout Account..." : "Save Payout Setup"}
           </button>

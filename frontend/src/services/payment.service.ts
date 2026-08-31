@@ -9,6 +9,16 @@ export interface PaymentOrderResponse {
   razorpay_key_id: string;
 }
 
+export interface PaymentEligibilityResponse {
+  booking_id: number;
+  total_amount: number;
+  amount_paid: number;
+  remaining_amount: number;
+  payment_stage: string;
+  can_pay: boolean;
+  blocking_reason: string | null;
+}
+
 export interface PaymentVerifyPayload {
   razorpay_order_id: string;
   razorpay_payment_id: string;
@@ -126,6 +136,10 @@ export interface PayoutResponse {
 }
 
 export const paymentService = {
+  async getPaymentEligibility(bookingId: number | string): Promise<PaymentEligibilityResponse> {
+    return api.get(`/client/bookings/${bookingId}/payment/eligibility`);
+  },
+
   async createPaymentOrder(bookingId: number | string): Promise<PaymentOrderResponse> {
     return api.post(`/client/bookings/${bookingId}/payment/order`, {});
   },

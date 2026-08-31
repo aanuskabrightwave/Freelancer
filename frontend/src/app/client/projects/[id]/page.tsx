@@ -132,7 +132,7 @@ export default function ClientProjectDetailPage() {
             <button
               onClick={handleCloseProject}
               disabled={closing}
-              className="px-5 py-3 bg-rose-600 hover:bg-rose-500 disabled:bg-rose-800 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 shadow-sm active:scale-[0.99] cursor-pointer animate-pulse"
+              className="px-5 py-3 bg-rose-600 hover:bg-rose-500 disabled:bg-rose-800 text-text-main text-xs font-extrabold uppercase tracking-wider rounded-xl transition flex items-center gap-1.5 shadow-sm active:scale-[0.99] cursor-pointer animate-pulse"
             >
               <XCircle className="w-4 h-4" />
               {closing ? "Closing Project..." : "Close Project"}

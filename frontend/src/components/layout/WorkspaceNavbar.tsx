@@ -141,7 +141,7 @@ export default function WorkspaceNavbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-surface border-b border-border-custom px-6 h-[120px] flex items-center justify-between font-sans">
+      <header className="sticky top-0 z-40 bg-surface border-b border-border-custom px-6 h-[120px] min-h-[120px] shrink-0 flex items-center justify-between font-sans">
 
         {/* LEFT: Logo */}
         <div className="flex items-center gap-6">

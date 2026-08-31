@@ -21,7 +21,7 @@ export default function NotFound() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[70vh] px-6 text-center bg-background text-text-main font-sans">
       <h1 className="text-9xl font-extrabold text-primary tracking-widest">404</h1>
-      <div className="bg-primary text-white px-2 text-sm rounded rotate-12 absolute mb-16 font-mono font-bold">
+      <div className="bg-primary text-text-main px-2 text-sm rounded rotate-12 absolute mb-16 font-mono font-bold">
         Page Not Found
       </div>
       <h2 className="text-2xl font-bold mt-6 text-text-main">Oops! You seem to be lost.</h2>

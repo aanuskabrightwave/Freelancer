@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { usePathname } from "next/navigation";
 import WorkspaceNavbar from "./WorkspaceNavbar";
 import WorkspaceSidebar from "./WorkspaceSidebar";
 import MessageWidget from "@/components/messaging/MessageWidget";
@@ -14,9 +15,12 @@ interface WorkspaceLayoutProps {
 export default function WorkspaceLayout({ children, role }: WorkspaceLayoutProps) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const pathname = usePathname();
+  
+  const isMessagesPage = pathname?.includes("/messages");
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden bg-background text-text-main font-sans">
+    <div className="flex flex-col h-[100dvh] overflow-hidden bg-background text-text-main font-sans">
       
       {/* Top navbar */}
       <WorkspaceNavbar />
@@ -33,8 +37,8 @@ export default function WorkspaceLayout({ children, role }: WorkspaceLayoutProps
         />
 
         {/* Scrollable workspace content */}
-        <main className="flex-grow flex flex-col min-w-0 overflow-y-auto overflow-x-hidden bg-background">
-          <div className="flex-grow">
+        <main className={`flex-1 flex flex-col min-w-0 overflow-x-hidden bg-background ${isMessagesPage ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+          <div className="flex-1 flex flex-col min-w-0 min-h-0">
             {children}
           </div>
         </main>

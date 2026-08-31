@@ -71,7 +71,7 @@ export function TrustBadge({ code, showIcon = true }: TrustBadgeProps) {
     },
     RISING_CREATOR: {
       name: "Rising Creator",
-      style: "bg-indigo-500/10 border-indigo-500/30 text-indigo-400",
+      style: "bg-primary-hover border-primary/30 text-primary",
       icon: (
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -113,7 +113,7 @@ export function TrustBadge({ code, showIcon = true }: TrustBadgeProps) {
 
   const config = badgeConfig[code] || {
     name: code.replace("_", " ").toLowerCase(),
-    style: "bg-slate-800 border-slate-700 text-slate-300",
+    style: "bg-surface-elevated border-border-custom text-text-sub",
     icon: null,
   };
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import FreelancerDetailClient from "./FreelancerDetailClient";
+import { getMediaUrl } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
@@ -25,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         openGraph: {
           title: `${name} — ${title}`,
           description: profile.bio ? profile.bio.substring(0, 160) : `Check out ${name}'s portfolio.`,
-          images: [profile.profile_photo_url || "/placeholder-profile.png"],
+          images: [profile.profile_photo_url ? getMediaUrl(profile.profile_photo_url) : "/placeholder-profile.png"],
         },
       };
     }

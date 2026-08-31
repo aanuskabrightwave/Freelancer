@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import WorkspaceLayout from "@/components/layout/WorkspaceLayout";
+import IdleSessionManager from "@/components/auth/IdleSessionManager";
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -37,5 +38,10 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     return null;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      <IdleSessionManager />
+      {children}
+    </>
+  );
 }

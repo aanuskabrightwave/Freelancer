@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { marketplaceService } from "@/services/service.service";
 import Container from "@/components/ui/Container";
 
@@ -13,6 +13,7 @@ const SERVICE_TYPE_LABELS = {
 
 export default function PublicServicesDirectory() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [services, setServices] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -27,6 +28,14 @@ export default function PublicServicesDirectory() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [page, setPage] = useState(1);
+  const [freelancerId, setFreelancerId] = useState("");
+
+  useEffect(() => {
+    const fId = searchParams.get("freelancer_id");
+    if (fId) {
+      setFreelancerId(fId);
+    }
+  }, [searchParams]);
 
   async function loadCategories() {
     try {
@@ -53,6 +62,7 @@ export default function PublicServicesDirectory() {
       if (city.trim()) params.city = city.trim();
       if (minPrice) params.min_price = parseFloat(minPrice);
       if (maxPrice) params.max_price = parseFloat(maxPrice);
+      if (freelancerId) params.freelancer_id = Number(freelancerId);
 
       const data = await marketplaceService.listPublicServices(params);
       setServices(data);
@@ -69,7 +79,7 @@ export default function PublicServicesDirectory() {
 
   useEffect(() => {
     queryServices();
-  }, [selectedParentId, selectedChildId, serviceType, page]);
+  }, [selectedParentId, selectedChildId, serviceType, page, freelancerId]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();

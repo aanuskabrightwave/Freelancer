@@ -37,7 +37,7 @@ export default function NotificationItem({ notification, onMarkRead }: Notificat
         return <CreditCard className="w-5 h-5 text-amber-600" />;
       case "DELIVERY":
       case "REVISION":
-        return <Download className="w-5 h-5 text-indigo-600" />;
+        return <Download className="w-5 h-5 text-primary" />;
       case "REVIEW":
         return <Star className="w-5 h-5 text-pink-600" fill="currentColor" />;
       case "PAYOUT":

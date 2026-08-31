@@ -175,7 +175,8 @@ class ServiceRepository:
         service_type: Optional[str] = None,
         city: Optional[str] = None,
         min_price: Optional[float] = None,
-        max_price: Optional[float] = None
+        max_price: Optional[float] = None,
+        freelancer_id: Optional[int] = None
     ) -> List[Service]:
         from sqlalchemy.orm import joinedload
         from app.models.freelancer_profile import FreelancerProfile
@@ -196,6 +197,8 @@ class ServiceRepository:
             query = query.filter(Service.starting_price >= min_price)
         if max_price is not None:
             query = query.filter(Service.starting_price <= max_price)
+        if freelancer_id is not None:
+            query = query.filter(Service.freelancer_profile_id == freelancer_id)
 
         offset = (page - 1) * page_size
         return query.order_by(Service.is_featured.desc(), Service.created_at.desc()).offset(offset).limit(page_size).all()

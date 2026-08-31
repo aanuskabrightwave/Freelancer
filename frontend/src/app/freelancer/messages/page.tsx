@@ -18,7 +18,7 @@ function MessagesContent() {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   // Load conversations list
   async function loadConversations() {
@@ -81,7 +81,9 @@ function MessagesContent() {
 
   // Scroll to bottom on new messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -103,27 +105,34 @@ function MessagesContent() {
     return convo.client?.full_name || "Client";
   };
 
+  const getInitials = (name: string) => {
+    if (!name) return "";
+    const parts = name.trim().split(" ");
+    if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+    return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+  };
+
   const activeConvo = conversations.find((c) => c.id === activeConvoId);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-white">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex font-sans">
+    <div className="w-full h-full max-w-full max-h-full min-w-0 min-h-0 overflow-hidden bg-background text-text-main flex font-sans">
       
       {/* Messages Thread Sidebar */}
-      <div className="w-80 border-r border-slate-850 bg-slate-900/50 flex flex-col flex-shrink-0">
-        <div className="p-6 border-b border-slate-850">
-          <h2 className="text-lg font-black text-white">Conversations</h2>
-          <p className="text-slate-400 text-xs mt-1">Direct messaging chats</p>
+      <div className="w-80 max-w-[320px] border-r border-border-custom bg-surface flex flex-col flex-shrink-0 min-h-0">
+        <div className="p-6 border-b border-border-custom flex-shrink-0">
+          <h2 className="text-lg font-black text-text-main">Conversations</h2>
+          <p className="text-text-sub text-xs mt-1">Direct messaging chats</p>
         </div>
 
-        <div className="flex-grow overflow-y-auto divide-y divide-slate-850/50">
+        <div className="flex-1 overflow-y-auto overscroll-contain divide-y divide-border-custom min-h-0">
           {conversations.map((convo) => {
             const isSelected = convo.id === activeConvoId;
             return (
@@ -131,16 +140,16 @@ function MessagesContent() {
                 key={convo.id}
                 onClick={() => setActiveConvoId(convo.id)}
                 className={`w-full p-5 text-left transition flex items-center gap-4 ${
-                  isSelected ? "bg-indigo-600/10 border-l-4 border-indigo-500" : "hover:bg-slate-900/40"
+                  isSelected ? "bg-primary border-l-4 border-primary" : "hover:bg-surface"
                 }`}
               >
-                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-xs uppercase text-slate-300">
-                  {getChatPartnerName(convo)[0]}
+                <div className="w-10 h-10 rounded-full bg-surface-elevated flex items-center justify-center font-bold text-xs uppercase text-text-sub">
+                  {getInitials(getChatPartnerName(convo))}
                 </div>
-                <div className="min-w-0 flex-grow">
-                  <h4 className="text-xs font-bold text-white truncate">{getChatPartnerName(convo)}</h4>
-                  <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-semibold">
-                    Thread #{convo.id}
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold text-text-main truncate">{getChatPartnerName(convo)}</h4>
+                  <p className="text-[10px] text-text-muted mt-1 uppercase tracking-wider font-semibold">
+                    Started on {new Date(convo.created_at).toLocaleDateString()}
                   </p>
                 </div>
               </button>
@@ -148,7 +157,7 @@ function MessagesContent() {
           })}
 
           {conversations.length === 0 && (
-            <div className="py-12 text-center text-xs text-slate-500">
+            <div className="py-12 text-center text-xs text-text-muted">
               No messaging threads yet.
             </div>
           )}
@@ -156,33 +165,33 @@ function MessagesContent() {
       </div>
 
       {/* Main Messaging Logs Area */}
-      <div className="flex-grow flex flex-col bg-slate-950/20">
+      <div className="flex-1 flex flex-col bg-background min-w-0 min-h-0">
         {activeConvo ? (
           <>
             {/* Log Header */}
-            <div className="p-6 bg-slate-900/50 border-b border-slate-850 flex items-center justify-between">
+            <div className="p-6 bg-surface border-b border-border-custom flex flex-shrink-0 items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center font-bold text-sm uppercase text-slate-200">
-                  {getChatPartnerName(activeConvo)[0]}
+                <div className="w-10 h-10 rounded-full bg-surface-elevated flex items-center justify-center font-bold text-sm uppercase text-text-main">
+                  {getInitials(getChatPartnerName(activeConvo))}
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">{getChatPartnerName(activeConvo)}</h3>
-                  <span className="text-[10px] text-slate-500">Direct Chat Portal</span>
+                  <h3 className="text-sm font-bold text-text-main">{getChatPartnerName(activeConvo)}</h3>
+                  <span className="text-[10px] text-text-muted">Direct Chat Portal</span>
                 </div>
               </div>
             </div>
 
             {/* Scrollable Logs */}
-            <div className="flex-grow overflow-y-auto p-6 space-y-4">
+            <div ref={messagesContainerRef} className="flex-1 overflow-y-auto overscroll-contain p-6 space-y-4 min-h-0">
               {messagesLoading && messages.length === 0 ? (
                 <div className="h-full flex items-center justify-center">
-                  <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
               ) : (
                 messages.map((msg) => {
                   if (msg.is_system) {
                     return (
-                      <div key={msg.id} className="max-w-2xl mx-auto text-center my-3 bg-slate-900 border border-slate-800 rounded-2xl p-4 text-xs text-slate-400 whitespace-pre-line leading-relaxed shadow">
+                      <div key={msg.id} className="max-w-2xl mx-auto text-center my-3 bg-surface border border-border-custom rounded-2xl p-4 text-xs text-text-sub whitespace-pre-line leading-relaxed shadow">
                         {msg.message_text}
                       </div>
                     );
@@ -196,11 +205,11 @@ function MessagesContent() {
                     >
                       <div className={`max-w-md rounded-2xl px-4 py-2.5 text-xs shadow-md ${
                         isOwn 
-                          ? "bg-indigo-600 text-white rounded-br-none" 
-                          : "bg-slate-900 border border-slate-800 text-slate-200 rounded-bl-none"
+                          ? "bg-primary text-text-main rounded-br-none" 
+                          : "bg-surface border border-border-custom text-text-main rounded-bl-none"
                       }`}>
                         <p className="leading-relaxed">{msg.message_text}</p>
-                        <span className="text-[8px] text-slate-400 block mt-1.5 text-right font-medium">
+                        <span className="text-[8px] text-text-sub block mt-1.5 text-right font-medium">
                           {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -208,23 +217,22 @@ function MessagesContent() {
                   );
                 })
               )}
-              <div ref={messagesEndRef} />
             </div>
 
             {/* Submit Reply Form */}
-            <div className="p-6 bg-slate-900/50 border-t border-slate-850">
+            <div className="p-6 bg-surface border-t border-border-custom flex-shrink-0">
               <form onSubmit={handleSendMessage} className="flex gap-4">
                 <input
                   type="text"
                   placeholder="Type your message here..."
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
-                  className="flex-grow bg-slate-950 border border-slate-850 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 focus:outline-none focus:border-indigo-500 text-xs transition"
+                  className="flex-1 min-w-0 bg-background border border-border-custom rounded-xl px-4 py-3 text-text-main placeholder-text-muted focus:outline-none focus:border-primary text-xs transition"
                 />
                 <button
                   type="submit"
                   disabled={!replyText.trim()}
-                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-900 disabled:text-slate-600 disabled:border-slate-850 disabled:border text-white text-xs font-black rounded-xl transition shadow-lg shadow-indigo-600/10 text-center"
+                  className="px-6 py-3 bg-primary hover:bg-primary-hover disabled:bg-surface disabled:text-text-muted disabled:border-border-custom disabled:border text-text-main text-xs font-black rounded-xl transition shadow-lg shadow-primary text-center"
                 >
                   Send
                 </button>
@@ -232,7 +240,7 @@ function MessagesContent() {
             </div>
           </>
         ) : (
-          <div className="flex-grow flex flex-col items-center justify-center text-slate-500 text-xs">
+          <div className="flex-1 flex flex-col items-center justify-center text-text-muted text-xs">
             <span>Select a conversation to start messaging.</span>
           </div>
         )}
@@ -245,8 +253,8 @@ function MessagesContent() {
 export default function FreelancerMessagesPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-white">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="h-full min-h-0 bg-background flex flex-col justify-center items-center text-text-main">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     }>
       <MessagesContent />

@@ -180,7 +180,7 @@ export default function ClientReviewProposalPage() {
               <button
                 onClick={() => setShowAcceptForm(true)}
                 disabled={processing}
-                className="flex-1 sm:flex-initial px-5 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.99] cursor-pointer"
+                className="flex-1 sm:flex-initial px-5 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-text-main text-xs font-extrabold uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm active:scale-[0.99] cursor-pointer"
               >
                 <Check className="w-4 h-4" />
                 Award Project
@@ -301,7 +301,7 @@ export default function ClientReviewProposalPage() {
                   <button
                     type="submit"
                     disabled={processing}
-                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                    className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-emerald-800 text-text-main text-xs font-extrabold uppercase tracking-wider rounded-xl transition flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     {processing ? "Awarding Contract..." : "Confirm & Award Contract"}

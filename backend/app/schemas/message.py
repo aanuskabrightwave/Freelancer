@@ -52,10 +52,19 @@ class ConversationCreate(BaseModel):
     client_id: Optional[int] = None
 
 
+class ConversationParticipant(BaseModel):
+    id: int
+    full_name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ConversationResponse(BaseModel):
     id: int
     client_id: int
     freelancer_id: int
+    client: Optional[ConversationParticipant] = None
+    freelancer: Optional[ConversationParticipant] = None
     created_at: datetime
     updated_at: datetime
 

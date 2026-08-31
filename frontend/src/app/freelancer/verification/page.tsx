@@ -158,7 +158,7 @@ export default function FreelancerVerificationPage() {
                 <div className="flex items-center gap-2">
                   {status === "VERIFIED" && <ShieldCheck className="w-5 h-5 text-emerald-500" />}
                   {status === "PENDING" && <Clock className="w-5 h-5 text-amber-500 animate-pulse" />}
-                  {status === "UNDER_REVIEW" && <Clock className="w-5 h-5 text-blue-500 animate-pulse" />}
+                  {status === "UNDER_REVIEW" && <Clock className="w-5 h-5 text-primary animate-pulse" />}
                   {(status === "REJECTED" || status === "RESUBMISSION_REQUIRED") && <ShieldAlert className="w-5 h-5 text-rose-500" />}
                   {status === "NOT_SUBMITTED" && <ShieldAlert className="w-5 h-5 text-text-muted" />}
                   <h2 className="text-lg font-black text-text-main uppercase tracking-wider">

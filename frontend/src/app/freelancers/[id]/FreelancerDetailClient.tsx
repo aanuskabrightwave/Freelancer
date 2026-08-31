@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { getMediaUrl } from "@/lib/api";
 import { freelancerService } from "@/services/freelancer.service";
 import FavouriteButton from "@/components/favourites/FavouriteButton";
 import { TrustBadgeList } from "@/components/trust/TrustBadge";
@@ -9,6 +10,7 @@ import StarRating from "@/components/reviews/StarRating";
 import ReviewCard from "@/components/reviews/ReviewCard";
 import RatingDistribution from "@/components/reviews/RatingDistribution";
 import { reviewService } from "@/services/review.service";
+import { messageService } from "@/services/message.service";
 import Container from "@/components/ui/Container";
 import { useAuth } from "@/context/AuthContext";
 
@@ -33,6 +35,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
   const isOwnProfile = user && profile && user.id === profile.user_id;
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [processing, setProcessing] = useState(false);
 
   // Reviews state
   const [reviews, setReviews] = useState<any[]>([]);
@@ -149,7 +152,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
       <div className="h-64 md:h-80 w-full bg-dark relative overflow-hidden">
         {profile.cover_photo_url ? (
           <img 
-            src={profile.cover_photo_url} 
+            src={getMediaUrl(profile.cover_photo_url)} 
             alt="Cover Banner" 
             className="w-full h-full object-cover opacity-80"
           />
@@ -168,7 +171,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
             <div className="w-32 h-32 rounded-full border-4 border-surface-elevated bg-surface flex-shrink-0 overflow-hidden shadow-md -mt-16 md:-mt-24">
               {profile.profile_photo_url ? (
                 <img 
-                  src={profile.profile_photo_url} 
+                  src={getMediaUrl(profile.profile_photo_url)} 
                   alt={profile.full_name} 
                   className="w-full h-full object-cover"
                 />
@@ -318,7 +321,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
                       <div key={item.id} className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden shadow-sm group">
                         <div className="aspect-video relative overflow-hidden flex items-center justify-center bg-background">
                           {item.media_type === "IMAGE" ? (
-                            <img src={item.media_url} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-350" />
+                            <img src={getMediaUrl(item.media_url)} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-350" />
                           ) : (
                             <div className="text-center p-4">
                               <span className="text-[9px] bg-primary/10 border border-primary/20 px-2 py-0.5 rounded text-primary font-bold">
@@ -345,7 +348,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
                     <div key={item.id} className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden flex flex-col justify-between">
                       <div className="aspect-video bg-background flex items-center justify-center overflow-hidden">
                         {item.media_type === "IMAGE" ? (
-                          <img src={item.media_url} alt="" className="w-full h-full object-cover" />
+                          <img src={getMediaUrl(item.media_url)} alt={item.title} className="w-full h-full object-cover" />
                         ) : (
                           <span className="text-[9px] bg-surface-elevated border border-border-custom px-2 py-0.5 rounded text-text-muted font-bold uppercase">{item.media_type}</span>
                         )}
@@ -488,24 +491,43 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
                 </div>
               </div>
 
-              {/* Action buttons (Disabled) */}
+              {/* Action buttons */}
               {!isOwnProfile && (
                 <div className="space-y-2">
                   <button 
-                    disabled 
-                    className="w-full py-3 bg-primary/25 text-primary/60 text-xs font-bold rounded-xl border border-primary/10 cursor-not-allowed text-center"
+                    onClick={() => {
+                      if (!user) {
+                        router.push("/login");
+                        return;
+                      }
+                      router.push(`/services?freelancer_id=${profile.id}`);
+                    }}
+                    disabled={processing}
+                    className="w-full py-3 bg-primary text-text-main text-xs font-bold rounded-xl border border-primary/10 hover:bg-primary-hover transition text-center disabled:opacity-50"
                   >
                     Book Professional
                   </button>
                   <button 
-                    disabled 
-                    className="w-full py-3 bg-surface text-text-muted text-xs font-bold rounded-xl border border-border-custom cursor-not-allowed text-center"
+                    onClick={async () => {
+                      if (!user) {
+                        router.push("/login");
+                        return;
+                      }
+                      try {
+                        setProcessing(true);
+                        const convo = await messageService.createConversation({ freelancer_id: profile.id });
+                        router.push(`/client/messages?active=${convo.id}`);
+                      } catch (err: any) {
+                        alert(err.response?.data?.detail || "Could not open conversation. Ensure you have an active booking or proposal with this professional.");
+                      } finally {
+                        setProcessing(false);
+                      }
+                    }}
+                    disabled={processing}
+                    className="w-full py-3 bg-surface text-text-main hover:bg-surface-elevated text-xs font-bold rounded-xl border border-border-custom transition text-center disabled:opacity-50"
                   >
-                    Send Message
+                    {processing ? "Starting..." : "Send Message"}
                   </button>
-                  <span className="text-[10px] text-text-muted font-bold block text-center mt-3 uppercase tracking-wider">
-                    Booking & Messaging available in Phase 4
-                  </span>
                 </div>
               )}
             </div>

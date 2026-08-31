@@ -8,6 +8,7 @@ import StarRating from "@/components/reviews/StarRating";
 import FavouriteButton from "@/components/favourites/FavouriteButton";
 import { TrustBadgeList } from "@/components/trust/TrustBadge";
 import { favouriteService } from "@/services/favourite.service";
+import { getMediaUrl } from "@/lib/api";
 import LoadingState from "@/components/common/LoadingState";
 import EmptyState from "@/components/common/EmptyState";
 
@@ -106,7 +107,7 @@ export default function FavouritesPage() {
                           <div className="flex items-center gap-4">
                             {fav.profile_photo_url ? (
                               <img
-                                src={fav.profile_photo_url}
+                                src={getMediaUrl(fav.profile_photo_url)}
                                 alt={fav.full_name}
                                 className="w-14 h-14 rounded-2xl object-cover border border-border-custom"
                               />

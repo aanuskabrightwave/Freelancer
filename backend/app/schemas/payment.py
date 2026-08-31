@@ -13,6 +13,16 @@ class PaymentOrderResponse(BaseModel):
     razorpay_key_id: str
 
 
+class PaymentEligibilityResponse(BaseModel):
+    booking_id: int
+    total_amount: float
+    amount_paid: float
+    remaining_amount: float
+    payment_stage: str
+    can_pay: bool
+    blocking_reason: Optional[str] = None
+
+
 class PaymentVerifyPayload(BaseModel):
     razorpay_order_id: str
     razorpay_payment_id: str

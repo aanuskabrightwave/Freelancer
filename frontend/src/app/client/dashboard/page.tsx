@@ -7,6 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { bookingService } from "@/services/booking.service";
 import { freelancerService } from "@/services/freelancer.service";
 import { notificationService } from "@/services/notification.service";
+import { getMediaUrl } from "@/lib/api";
 import { 
   Plus, 
   Search, 
@@ -178,7 +179,7 @@ export default function ClientDashboardPage() {
     switch (type) {
       case "payment": return <Clock className="w-4 h-4 text-primary" />;
       case "delivery": return <CheckCircle className="w-4 h-4 text-success" />;
-      default: return <MessageSquare className="w-4 h-4 text-indigo-500" />;
+      default: return <MessageSquare className="w-4 h-4 text-primary" />;
     }
   };
 
@@ -421,7 +422,7 @@ export default function ClientDashboardPage() {
               <div className="aspect-[4/3] bg-surface-elevated relative overflow-hidden flex items-center justify-center border-b border-border-custom/50">
                 {c.profile_photo_url ? (
                   <img
-                    src={c.profile_photo_url}
+                    src={getMediaUrl(c.profile_photo_url)}
                     alt={c.full_name}
                     className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
                   />

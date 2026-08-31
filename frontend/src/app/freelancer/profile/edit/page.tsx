@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { freelancerService } from "@/services/freelancer.service";
+import { getMediaUrl } from "@/lib/api";
 
 const PROFESSION_LABELS: Record<string, string> = {
   PHOTOGRAPHER: "Photographer",
@@ -417,33 +418,33 @@ export default function EditFreelancerProfile() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-white">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 md:px-8">
+    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8">
       <div className="max-w-5xl mx-auto">
 
         {/* Dashboard Header */}
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl">
           <div>
-            <h1 className="text-xl md:text-2xl font-black text-white">Edit Profile</h1>
-            <p className="text-slate-400 text-xs mt-1">Manage your professional information.</p>
+            <h1 className="text-xl md:text-2xl font-black text-text-main">Edit Profile</h1>
+            <p className="text-text-sub text-xs mt-1">Manage your professional information.</p>
           </div>
 
           <div className="mt-4 sm:mt-0 flex items-center gap-4">
             <div className="text-right">
-              <span className="text-[10px] text-slate-500 font-bold block uppercase tracking-wider">Status Visibility</span>
+              <span className="text-[10px] text-text-muted font-bold block uppercase tracking-wider">Status Visibility</span>
               <button 
                 type="button" 
                 onClick={handleTogglePublic}
                 className={`px-3 py-1.5 rounded-xl text-xs font-extrabold border mt-1 transition ${
                   isProfilePublic 
                     ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" 
-                    : "bg-slate-950 border-slate-800 text-slate-400"
+                    : "bg-background border-border-custom text-text-sub"
                 }`}
               >
                 {isProfilePublic ? "Public Profile" : "Private Profile"}
@@ -454,14 +455,14 @@ export default function EditFreelancerProfile() {
                 <button
                   type="button"
                   onClick={() => router.push("/freelancer/profile")}
-                  className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
+                  className="px-4 py-2 bg-surface-elevated hover:bg-surface-elevated text-text-main text-xs font-bold rounded-xl transition"
                 >
                   Back to My Profile
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push(`/freelancers/${profileId}`)}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition"
+                  className="px-4 py-2 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-xl transition"
                 >
                   View Public Profile
                 </button>
@@ -489,7 +490,7 @@ export default function EditFreelancerProfile() {
             <button
               onClick={() => setActiveTab("details")}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "details" ? "bg-slate-900 border border-slate-800 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "details" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Details & Description
@@ -497,7 +498,7 @@ export default function EditFreelancerProfile() {
             <button
               onClick={() => setActiveTab("skills")}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "skills" ? "bg-slate-900 border border-slate-800 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "skills" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Skills Selector ({selectedSkills.length})
@@ -505,7 +506,7 @@ export default function EditFreelancerProfile() {
             <button
               onClick={() => setActiveTab("equipment")}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "equipment" ? "bg-slate-900 border border-slate-800 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "equipment" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Equipment Manager ({equipmentList.length})
@@ -513,7 +514,7 @@ export default function EditFreelancerProfile() {
             <button
               onClick={() => setActiveTab("portfolio")}
               className={`px-4 py-3 rounded-xl text-xs font-bold text-left transition whitespace-nowrap md:w-full ${
-                activeTab === "portfolio" ? "bg-slate-900 border border-slate-800 text-white" : "text-slate-400 hover:text-slate-200"
+                activeTab === "portfolio" ? "bg-surface border border-border-custom text-text-main" : "text-text-sub hover:text-text-main"
               }`}
             >
               Portfolio Showcase ({portfolioList.length})
@@ -521,21 +522,21 @@ export default function EditFreelancerProfile() {
           </div>
 
           {/* Active Tab Panel */}
-          <div className="md:col-span-3 bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl">
+          <div className="md:col-span-3 bg-surface border border-border-custom rounded-3xl p-6 md:p-8 shadow-xl">
             
             {/* DETAILS PANEL */}
             {activeTab === "details" && (
               <form onSubmit={handleSaveDetails}>
-                <h2 className="text-lg font-bold text-white mb-6">Edit Profile Details</h2>
+                <h2 className="text-lg font-bold text-text-main mb-6">Edit Profile Details</h2>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Profile Photo</label>
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Profile Photo</label>
                     <div className="flex items-center gap-4">
-                      <div className="w-16 h-16 rounded-full overflow-hidden border border-slate-700 bg-slate-950 flex items-center justify-center">
-                        {profilePhoto ? <img src={profilePhoto} alt="Profile" className="w-full h-full object-cover" /> : <span className="text-[10px] text-slate-500">No Photo</span>}
+                      <div className="w-16 h-16 rounded-full overflow-hidden border border-border-custom bg-background flex items-center justify-center">
+                        {profilePhoto ? <img src={getMediaUrl(profilePhoto)} alt="Profile" className="w-full h-full object-cover" /> : <span className="text-[10px] text-text-muted">No Photo</span>}
                       </div>
-                      <button type="button" onClick={() => fileInputProfileRef.current?.click()} className="px-3 py-1.5 bg-slate-950 border border-slate-800 text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-800">
+                      <button type="button" onClick={() => fileInputProfileRef.current?.click()} className="px-3 py-1.5 bg-background border border-border-custom text-text-sub text-xs font-bold rounded-lg hover:bg-surface-elevated">
                         Upload
                       </button>
                       <input type="file" ref={fileInputProfileRef} className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, "profile")} />
@@ -543,12 +544,12 @@ export default function EditFreelancerProfile() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Cover Banner</label>
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Cover Banner</label>
                     <div className="flex items-center gap-4">
-                      <div className="w-24 h-16 rounded-lg overflow-hidden border border-slate-700 bg-slate-950 flex items-center justify-center">
-                        {coverPhoto ? <img src={coverPhoto} alt="Cover" className="w-full h-full object-cover" /> : <span className="text-[10px] text-slate-500">No Banner</span>}
+                      <div className="w-24 h-16 rounded-lg overflow-hidden border border-border-custom bg-background flex items-center justify-center">
+                        {coverPhoto ? <img src={getMediaUrl(coverPhoto)} alt="Cover" className="w-full h-full object-cover" /> : <span className="text-[10px] text-text-muted">No Banner</span>}
                       </div>
-                      <button type="button" onClick={() => fileInputCoverRef.current?.click()} className="px-3 py-1.5 bg-slate-950 border border-slate-800 text-slate-300 text-xs font-bold rounded-lg hover:bg-slate-800">
+                      <button type="button" onClick={() => fileInputCoverRef.current?.click()} className="px-3 py-1.5 bg-background border border-border-custom text-text-sub text-xs font-bold rounded-lg hover:bg-surface-elevated">
                         Upload
                       </button>
                       <input type="file" ref={fileInputCoverRef} className="hidden" accept="image/*" onChange={(e) => handleImageUpload(e, "cover")} />
@@ -557,76 +558,76 @@ export default function EditFreelancerProfile() {
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-xs font-semibold text-slate-400 mb-2">Professional Title</label>
-                  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-indigo-500" />
+                  <label className="block text-xs font-semibold text-text-sub mb-2">Professional Title</label>
+                  <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary" />
                 </div>
 
                 <div className="mb-6">
-                  <label className="block text-xs font-semibold text-slate-400 mb-2">Bio</label>
-                  <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none focus:border-indigo-500 resize-none" />
+                  <label className="block text-xs font-semibold text-text-sub mb-2">Bio</label>
+                  <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={4} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none focus:border-primary resize-none" />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Website (Optional)</label>
-                    <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Website (Optional)</label>
+                    <input type="url" value={website} onChange={(e) => setWebsite(e.target.value)} placeholder="https://..." className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Instagram (Optional)</label>
-                    <input type="url" value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="https://instagram.com/..." className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Instagram (Optional)</label>
+                    <input type="url" value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="https://instagram.com/..." className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Behance/Other (Optional)</label>
-                    <input type="url" value={behance} onChange={(e) => setBehance(e.target.value)} placeholder="https://behance.net/..." className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Behance/Other (Optional)</label>
+                    <input type="url" value={behance} onChange={(e) => setBehance(e.target.value)} placeholder="https://behance.net/..." className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Primary Profession</label>
-                    <select value={primaryProfession} onChange={(e) => setPrimaryProfession(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none">
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Primary Profession</label>
+                    <select value={primaryProfession} onChange={(e) => setPrimaryProfession(e.target.value)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none">
                       {Object.entries(PROFESSION_LABELS).map(([v, l]) => (
                         <option key={v} value={v}>{l}</option>
                       ))}
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Experience (Years)</label>
-                    <input type="number" value={experienceYears} onChange={(e) => setExperienceYears(parseInt(e.target.value) || 0)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Experience (Years)</label>
+                    <input type="number" value={experienceYears} onChange={(e) => setExperienceYears(parseInt(e.target.value) || 0)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">City</label>
-                    <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">City</label>
+                    <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">State</label>
-                    <input type="text" value={state} onChange={(e) => setState(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">State</label>
+                    <input type="text" value={state} onChange={(e) => setState(e.target.value)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Country</label>
-                    <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Country</label>
+                    <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Starting Price (₹)</label>
-                    <input type="number" value={startingPrice} onChange={(e) => setStartingPrice(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Starting Price (₹)</label>
+                    <input type="number" value={startingPrice} onChange={(e) => setStartingPrice(e.target.value)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Hourly Rate (₹)</label>
-                    <input type="number" value={hourlyRate} onChange={(e) => setHourlyRate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Hourly Rate (₹)</label>
+                    <input type="number" value={hourlyRate} onChange={(e) => setHourlyRate(e.target.value)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-400 mb-2">Event Rate (₹)</label>
-                    <input type="number" value={eventRate} onChange={(e) => setEventRate(e.target.value)} className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 text-sm focus:outline-none" />
+                    <label className="block text-xs font-semibold text-text-sub mb-2">Event Rate (₹)</label>
+                    <input type="number" value={eventRate} onChange={(e) => setEventRate(e.target.value)} className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-sm focus:outline-none" />
                   </div>
                 </div>
 
-                <button type="submit" disabled={saving} className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl disabled:opacity-50 transition">
+                <button type="submit" disabled={saving} className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-xl disabled:opacity-50 transition">
                   {saving ? "Saving Details..." : "Save Details"}
                 </button>
               </form>
@@ -635,9 +636,9 @@ export default function EditFreelancerProfile() {
             {/* SKILLS PANEL */}
             {activeTab === "skills" && (
               <div>
-                <h2 className="text-lg font-bold text-white mb-6">Manage Skills</h2>
+                <h2 className="text-lg font-bold text-text-main mb-6">Manage Skills</h2>
                 <div className="mb-4">
-                  <input type="text" value={skillSearch} onChange={(e) => setSkillSearch(e.target.value)} placeholder="Search skills..." className="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-slate-100 text-sm" />
+                  <input type="text" value={skillSearch} onChange={(e) => setSkillSearch(e.target.value)} placeholder="Search skills..." className="w-full bg-background border border-border-custom rounded-xl px-4 py-2 text-text-main text-sm" />
                 </div>
 
                 <div className="flex flex-wrap gap-1.5 mb-6">
@@ -645,25 +646,25 @@ export default function EditFreelancerProfile() {
                     const s = allSkills.find((item) => item.id === sid);
                     if (!s) return null;
                     return (
-                      <span key={sid} onClick={() => toggleSkill(sid)} className="px-2.5 py-1 bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 font-bold text-[10px] rounded-full cursor-pointer hover:bg-rose-500/15">
+                      <span key={sid} onClick={() => toggleSkill(sid)} className="px-2.5 py-1 bg-primary-hover border border-primary/20 text-indigo-300 font-bold text-[10px] rounded-full cursor-pointer hover:bg-rose-500/15">
                         {s.name} ×
                       </span>
                     );
                   })}
                 </div>
 
-                <div className="max-h-60 overflow-y-auto border border-slate-800 rounded-xl p-4 bg-slate-950 grid grid-cols-2 gap-2 mb-6">
+                <div className="max-h-60 overflow-y-auto border border-border-custom rounded-xl p-4 bg-background grid grid-cols-2 gap-2 mb-6">
                   {filteredSkills.map((s) => {
                     const isSelected = selectedSkills.includes(s.id);
                     return (
-                      <button key={s.id} onClick={() => toggleSkill(s.id)} className={`px-3 py-2 rounded-xl text-left text-xs font-bold border transition ${isSelected ? "bg-indigo-600 text-white border-indigo-500" : "bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200"}`}>
+                      <button key={s.id} onClick={() => toggleSkill(s.id)} className={`px-3 py-2 rounded-xl text-left text-xs font-bold border transition ${isSelected ? "bg-primary text-text-main border-primary" : "bg-surface border-border-custom text-text-sub hover:text-text-main"}`}>
                         {s.name}
                       </button>
                     );
                   })}
                 </div>
 
-                <button onClick={handleSaveSkills} disabled={saving} className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-xl transition">
+                <button onClick={handleSaveSkills} disabled={saving} className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-text-main text-xs font-bold rounded-xl transition">
                   {saving ? "Saving Skills..." : "Save Skills Selection"}
                 </button>
               </div>
@@ -672,40 +673,40 @@ export default function EditFreelancerProfile() {
             {/* EQUIPMENT PANEL */}
             {activeTab === "equipment" && (
               <div>
-                <h2 className="text-lg font-bold text-white mb-6">Manage Equipment</h2>
+                <h2 className="text-lg font-bold text-text-main mb-6">Manage Equipment</h2>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 mb-6">
+                <div className="bg-background border border-border-custom rounded-2xl p-6 mb-6">
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Type</label>
-                      <select value={eqType} onChange={(e) => setEqType(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-sm text-white">
+                      <label className="block text-xs text-text-sub mb-1">Type</label>
+                      <select value={eqType} onChange={(e) => setEqType(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-sm text-text-main">
                         {EQUIPMENT_TYPES.map((e) => <option key={e.value} value={e.value}>{e.label}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Brand</label>
-                      <input type="text" value={eqBrand} onChange={(e) => setEqBrand(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-sm text-white" />
+                      <label className="block text-xs text-text-sub mb-1">Brand</label>
+                      <input type="text" value={eqBrand} onChange={(e) => setEqBrand(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-sm text-text-main" />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Model</label>
-                      <input type="text" value={eqModel} onChange={(e) => setEqModel(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-sm text-white" />
+                      <label className="block text-xs text-text-sub mb-1">Model</label>
+                      <input type="text" value={eqModel} onChange={(e) => setEqModel(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-sm text-text-main" />
                     </div>
                   </div>
                   <div className="mb-4">
-                    <label className="block text-xs text-slate-400 mb-1">Description</label>
-                    <input type="text" value={eqDesc} onChange={(e) => setEqDesc(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-sm text-white" />
+                    <label className="block text-xs text-text-sub mb-1">Description</label>
+                    <input type="text" value={eqDesc} onChange={(e) => setEqDesc(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-sm text-text-main" />
                   </div>
-                  <button onClick={handleAddEquipment} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg">
+                  <button onClick={handleAddEquipment} className="px-4 py-2 bg-primary hover:bg-primary-hover text-xs font-bold text-text-main rounded-lg">
                     {editingEqId ? "Update Equipment" : "Add Equipment"}
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {equipmentList.map((eq) => (
-                    <div key={eq.id} className="bg-slate-950 border border-slate-850 rounded-xl p-4 flex justify-between items-start">
+                    <div key={eq.id} className="bg-background border border-border-custom rounded-xl p-4 flex justify-between items-start">
                       <div>
-                        <span className="text-[9px] bg-slate-800 border border-slate-700 px-1.5 py-0.5 rounded text-slate-400 font-bold uppercase">{eq.equipment_type}</span>
-                        <h4 className="text-sm font-bold text-white mt-1">{eq.brand} {eq.model}</h4>
+                        <span className="text-[9px] bg-surface-elevated border border-border-custom px-1.5 py-0.5 rounded text-text-sub font-bold uppercase">{eq.equipment_type}</span>
+                        <h4 className="text-sm font-bold text-text-main mt-1">{eq.brand} {eq.model}</h4>
                       </div>
                       <button onClick={() => handleDeleteEquipment(eq.id)} className="text-rose-500 hover:text-rose-400 text-xs">Delete</button>
                     </div>
@@ -717,17 +718,17 @@ export default function EditFreelancerProfile() {
             {/* PORTFOLIO PANEL */}
             {activeTab === "portfolio" && (
               <div>
-                <h2 className="text-lg font-bold text-white mb-6">Manage Portfolio Items</h2>
+                <h2 className="text-lg font-bold text-text-main mb-6">Manage Portfolio Items</h2>
 
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 mb-6">
+                <div className="bg-background border border-border-custom rounded-2xl p-6 mb-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Title</label>
-                      <input type="text" value={portTitle} onChange={(e) => setPortTitle(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-white" />
+                      <label className="block text-xs text-text-sub mb-1">Title</label>
+                      <input type="text" value={portTitle} onChange={(e) => setPortTitle(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-sm text-text-main" />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Category</label>
-                      <select value={portCategory} onChange={(e) => setPortCategory(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-white">
+                      <label className="block text-xs text-text-sub mb-1">Category</label>
+                      <select value={portCategory} onChange={(e) => setPortCategory(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-sm text-text-main">
                         {PORTFOLIO_CATEGORIES.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
                       </select>
                     </div>
@@ -735,8 +736,8 @@ export default function EditFreelancerProfile() {
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                     <div>
-                      <label className="block text-xs text-slate-400 mb-1">Media Type</label>
-                      <select value={portMediaType} onChange={(e) => setPortMediaType(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-white">
+                      <label className="block text-xs text-text-sub mb-1">Media Type</label>
+                      <select value={portMediaType} onChange={(e) => setPortMediaType(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-sm text-text-main">
                         <option value="IMAGE">Image File</option>
                         <option value="VIDEO">Video File</option>
                         <option value="EXTERNAL_VIDEO">External Video URL</option>
@@ -745,35 +746,35 @@ export default function EditFreelancerProfile() {
                     <div>
                       {portMediaType === "EXTERNAL_VIDEO" ? (
                         <div>
-                          <label className="block text-xs text-slate-400 mb-1">URL</label>
-                          <input type="text" value={portMediaUrl} onChange={(e) => setPortMediaUrl(e.target.value)} className="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-sm text-white" />
+                          <label className="block text-xs text-text-sub mb-1">URL</label>
+                          <input type="text" value={portMediaUrl} onChange={(e) => setPortMediaUrl(e.target.value)} className="w-full bg-surface border border-border-custom rounded-lg px-3 py-1.5 text-sm text-text-main" />
                         </div>
                       ) : (
                         <div>
-                          <label className="block text-xs text-slate-400 mb-1">Choose File</label>
-                          <button type="button" onClick={() => fileInputPortRef.current?.click()} className="px-3 py-1.5 bg-slate-900 border border-slate-800 text-xs text-slate-300 font-bold rounded-lg mt-1">Upload File</button>
-                          <span className="text-[10px] text-slate-500 block truncate mt-1">{portMediaUrl}</span>
+                          <label className="block text-xs text-text-sub mb-1">Choose File</label>
+                          <button type="button" onClick={() => fileInputPortRef.current?.click()} className="px-3 py-1.5 bg-surface border border-border-custom text-xs text-text-sub font-bold rounded-lg mt-1">Upload File</button>
+                          <span className="text-[10px] text-text-muted block truncate mt-1">{portMediaUrl}</span>
                           <input type="file" ref={fileInputPortRef} className="hidden" accept={portMediaType === "IMAGE" ? "image/*" : "video/*"} onChange={(e) => handleImageUpload(e, "portfolio")} />
                         </div>
                       )}
                     </div>
                   </div>
 
-                  <button onClick={handleAddPortfolio} className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg">
+                  <button onClick={handleAddPortfolio} className="px-4 py-2 bg-primary hover:bg-primary-hover text-xs font-bold text-text-main rounded-lg">
                     Add Work
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {portfolioList.map((item) => (
-                    <div key={item.id} className="bg-slate-950 border border-slate-850 rounded-xl overflow-hidden flex flex-col justify-between">
-                      <div className="aspect-video bg-slate-900 flex items-center justify-center overflow-hidden">
-                        {item.media_type === "IMAGE" ? <img src={item.media_url} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] text-slate-500">{item.media_type}</span>}
+                    <div key={item.id} className="bg-background border border-border-custom rounded-xl overflow-hidden flex flex-col justify-between">
+                      <div className="aspect-video bg-surface flex items-center justify-center overflow-hidden">
+                        {item.media_type === "IMAGE" ? <img src={getMediaUrl(item.media_url)} alt="" className="w-full h-full object-cover" /> : <span className="text-[10px] text-text-muted">{item.media_type}</span>}
                       </div>
                       <div className="p-3">
-                        <h4 className="text-xs font-bold text-white truncate">{item.title}</h4>
-                        <div className="flex justify-between items-center mt-3 pt-2 border-t border-slate-900 text-[10px]">
-                          <button onClick={() => handleToggleFeatured(item.id)} className={item.is_featured ? "text-amber-400 font-bold" : "text-slate-500"}>
+                        <h4 className="text-xs font-bold text-text-main truncate">{item.title}</h4>
+                        <div className="flex justify-between items-center mt-3 pt-2 border-t border-border-custom text-[10px]">
+                          <button onClick={() => handleToggleFeatured(item.id)} className={item.is_featured ? "text-amber-400 font-bold" : "text-text-muted"}>
                             {item.is_featured ? "Featured" : "Feature"}
                           </button>
                           <button onClick={() => handleDeletePortfolio(item.id)} className="text-rose-500">Delete</button>

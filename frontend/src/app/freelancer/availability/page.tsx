@@ -154,20 +154,20 @@ export default function FreelancerAvailabilityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center text-white">
-        <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 md:px-8 font-sans">
+    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
         
         {/* Header Block */}
-        <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
-          <h1 className="text-xl md:text-2xl font-black text-white">Fulfillment & Availability Settings</h1>
-          <p className="text-slate-400 text-xs mt-1">Configure your weekly standard availability hours and add override holidays or custom working slots.</p>
+        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+          <h1 className="text-xl md:text-2xl font-black text-text-main">Fulfillment & Availability Settings</h1>
+          <p className="text-text-sub text-xs mt-1">Configure your weekly standard availability hours and add override holidays or custom working slots.</p>
         </div>
 
         {errorMsg && (
@@ -185,23 +185,23 @@ export default function FreelancerAvailabilityPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Weekly Schedule Editor */}
-          <div className="lg:col-span-2 bg-slate-900 border border-slate-800 rounded-3xl p-6 md:p-8 shadow-xl space-y-6">
-            <h2 className="text-base font-black text-white">Standard Weekly Schedule</h2>
-            <p className="text-xs text-slate-400">Set the hours during which clients are allowed to book on-site or hybrid listings.</p>
+          <div className="lg:col-span-2 bg-surface border border-border-custom rounded-3xl p-6 md:p-8 shadow-xl space-y-6">
+            <h2 className="text-base font-black text-text-main">Standard Weekly Schedule</h2>
+            <p className="text-xs text-text-sub">Set the hours during which clients are allowed to book on-site or hybrid listings.</p>
 
             <form onSubmit={handleSaveWeeklySchedule} className="space-y-4 pt-4">
               {DAYS_OF_WEEK.map(day => {
                 const dayData = weeklySchedules[day] || { is_available: false, start_time: "09:00", end_time: "18:00" };
                 return (
-                  <div key={day} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-slate-950 rounded-2xl border border-slate-850">
+                  <div key={day} className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 bg-background rounded-2xl border border-border-custom">
                     <div className="flex items-center gap-3 w-32">
                       <input
                         type="checkbox"
                         checked={dayData.is_available}
                         onChange={(e) => handleWeeklyFieldChange(day, "is_available", e.target.checked)}
-                        className="rounded bg-slate-900 border-slate-800 text-indigo-600 focus:ring-0 focus:ring-offset-0"
+                        className="rounded bg-surface border-border-custom text-primary focus:ring-0 focus:ring-offset-0"
                       />
-                      <span className="text-xs font-bold text-slate-200 capitalize">{day.toLowerCase()}</span>
+                      <span className="text-xs font-bold text-text-main capitalize">{day.toLowerCase()}</span>
                     </div>
 
                     {dayData.is_available ? (
@@ -210,18 +210,18 @@ export default function FreelancerAvailabilityPage() {
                           type="time"
                           value={dayData.start_time}
                           onChange={(e) => handleWeeklyFieldChange(day, "start_time", e.target.value)}
-                          className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none"
+                          className="bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-text-main focus:outline-none"
                         />
-                        <span className="text-slate-500 font-medium">to</span>
+                        <span className="text-text-muted font-medium">to</span>
                         <input
                           type="time"
                           value={dayData.end_time}
                           onChange={(e) => handleWeeklyFieldChange(day, "end_time", e.target.value)}
-                          className="bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-slate-100 focus:outline-none"
+                          className="bg-surface border border-border-custom rounded-lg px-2.5 py-1.5 text-text-main focus:outline-none"
                         />
                       </div>
                     ) : (
-                      <span className="text-[10px] font-extrabold uppercase text-slate-500 tracking-wider">
+                      <span className="text-[10px] font-extrabold uppercase text-text-muted tracking-wider">
                         Not available
                       </span>
                     )}
@@ -232,7 +232,7 @@ export default function FreelancerAvailabilityPage() {
               <button
                 type="submit"
                 disabled={weeklySaving}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-indigo-600/30 text-white text-xs font-bold rounded-xl transition"
+                className="w-full py-3 bg-primary hover:bg-primary-hover disabled:bg-primary text-text-main text-xs font-bold rounded-xl transition"
               >
                 {weeklySaving ? "Saving..." : "Save Weekly Schedule"}
               </button>
@@ -243,29 +243,29 @@ export default function FreelancerAvailabilityPage() {
           <div className="space-y-8">
             
             {/* Add Date Override */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-              <h3 className="text-sm font-bold text-white">Add Date Override</h3>
-              <p className="text-[11px] text-slate-400">Block custom dates as unavailable or override with custom hours.</p>
+            <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-4">
+              <h3 className="text-sm font-bold text-text-main">Add Date Override</h3>
+              <p className="text-[11px] text-text-sub">Block custom dates as unavailable or override with custom hours.</p>
 
               <form onSubmit={handleAddOverride} className="space-y-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Select Date</label>
+                  <label className="block text-[10px] font-bold text-text-sub mb-1 uppercase tracking-wider">Select Date</label>
                   <input
                     type="date"
                     required
                     min={new Date().toISOString().split("T")[0]}
                     value={overrideDate}
                     onChange={(e) => setOverrideDate(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-2.5 text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-xs focus:outline-none focus:border-primary"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Availability Type</label>
+                  <label className="block text-[10px] font-bold text-text-sub mb-1 uppercase tracking-wider">Availability Type</label>
                   <select
                     value={overrideType}
                     onChange={(e) => setOverrideType(e.target.value as any)}
-                    className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-2.5 text-slate-100 text-xs focus:outline-none"
+                    className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-xs focus:outline-none"
                   >
                     <option value="UNAVAILABLE">Unavailable / Holiday</option>
                     <option value="BLOCKED">Blocked / Private</option>
@@ -276,41 +276,41 @@ export default function FreelancerAvailabilityPage() {
                 {overrideType === "AVAILABLE" && (
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-400 mb-1">Start Time</label>
+                      <label className="block text-[10px] font-bold text-text-sub mb-1">Start Time</label>
                       <input
                         type="time"
                         value={overrideStart}
                         onChange={(e) => setOverrideStart(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-slate-100"
+                        className="w-full bg-background border border-border-custom rounded-xl px-3 py-2 text-text-main"
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-bold text-slate-400 mb-1">End Time</label>
+                      <label className="block text-[10px] font-bold text-text-sub mb-1">End Time</label>
                       <input
                         type="time"
                         value={overrideEnd}
                         onChange={(e) => setOverrideEnd(e.target.value)}
-                        className="w-full bg-slate-950 border border-slate-850 rounded-xl px-3 py-2 text-slate-100"
+                        className="w-full bg-background border border-border-custom rounded-xl px-3 py-2 text-text-main"
                       />
                     </div>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">Note (Optional)</label>
+                  <label className="block text-[10px] font-bold text-text-sub mb-1 uppercase tracking-wider">Note (Optional)</label>
                   <input
                     type="text"
                     placeholder="e.g. Wedding shoot block"
                     value={overrideNote}
                     onChange={(e) => setOverrideNote(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-850 rounded-xl px-4 py-2.5 text-slate-100 text-xs focus:outline-none focus:border-indigo-500"
+                    className="w-full bg-background border border-border-custom rounded-xl px-4 py-2.5 text-text-main text-xs focus:outline-none focus:border-primary"
                   />
                 </div>
 
                 <button
                   type="submit"
                   disabled={overrideAdding}
-                  className="w-full py-2.5 bg-slate-950 hover:bg-slate-900 border border-slate-800 text-slate-200 text-xs font-bold rounded-xl transition"
+                  className="w-full py-2.5 bg-background hover:bg-surface border border-border-custom text-text-main text-xs font-bold rounded-xl transition"
                 >
                   {overrideAdding ? "Adding..." : "Add Override"}
                 </button>
@@ -318,21 +318,21 @@ export default function FreelancerAvailabilityPage() {
             </div>
 
             {/* List overrides */}
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 shadow-xl space-y-4">
-              <h3 className="text-sm font-bold text-white">Active Date Overrides</h3>
-              <div className="max-h-60 overflow-y-auto divide-y divide-slate-850 pr-2 space-y-3">
+            <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-4">
+              <h3 className="text-sm font-bold text-text-main">Active Date Overrides</h3>
+              <div className="max-h-60 overflow-y-auto divide-y divide-border-custom pr-2 space-y-3">
                 {overrides.map(override => (
                   <div key={override.id} className="pt-3 flex justify-between items-start text-xs gap-3">
                     <div>
-                      <span className="font-bold text-slate-100 block">
+                      <span className="font-bold text-text-main block">
                         {new Date(override.date).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })}
                       </span>
-                      <span className="text-[10px] text-slate-500 uppercase font-black block mt-0.5">
+                      <span className="text-[10px] text-text-muted uppercase font-black block mt-0.5">
                         {override.availability_type} 
                         {override.availability_type === "AVAILABLE" && ` (${override.start_time.substring(0,5)} - ${override.end_time.substring(0,5)})`}
                       </span>
                       {override.note && (
-                        <p className="text-[10px] text-slate-400 mt-1 italic">Note: {override.note}</p>
+                        <p className="text-[10px] text-text-sub mt-1 italic">Note: {override.note}</p>
                       )}
                     </div>
                     <button
@@ -345,7 +345,7 @@ export default function FreelancerAvailabilityPage() {
                 ))}
 
                 {overrides.length === 0 && (
-                  <div className="py-6 text-center text-xs text-slate-500">
+                  <div className="py-6 text-center text-xs text-text-muted">
                     No custom date overrides configured.
                   </div>
                 )}

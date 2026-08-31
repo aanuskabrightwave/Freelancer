@@ -11,6 +11,7 @@ from app.repositories.payment_repository import PaymentRepository
 from app.repositories.booking_repository import BookingRepository
 from app.schemas.payment import (
     PaymentOrderResponse,
+    PaymentEligibilityResponse,
     PaymentVerifyPayload,
     PaymentSummaryResponse,
     PaymentResponse
@@ -22,6 +23,15 @@ from app.schemas.refund import (
 )
 
 router = APIRouter()
+
+
+@router.get("/client/bookings/{booking_id}/payment/eligibility", response_model=PaymentEligibilityResponse, summary="Get payment eligibility for checkout")
+def get_payment_eligibility(
+    booking_id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    return PaymentService.get_payment_eligibility(db, current_user, booking_id)
 
 
 @router.post("/client/bookings/{booking_id}/payment/order", response_model=PaymentOrderResponse, status_code=status.HTTP_201_CREATED, summary="Create payment gateway order")
@@ -114,3 +124,11 @@ def request_refund(
     db: Session = Depends(get_db)
 ):
     return RefundService.request_client_refund(db, current_user, booking_id, payload.reason)
+
+
+@router.post("/webhooks/razorpay", summary="Process Razorpay webhook")
+async def razorpay_webhook(request: Request, db: Session = Depends(get_db)):
+    body = await request.body()
+    signature = request.headers.get("X-Razorpay-Signature", "")
+    PaymentService.process_webhook(db, body, signature)
+    return {"status": "success"}

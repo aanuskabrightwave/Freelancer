@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { getMediaUrl } from "@/lib/api";
 import { freelancerService } from "@/services/freelancer.service";
 import Container from "@/components/ui/Container";
 
@@ -134,7 +135,7 @@ export default function PublicFreelancerDirectory() {
                   <div className="relative aspect-[4/3] bg-surface overflow-hidden flex items-center justify-center border-b border-border-custom/50">
                     {f.profile_photo_url ? (
                       <img 
-                        src={f.profile_photo_url} 
+                        src={getMediaUrl(f.profile_photo_url)} 
                         alt={f.full_name} 
                         className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
                       />
