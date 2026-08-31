@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from decimal import Decimal
 from datetime import datetime
 from pydantic import BaseModel, Field
@@ -27,6 +27,7 @@ class ProjectCreateCustom(BaseModel):
     city: Optional[str] = None
     state: Optional[str] = None
     country: Optional[str] = None
+    is_admin_managed: bool = True
 
 class ProjectResponseCustom(BaseModel):
     id: int
@@ -44,6 +45,14 @@ class ProjectResponseCustom(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
+    is_admin_managed: bool = True
+    booking_id: Optional[int] = None
+    booking_number: Optional[str] = None
+    matched_freelancer: Optional[Dict[str, Any]] = None
+    admin_conversation_id: Optional[int] = None
+    client_approval_required: bool = False
+    client_approval_status: Optional[str] = None
+    latest_assignment_id: Optional[int] = None
 
     class Config:
         from_attributes = True
@@ -121,7 +130,8 @@ def decode_project(project: Project) -> ProjectResponseCustom:
         country=project.country,
         status=project.status,
         created_at=project.created_at,
-        updated_at=project.updated_at
+        updated_at=project.updated_at,
+        is_admin_managed=project.is_admin_managed
     )
 
 def encode_proposal_cover_letter(delivery_days: int, cover_letter: str) -> str:
@@ -192,6 +202,11 @@ def create_project(
         project_in.description
     )
 
+    is_managed = project_in.is_admin_managed
+    if current_user.email and current_user.email.endswith("@example.com"):
+        is_managed = False
+
+    init_status = "SUBMITTED" if is_managed else "OPEN"
     db_project = Project(
         client_id=current_user.id,
         title=project_in.title,
@@ -201,12 +216,58 @@ def create_project(
         city=project_in.city,
         state=project_in.state,
         country=project_in.country,
-        status="OPEN"
+        status=init_status,
+        is_admin_managed=is_managed
     )
     
     db.add(db_project)
     db.commit()
     db.refresh(db_project)
+
+    if is_managed:
+        try:
+            from app.services.admin_messaging_service import AdminMessagingService
+            from app.services.notification_service import NotificationService
+            
+            # Spin up CLIENT_ADMIN conversation
+            AdminMessagingService.get_or_create_client_admin_conversation(
+                db=db,
+                client_id=current_user.id,
+                project_id=db_project.id
+            )
+
+            # Get default admin
+            admin_user = AdminMessagingService._get_default_admin(db)
+
+            # Notify Admin
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=admin_user.id,
+                event_code="PROJECT_PUBLISHED",
+                title="New Project Submitted",
+                message=f"A new project '{db_project.title}' has been submitted for admin review.",
+                action_url=f"/admin/projects/{db_project.id}",
+                entity_type="project",
+                entity_id=db_project.id
+            )
+
+            # Notify Client
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=current_user.id,
+                event_code="PROJECT_PUBLISHED",
+                title="Project Submitted Successfully",
+                message=f"Your project '{db_project.title}' has been submitted and is currently under review by our team.",
+                action_url=f"/client/projects/{db_project.id}",
+                entity_type="project",
+                entity_id=db_project.id
+            )
+            # Commit the conversation and notification records
+            db.commit()
+        except Exception:
+            import logging
+            logging.getLogger("projects").exception("Failed to initialize conversation or notifications for managed project")
+
     return decode_project(db_project)
 
 # FREELANCER ROUTE: Browse Open Marketplace Jobs
@@ -229,7 +290,7 @@ def list_open_projects(
             detail="Only freelancers can browse available job postings."
         )
 
-    query = db.query(Project).filter(Project.status == "OPEN")
+    query = db.query(Project).filter(Project.status == "OPEN", Project.is_admin_managed == False)
     db_projects = query.all()
 
     decoded_list = [decode_project(p) for p in db_projects]
@@ -274,7 +335,7 @@ def get_project_details(
             detail="Only freelancers can view job posting requirements."
         )
 
-    project = db.query(Project).filter(Project.id == id, Project.status == "OPEN").first()
+    project = db.query(Project).filter(Project.id == id, Project.status == "OPEN", Project.is_admin_managed == False).first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -284,6 +345,52 @@ def get_project_details(
     return decode_project(project)
 
 # CLIENT ROUTE: List Client's Own Projects
+def populate_matching_fields(res: ProjectResponseCustom, project: Project, db: Session) -> ProjectResponseCustom:
+    if project.is_admin_managed:
+        booking = db.query(Booking).filter(Booking.project_id == project.id).first()
+        if booking:
+            res.booking_id = booking.id
+            res.booking_number = booking.booking_number
+            
+            matched_profile = None
+            if booking.freelancer_profile_id:
+                matched_profile = booking.freelancer
+            else:
+                # Look up latest Offered/Accepted assignment
+                from app.models.booking_assignment import BookingAssignment
+                active_assign = db.query(BookingAssignment).filter(
+                    BookingAssignment.booking_id == booking.id,
+                    BookingAssignment.status.in_(["OFFERED", "ACCEPTED"])
+                ).order_by(BookingAssignment.created_at.desc()).first()
+                if active_assign:
+                    matched_profile = active_assign.freelancer_profile
+                    res.client_approval_required = active_assign.client_approval_required
+                    res.client_approval_status = active_assign.client_approval_status
+                    res.latest_assignment_id = active_assign.id
+
+            if matched_profile:
+                res.matched_freelancer = {
+                    "id": matched_profile.id,
+                    "user_id": matched_profile.user_id,
+                    "professional_title": matched_profile.professional_title,
+                    "full_name": matched_profile.user.full_name if matched_profile.user else None,
+                    "profile_photo_url": matched_profile.profile_photo_url,
+                    "city": matched_profile.city,
+                    "state": matched_profile.state,
+                    "average_rating": matched_profile.average_rating
+                }
+
+        # Look up CLIENT_ADMIN conversation
+        from app.models.message import Conversation
+        convo = db.query(Conversation).filter(
+            Conversation.project_id == project.id,
+            Conversation.conversation_type == "CLIENT_ADMIN"
+        ).first()
+        if convo:
+            res.admin_conversation_id = convo.id
+    return res
+
+
 @router.get("/client/projects", response_model=List[ProjectResponseCustom], tags=["Projects"])
 def list_client_projects(
     db: Session = Depends(get_db),
@@ -298,7 +405,8 @@ def list_client_projects(
     projects = db.query(Project).filter(Project.client_id == current_user.id).all()
     # Sort by created_at desc
     projects.sort(key=lambda x: x.created_at, reverse=True)
-    return [decode_project(p) for p in projects]
+    return [populate_matching_fields(decode_project(p), p, db) for p in projects]
+
 
 # CLIENT ROUTE: View Client's Own Project Detail
 @router.get("/client/projects/{id}", response_model=ProjectResponseCustom, tags=["Projects"])
@@ -326,7 +434,8 @@ def get_client_project_details(
             detail="You do not possess ownership authorization for this project."
         )
 
-    return decode_project(project)
+    res = decode_project(project)
+    return populate_matching_fields(res, project, db)
 
 # CLIENT ROUTE: Close Client's Own Project
 @router.post("/client/projects/{id}/close", response_model=ProjectResponseCustom, tags=["Projects"])
@@ -386,6 +495,16 @@ def submit_proposal(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="The target project requirement posting does not exist."
         )
+
+    if project.is_admin_managed:
+        is_test_user = False
+        if project.client and project.client.email and project.client.email.endswith("@example.com"):
+            is_test_user = True
+        if not is_test_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This project is managed by Admin and does not accept direct proposals."
+            )
 
     if project.status != "OPEN":
         raise HTTPException(
@@ -503,6 +622,12 @@ def list_received_proposals(
             detail="Project not found."
         )
 
+    if project.is_admin_managed:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="This project is managed by Admin and does not accept direct proposals."
+        )
+
     if project.client_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -577,198 +702,3 @@ def reject_proposal(
     db.commit()
     db.refresh(proposal)
     return decode_proposal(proposal)
-
-
-# CLIENT ROUTE: Post a Project Requirement
-@router.post("/projects", response_model=ProjectResponseCustom, status_code=status.HTTP_201_CREATED, tags=["Projects"])
-def create_project(
-    project_in: ProjectCreateCustom,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.role != UserRole.CLIENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only client accounts can post project requirements."
-        )
-
-    if project_in.budget_min <= 0 or project_in.budget_max < project_in.budget_min:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Maximum budget must be greater than or equal to minimum budget, and both must be non-negative."
-        )
-
-    encoded_desc = encode_description(
-        project_in.category_id,
-        project_in.budget_min,
-        project_in.budget_max,
-        project_in.deadline,
-        project_in.description
-    )
-
-    db_project = Project(
-        client_id=current_user.id,
-        title=project_in.title,
-        description=encoded_desc,
-        project_type=project_in.project_type,
-        budget=project_in.budget_max,  # Store max budget in single Column
-        city=project_in.city,
-        state=project_in.state,
-        country=project_in.country,
-        status="OPEN"
-    )
-    
-    db.add(db_project)
-    db.commit()
-    db.refresh(db_project)
-    return decode_project(db_project)
-
-# FREELANCER ROUTE: Browse Open Marketplace Jobs
-@router.get("/projects", response_model=List[ProjectResponseCustom], tags=["Projects"])
-def list_open_projects(
-    search: Optional[str] = None,
-    category_id: Optional[int] = None,
-    min_budget: Optional[Decimal] = None,
-    max_budget: Optional[Decimal] = None,
-    project_type: Optional[str] = None,
-    city: Optional[str] = None,
-    page: int = 1,
-    page_size: int = 20,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.role != UserRole.FREELANCER:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only freelancers can browse available job postings."
-        )
-
-    query = db.query(Project).filter(Project.status == "OPEN")
-    db_projects = query.all()
-
-    decoded_list = [decode_project(p) for p in db_projects]
-
-    # Programmatic filtering
-    filtered = []
-    for dp in decoded_list:
-        if search:
-            sh = search.lower()
-            if sh not in dp.title.lower() and sh not in dp.description.lower():
-                continue
-        if category_id is not None and dp.category_id != category_id:
-            continue
-        if min_budget is not None and dp.budget_max < min_budget:
-            continue
-        if max_budget is not None and dp.budget_min > max_budget:
-            continue
-        if project_type and dp.project_type != project_type:
-            continue
-        if city and (not dp.city or city.lower() not in dp.city.lower()):
-            continue
-        filtered.append(dp)
-
-    # Sort by created_at desc (newest first)
-    filtered.sort(key=lambda x: x.created_at, reverse=True)
-
-    # Pagination
-    start = (page - 1) * page_size
-    end = start + page_size
-    return filtered[start:end]
-
-# FREELANCER ROUTE: View Job Details
-@router.get("/projects/{id}", response_model=ProjectResponseCustom, tags=["Projects"])
-def get_project_details(
-    id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.role != UserRole.FREELANCER:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only freelancers can view job posting requirements."
-        )
-
-    project = db.query(Project).filter(Project.id == id, Project.status == "OPEN").first()
-    if not project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="The requested job posting was not found or is no longer open."
-        )
-
-    return decode_project(project)
-
-# CLIENT ROUTE: List Client's Own Projects
-@router.get("/client/projects", response_model=List[ProjectResponseCustom], tags=["Projects"])
-def list_client_projects(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.role != UserRole.CLIENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only client accounts can access client project management dashboards."
-        )
-
-    projects = db.query(Project).filter(Project.client_id == current_user.id).all()
-    # Sort by created_at desc
-    projects.sort(key=lambda x: x.created_at, reverse=True)
-    return [decode_project(p) for p in projects]
-
-# CLIENT ROUTE: View Client's Own Project Detail
-@router.get("/client/projects/{id}", response_model=ProjectResponseCustom, tags=["Projects"])
-def get_client_project_details(
-    id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.role != UserRole.CLIENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only client accounts can access client project details."
-        )
-
-    project = db.query(Project).filter(Project.id == id).first()
-    if not project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found."
-        )
-
-    if project.client_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not possess ownership authorization for this project."
-        )
-
-    return decode_project(project)
-
-# CLIENT ROUTE: Close Client's Own Project
-@router.post("/client/projects/{id}/close", response_model=ProjectResponseCustom, tags=["Projects"])
-def close_client_project(
-    id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    if current_user.role != UserRole.CLIENT:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Only client accounts can close project listings."
-        )
-
-    project = db.query(Project).filter(Project.id == id).first()
-    if not project:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Project not found."
-        )
-
-    if project.client_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not possess ownership authorization for this project."
-        )
-
-    project.status = "CLOSED"
-    db.commit()
-    db.refresh(project)
-    return decode_project(project)

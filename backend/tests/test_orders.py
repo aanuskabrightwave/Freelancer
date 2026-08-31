@@ -5,6 +5,7 @@ from app.models.freelancer_profile import FreelancerProfile
 from app.models.project import Project, Proposal
 from app.models.booking import Booking, BookingStatus, BookingSourceType
 from app.core.security import create_token
+from app.models.booking_assignment import BookingAssignment
 from tests.test_bookings import create_test_freelancer, create_test_client
 
 
@@ -81,10 +82,19 @@ def test_proposal_award_and_booking_lifecycle(client, db):
     assert accept_res.status_code == 201
     booking_data = accept_res.json()
     assert booking_data["source_type"] == "PROJECT"
-    assert booking_data["status"] == "CONFIRMED"
+    assert booking_data["status"] == "PENDING_CONFIRMATION"
     assert booking_data["agreed_amount"] == "4500.00"
     assert booking_data["booking_number"].startswith("CM-")
     booking_id = booking_data["id"]
+
+    # Freelancer accepts assignment to transition status to CONFIRMED
+    assignment = db.query(BookingAssignment).filter(BookingAssignment.booking_id == booking_id).first()
+    assert assignment is not None
+    accept_assign_res = client.post(
+        f"/api/v1/freelancer/assignments/{assignment.id}/accept",
+        headers=free_headers
+    )
+    assert accept_assign_res.status_code == 200
 
     # Re-verify Project & Proposal status
     db.refresh(project)

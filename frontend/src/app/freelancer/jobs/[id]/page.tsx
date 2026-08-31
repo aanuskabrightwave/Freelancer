@@ -14,6 +14,10 @@ export default function FreelancerJobDetailPage() {
   const { id } = useParams();
   const router = useRouter();
 
+  useEffect(() => {
+    router.replace("/freelancer/bookings");
+  }, [router]);
+
   const [project, setProject] = useState<any | null>(null);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, CheckCircle } from "lucide-react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { projectService } from "@/services/project.service";
@@ -83,15 +83,40 @@ export default function PostProjectRequirementPage() {
       };
 
       await projectService.createProject(payload);
-      router.push("/client/projects");
+      setShowSuccessModal(true);
     } catch (err: any) {
       setErrorMsg(err.response?.data?.detail || "Failed to publish project brief. Please try again.");
       setSubmitting(false);
     }
   };
 
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+
   return (
     <Container className="py-8 max-w-3xl">
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/60 backdrop-blur-xs">
+          <div className="bg-surface border border-border-custom max-w-sm w-full rounded-3xl p-6 shadow-2xl space-y-4 font-sans text-center">
+            <div className="w-12 h-12 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
+              <CheckCircle className="w-6 h-6" />
+            </div>
+            <h3 className="font-extrabold text-sm text-text-main uppercase tracking-wider">Project Submitted</h3>
+            <p className="text-xs text-text-sub leading-relaxed">
+              Our team will review your requirement and begin matching a suitable professional.
+            </p>
+            <button
+              onClick={() => {
+                setShowSuccessModal(false);
+                router.push("/client/projects");
+              }}
+              className="w-full py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-xl transition cursor-pointer"
+            >
+              Go to My Projects
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="space-y-6">
         {/* Back Link */}
         <Link href="/client/projects" className="inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-text-sub hover:text-text-main transition">

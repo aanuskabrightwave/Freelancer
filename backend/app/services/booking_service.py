@@ -21,42 +21,104 @@ from app.services.availability_service import AvailabilityService
 class BookingService:
     @staticmethod
     def create_booking(db: Session, client_id: int, booking_data: dict) -> Booking:
-        # 1. Retrieve the service listing
-        service_id = booking_data.get("service_id")
-        service = ServiceRepository.get_service_by_id(db, service_id)
-        if not service or service.status != ServiceStatus.PUBLISHED:
+        # Enforce that only clients can submit booking requests
+        client_user = db.query(User).filter(User.id == client_id).first()
+        if not client_user or client_user.role != UserRole.CLIENT:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Service listing not found or is currently unavailable."
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only CLIENT users can submit booking requests."
             )
 
-        # 2. Retrieve and validate the chosen package
-        package_id = booking_data.get("service_package_id")
-        package = None
-        for p in service.packages:
-            if p.id == package_id:
-                package = p
-                break
+        # 1. Determine flow (Service vs Direct Profile Booking)
+        service_id = booking_data.get("service_id")
+        selected_freelancer_profile_id = booking_data.get("selected_freelancer_profile_id")
         
-        if not package:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="The chosen package is not available for this service."
-            )
+        service = None
+        package = None
+        
+        if service_id:
+            service = ServiceRepository.get_service_by_id(db, service_id)
+            if not service or service.status != ServiceStatus.PUBLISHED:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Service listing not found or is currently unavailable."
+                )
+
+            # Retrieve and validate the chosen package
+            package_id = booking_data.get("service_package_id")
+            for p in service.packages:
+                if p.id == package_id:
+                    package = p
+                    break
+            
+            if not package:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="The chosen package is not available for this service."
+                )
+
+            freelancer_profile_id = service.freelancer_profile_id
+            if selected_freelancer_profile_id and selected_freelancer_profile_id != freelancer_profile_id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Service/package does not belong to the selected freelancer."
+                )
+            selected_freelancer_profile_id = freelancer_profile_id
+        else:
+            if not selected_freelancer_profile_id:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="selected_freelancer_profile_id is required for direct bookings."
+                )
+            # Direct booking validations
+            budget = booking_data.get("budget")
+            if budget is None:
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Budget is required for direct bookings.")
+            try:
+                budget_dec = Decimal(str(budget))
+                if budget_dec <= 0:
+                    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Budget must be greater than zero.")
+            except (ValueError, TypeError, ArithmeticError):
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid budget format.")
+
+            req_desc = booking_data.get("requirement_description") or booking_data.get("description")
+            if not req_desc or not req_desc.strip():
+                raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Requirement description is required for direct bookings.")
 
         # 3. Retrieve freelancer profile
-        freelancer_profile = FreelancerRepository.get_profile_by_id(db, service.freelancer_profile_id)
+        freelancer_profile = FreelancerRepository.get_profile_by_id(db, selected_freelancer_profile_id)
         if not freelancer_profile:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Freelancer profile not found."
             )
 
-        # 4. Enforce client role cannot be the same user as the freelancer
+        # 4. Enforce validations
+        freelancer_user = freelancer_profile.user
+        if not freelancer_user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Freelancer user account not found."
+            )
+        if freelancer_user.role != UserRole.FREELANCER:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Selected user is not a freelancer."
+            )
+        if not freelancer_user.is_active:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Freelancer account is inactive."
+            )
+        if not freelancer_profile.is_profile_public:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Freelancer profile is not bookable."
+            )
         if freelancer_profile.user_id == client_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="You cannot book your own service listing."
+                detail="You cannot book yourself."
             )
 
         # 5. Extract scheduling date and time objects
@@ -81,6 +143,23 @@ class BookingService:
                 detail="Cannot book appointments in the past."
             )
 
+        # 6. Duplicate Booking Protection (last 30 seconds check)
+        from datetime import timedelta
+        time_limit = datetime.now() - timedelta(seconds=30)
+        recent_booking = db.query(Booking).filter(
+            Booking.client_id == client_id,
+            Booking.selected_freelancer_profile_id == selected_freelancer_profile_id,
+            Booking.scheduled_date == scheduled_date_val
+        ).order_by(Booking.created_at.desc()).first()
+        
+        if recent_booking:
+            created_at_naive = recent_booking.created_at.replace(tzinfo=None) if recent_booking.created_at.tzinfo else recent_booking.created_at
+            if (datetime.now() - created_at_naive).total_seconds() < 30:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="A similar booking request was recently submitted. Please wait a moment before trying again."
+                )
+
         start_t = None
         if booking_data.get("start_time"):
             start_t = datetime.strptime(booking_data["start_time"], "%H:%M").time() if isinstance(booking_data["start_time"], str) else booking_data["start_time"]
@@ -93,8 +172,8 @@ class BookingService:
         else:
             end_t = time(18, 0) # default fallback
 
-        # 6. For ON_SITE/HYBRID bookings, check schedule conflicts
-        booking_type_val = service.service_type.value if hasattr(service.service_type, "value") else str(service.service_type)
+        # 7. For ON_SITE/HYBRID bookings, check schedule conflicts
+        booking_type_val = service.service_type.value if service and hasattr(service.service_type, "value") else str(service.service_type) if service else booking_data.get("booking_type", "REMOTE")
         if booking_type_val in ["ON_SITE", "HYBRID"]:
             availability = AvailabilityService.check_availability(
                 db, freelancer_profile.id, scheduled_date_val, start_t, end_t
@@ -105,21 +184,23 @@ class BookingService:
                     detail=f"Freelancer scheduling conflict: {availability['reason']}"
                 )
 
-        # 7. Validate service requirements answers
+        # 8. Validate service requirements answers (if service booking)
         requirements_answers = booking_data.get("requirements_answers") or {}
-        for req in service.requirements:
-            if req.is_required:
-                answer = requirements_answers.get(str(req.id)) or requirements_answers.get(req.question)
-                if answer is None or str(answer).strip() == "":
-                    raise HTTPException(
-                        status_code=status.HTTP_400_BAD_REQUEST,
-                        detail=f"Requirement question '{req.question}' is required."
-                    )
+        if service:
+            for req in service.requirements:
+                if req.is_required:
+                    answer = requirements_answers.get(str(req.id)) or requirements_answers.get(req.question)
+                    if answer is None or str(answer).strip() == "":
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Requirement question '{req.question}' is required."
+                        )
 
-        # 8. Generate Unique booking number sequence
+        # 9. Generate Unique booking number sequence
         b_number = BookingRepository.generate_booking_number(db)
 
-        # 9. Prepare booking record data
+        # 10. Prepare booking record data
+        agreed_amt = package.price if service else Decimal(str(booking_data.get("budget")))
         booking_record = {
             "booking_number": b_number,
             "client_id": client_id,
@@ -127,10 +208,10 @@ class BookingService:
             "freelancer_profile_id": None,
             "is_admin_managed": True,
             "source_type": BookingSourceType.SERVICE,
-            "service_id": service.id,
-            "service_package_id": package.id,
-            "title": service.title,
-            "description": service.short_description,
+            "service_id": service.id if service else None,
+            "service_package_id": package.id if package else None,
+            "title": service.title if service else f"Direct Booking with {freelancer_user.full_name}",
+            "description": service.short_description if service else (booking_data.get("requirement_description") or booking_data.get("description")),
             "booking_type": booking_type_val,
             "status": BookingStatus.REQUESTED,
             "scheduled_date": scheduled_date_val,
@@ -143,33 +224,34 @@ class BookingService:
             "location_country": booking_data.get("location_country", "India"),
             "venue_name": booking_data.get("venue_name"),
             "venue_address": booking_data.get("venue_address"),
-            "agreed_amount": package.price,
-            "price": package.price,
-            "deposit_amount": Decimal(str(package.price)) * Decimal("0.30"),
+            "agreed_amount": agreed_amt,
+            "price": agreed_amt,
+            "deposit_amount": Decimal(str(agreed_amt)) * Decimal("0.30"),
             "deposit_paid_amount": Decimal("0.00"),
-            "remaining_balance": Decimal(str(package.price)),
+            "remaining_balance": Decimal(str(agreed_amt)),
             "total_paid": Decimal("0.00"),
             "payment_completion_state": "UNPAID",
             "notes": booking_data.get("notes"),
             "requirements_answers": requirements_answers
         }
 
-        # 10. Persist booking
+        # 11. Persist booking
         new_booking = BookingRepository.create(db, booking_record)
 
-        # 11. Structured answers persistence
-        for req in service.requirements:
-            ans_val = requirements_answers.get(str(req.id))
-            if ans_val is not None:
-                ans_record = BookingRequirementAnswer(
-                    booking_id=new_booking.id,
-                    service_requirement_id=req.id,
-                    answer_text=str(ans_val)
-                )
-                db.add(ans_record)
+        # 12. Structured answers persistence (only if service exists)
+        if service:
+            for req in service.requirements:
+                ans_val = requirements_answers.get(str(req.id))
+                if ans_val is not None:
+                    ans_record = BookingRequirementAnswer(
+                        booking_id=new_booking.id,
+                        service_requirement_id=req.id,
+                        answer_text=str(ans_val)
+                    )
+                    db.add(ans_record)
         db.commit()
 
-        # 12. Spin up CLIENT_ADMIN conversation thread (No direct Client-Freelancer chat!)
+        # 13. Spin up CLIENT_ADMIN conversation thread (No direct Client-Freelancer chat!)
         from app.services.admin_messaging_service import AdminMessagingService
         conversation = AdminMessagingService.get_or_create_client_admin_conversation(
             db,
@@ -177,10 +259,30 @@ class BookingService:
             booking_id=new_booking.id
         )
 
-        # 13. Trigger notification to Admin & Client
+        # 14. Record Audit Log
+        try:
+            from app.services.audit_service import AuditService
+            AuditService.log_action(
+                db=db,
+                admin_user_id=client_id,
+                action="MANAGED_BOOKING_CREATED",
+                entity_type="BOOKING",
+                entity_id=new_booking.id,
+                description=f"Managed booking request {new_booking.booking_number} created by client.",
+                metadata_json={
+                    "booking_id": new_booking.id,
+                    "client_id": client_id,
+                    "selected_freelancer_profile_id": selected_freelancer_profile_id,
+                    "source": "SERVICE" if service_id else "PROFILE"
+                }
+            )
+        except Exception:
+            import logging
+            logging.getLogger("booking_service").exception("Booking audit logging failed")
+
+        # 15. Trigger notification to Admin & Client
         try:
             from app.services.notification_service import NotificationService
-            client_user = db.query(User).filter(User.id == client_id).first()
             client_name = client_user.full_name if client_user else "Client"
             
             # Notify Client
@@ -189,7 +291,7 @@ class BookingService:
                 recipient_id=client_id,
                 event_code="BOOKING_REQUESTED",
                 title="Booking Request Received",
-                message=f"We have received your booking request '{service.title}' for {scheduled_date_val.strftime('%Y-%m-%d')}. Our curation team will review and coordinate creator assignment.",
+                message=f"We have received your booking request '{new_booking.title}' for {scheduled_date_val.strftime('%Y-%m-%d')}. Our curation team will review and coordinate creator assignment.",
                 action_url=f"/client/bookings/{new_booking.id}",
                 entity_type="booking",
                 entity_id=new_booking.id
@@ -202,7 +304,7 @@ class BookingService:
                 recipient_id=admin_user.id,
                 event_code="BOOKING_REQUESTED",
                 title="New Managed Booking Request",
-                message=f"{client_name} submitted a new booking request '{service.title}'. Review and assign creator.",
+                message=f"{client_name} submitted a new booking request '{new_booking.title}'. Review and assign creator.",
                 action_url=f"/admin/bookings/{new_booking.id}",
                 entity_type="booking",
                 entity_id=new_booking.id
@@ -324,6 +426,29 @@ class BookingService:
         
         db.commit()
 
+        # Auto-create initial BookingAssignment so freelancer can accept it
+        try:
+            from app.models.booking_assignment import BookingAssignment, AssignmentStatus, ClientApprovalStatus
+            from app.services.admin_messaging_service import AdminMessagingService
+            admin_user = AdminMessagingService._get_default_admin(db)
+            assignment = BookingAssignment(
+                booking_id=new_booking.id,
+                freelancer_profile_id=proposal.freelancer_profile_id,
+                assigned_by_admin_id=admin_user.id,
+                assignment_round=1,
+                status=AssignmentStatus.OFFERED.value,
+                offered_payout_amount=new_booking.agreed_amount * Decimal("0.75"),
+                is_replacement=False,
+                client_approval_required=False,
+                client_approval_status=ClientApprovalStatus.NOT_REQUIRED.value,
+                offered_at=datetime.utcnow()
+            )
+            db.add(assignment)
+            db.commit()
+        except Exception:
+            import logging
+            logging.getLogger("booking_service").exception("Failed to auto-create booking assignment for accepted proposal")
+
         # Trigger notification
         try:
             from app.services.notification_service import NotificationService
@@ -346,7 +471,41 @@ class BookingService:
             import logging
             logging.getLogger("booking_service").exception("Proposal accept notification failed")
 
+        from app.models.user import UserRole
+        BookingService._attach_dynamic_fields(db, new_booking, UserRole.CLIENT)
         return new_booking
+
+    @staticmethod
+    def _attach_dynamic_fields(db: Session, booking: Booking, user_role: UserRole):
+        # 1. Fetch CLIENT_ADMIN conversation_id
+        from app.models.message import Conversation, ConversationType
+        convo = db.query(Conversation).filter(
+            Conversation.booking_id == booking.id,
+            Conversation.conversation_type == ConversationType.CLIENT_ADMIN.value
+        ).first()
+        booking.conversation_id = convo.id if convo else None
+
+        # 2. Fetch latest assignment info
+        from app.models.booking_assignment import BookingAssignment
+        latest_assign = db.query(BookingAssignment).filter(
+            BookingAssignment.booking_id == booking.id
+        ).order_by(BookingAssignment.assignment_round.desc()).first()
+        if latest_assign:
+            booking.latest_assignment_status = latest_assign.status.value if hasattr(latest_assign.status, "value") else str(latest_assign.status)
+            booking.client_approval_status = latest_assign.client_approval_status.value if hasattr(latest_assign.client_approval_status, "value") else str(latest_assign.client_approval_status)
+            booking.client_approval_required = latest_assign.client_approval_required
+            booking.latest_assignment_id = latest_assign.id
+            
+            # Fetch proposed freelancer profile summary
+            from app.repositories.freelancer_repository import FreelancerRepository
+            p_profile = FreelancerRepository.get_profile_by_id(db, latest_assign.freelancer_profile_id)
+            booking.proposed_freelancer = p_profile
+        else:
+            booking.latest_assignment_status = None
+            booking.client_approval_status = None
+            booking.client_approval_required = None
+            booking.latest_assignment_id = None
+            booking.proposed_freelancer = None
 
     @staticmethod
     def get_booking_by_id(db: Session, user: User, booking_id: int) -> Booking:
@@ -385,6 +544,7 @@ class BookingService:
                 detail="Access denied for this booking."
             )
 
+        BookingService._attach_dynamic_fields(db, booking, user.role)
         return booking
 
     @staticmethod
@@ -393,9 +553,13 @@ class BookingService:
             profile = FreelancerRepository.get_profile_by_user_id(db, user.id)
             if not profile:
                 return []
-            return BookingRepository.get_freelancer_bookings(db, profile.id)
+            bookings = BookingRepository.get_freelancer_bookings(db, profile.id)
         else:
-            return BookingRepository.get_client_bookings(db, user.id)
+            bookings = BookingRepository.get_client_bookings(db, user.id)
+
+        for b in bookings:
+            BookingService._attach_dynamic_fields(db, b, user.role)
+        return bookings
 
     @staticmethod
     def update_booking_status(db: Session, user: User, booking_id: int, new_status: BookingStatus, cancellation_reason: Optional[str] = None) -> Booking:
@@ -629,6 +793,7 @@ class BookingService:
             import logging
             logging.getLogger("booking_service").exception("Booking status change notification failed")
 
+        BookingService._attach_dynamic_fields(db, updated_booking, user.role)
         return updated_booking
 
     @staticmethod

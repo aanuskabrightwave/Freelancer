@@ -653,26 +653,56 @@ def restore_service(
 
 @router.get("/projects")
 def list_projects(
+    status: Optional[str] = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(15, ge=1, le=100),
     db: Session = Depends(get_db),
     admin: User = Depends(require_role("ADMIN"))
 ):
+    from app.api.v1.endpoints.projects import decode_project
     query = db.query(Project)
+    if status:
+        query = query.filter(Project.status == status)
     total = query.count()
-    items = query.offset((page - 1) * page_size).limit(page_size).all()
+    items = query.order_by(Project.created_at.desc()).offset((page - 1) * page_size).limit(page_size).all()
+    
+    res_items = []
+    for p in items:
+        dp = decode_project(p)
+        dp_dict = dp.model_dump() if hasattr(dp, "model_dump") else dp.dict()
+        
+        # Enrich client name
+        dp_dict["client_name"] = p.client.full_name if p.client else ""
+        
+        # Find linked booking if any
+        booking = db.query(Booking).filter(Booking.project_id == p.id).first()
+        if booking:
+            dp_dict["booking_id"] = booking.id
+            dp_dict["booking_number"] = booking.booking_number
+            if booking.freelancer_profile_id:
+                dp_dict["matched_freelancer"] = {
+                    "id": booking.freelancer_profile_id,
+                    "user_id": booking.freelancer.user_id if booking.freelancer else None,
+                    "professional_title": booking.freelancer.professional_title if booking.freelancer else None,
+                    "full_name": booking.freelancer.user.full_name if booking.freelancer and booking.freelancer.user else None
+                }
+        
+        # Find CLIENT_ADMIN conversation
+        from app.models.message import Conversation
+        convo = db.query(Conversation).filter(
+            Conversation.project_id == p.id,
+            Conversation.conversation_type == "CLIENT_ADMIN"
+        ).first()
+        if convo:
+            dp_dict["admin_conversation_id"] = convo.id
+            
+        res_items.append(dp_dict)
+        
     return {
         "total": total,
         "page": page,
         "page_size": page_size,
-        "items": [{
-            "id": p.id,
-            "title": p.title,
-            "client_name": p.client.full_name if p.client else "",
-            "budget": str(p.budget),
-            "status": p.status,
-            "created_at": p.created_at
-        } for p in items]
+        "items": res_items
     }
 
 
@@ -1088,10 +1118,6 @@ def update_platform_config(
     return PlatformSettingsService.update_setting(db, admin.id, key, payload.value)
 
 
-# ----------------------------------------------------
-# 12. AUDIT LOGS LEDGER
-# ----------------------------------------------------
-
 @router.get("/audit-logs", response_model=List[AdminAuditLogOut])
 def list_audit_logs(
     action: Optional[str] = None,
@@ -1108,5 +1134,362 @@ def list_audit_logs(
         query = query.filter(AdminAuditLog.admin_user_id == admin_id)
         
     return query.order_by(AdminAuditLog.created_at.desc()).all()
+
+
+# ----------------------------------------------------
+# 13. ADMIN PROJECTS MATCHING & JOB POSTS
+# ----------------------------------------------------
+from app.api.v1.endpoints.projects import ProjectResponseCustom
+from app.schemas.assignment import AdminAssignFreelancerPayload, BookingAssignmentOut
+from pydantic import BaseModel
+
+class AdminReviewProjectPayload(BaseModel):
+    status: str
+    admin_review_notes: Optional[str] = None
+
+
+
+@router.get("/projects/{project_id}", response_model=ProjectResponseCustom)
+def get_admin_project_detail(
+    project_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    from app.api.v1.endpoints.projects import decode_project
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found.")
+        
+    dp = decode_project(project)
+    
+    # Linked booking
+    booking = db.query(Booking).filter(Booking.project_id == project.id).first()
+    if booking:
+        dp.booking_id = booking.id
+        dp.booking_number = booking.booking_number
+        if booking.freelancer_profile_id:
+            dp.matched_freelancer = {
+                "id": booking.freelancer_profile_id,
+                "user_id": booking.freelancer.user_id if booking.freelancer else None,
+                "professional_title": booking.freelancer.professional_title if booking.freelancer else None,
+                "full_name": booking.freelancer.user.full_name if booking.freelancer and booking.freelancer.user else None
+            }
+        else:
+            # Check for offered assignment
+            from app.models.booking_assignment import BookingAssignment
+            active_assign = db.query(BookingAssignment).filter(
+                BookingAssignment.booking_id == booking.id,
+                BookingAssignment.status.in_(["OFFERED", "ACCEPTED"])
+            ).order_by(BookingAssignment.created_at.desc()).first()
+            if active_assign:
+                dp.client_approval_required = active_assign.client_approval_required
+                dp.client_approval_status = active_assign.client_approval_status
+                if active_assign.freelancer_profile:
+                    dp.matched_freelancer = {
+                        "id": active_assign.freelancer_profile_id,
+                        "user_id": active_assign.freelancer_profile.user_id,
+                        "professional_title": active_assign.freelancer_profile.professional_title,
+                        "full_name": active_assign.freelancer_profile.user.full_name if active_assign.freelancer_profile.user else None
+                    }
+    
+    # Client/Admin convo
+    from app.models.message import Conversation
+    convo = db.query(Conversation).filter(
+        Conversation.project_id == project.id,
+        Conversation.conversation_type == "CLIENT_ADMIN"
+    ).first()
+    if convo:
+        dp.admin_conversation_id = convo.id
+        
+    return dp
+
+
+@router.post("/projects/{project_id}/review", response_model=ProjectResponseCustom)
+def review_admin_project(
+    project_id: int,
+    payload: AdminReviewProjectPayload,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found.")
+        
+    # Enforce allowed statuses
+    allowed_statuses = ["SUBMITTED", "UNDER_ADMIN_REVIEW", "MATCHING", "BOOKING_CREATED", "COMPLETED", "CANCELLED"]
+    if payload.status not in allowed_statuses:
+        raise HTTPException(status_code=400, detail=f"Invalid project status: {payload.status}")
+        
+    # Block moving closed projects back to review
+    if project.status in ["BOOKING_CREATED", "COMPLETED", "CANCELLED"] and payload.status in ["SUBMITTED", "UNDER_ADMIN_REVIEW", "MATCHING"]:
+        raise HTTPException(status_code=400, detail=f"Cannot transition project from {project.status} to {payload.status}.")
+
+    project.status = payload.status
+    project.admin_reviewed_by_id = admin.id
+    if payload.admin_review_notes is not None:
+        project.admin_review_notes = payload.admin_review_notes
+        
+    db.commit()
+    db.refresh(project)
+    
+    # Log audit
+    AuditService.log_action(
+        db=db,
+        admin_user_id=admin.id,
+        action="PROJECT_REVIEWED",
+        entity_type="PROJECT",
+        entity_id=project.id,
+        description=f"Admin {admin.full_name} reviewed project {project.title} and set status to {project.status}.",
+        metadata_json={"status": project.status, "admin_review_notes": project.admin_review_notes}
+    )
+    
+    from app.api.v1.endpoints.projects import decode_project
+    return decode_project(project)
+
+
+@router.post("/projects/{project_id}/match", response_model=BookingAssignmentOut)
+def match_freelancer_to_project(
+    project_id: int,
+    payload: AdminAssignFreelancerPayload,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found.")
+        
+    if not project.is_admin_managed:
+        raise HTTPException(status_code=400, detail="Only admin-managed projects support matching.")
+        
+    # Validate matching permitted states
+    if project.status not in ["SUBMITTED", "UNDER_ADMIN_REVIEW", "MATCHING", "BOOKING_CREATED"]:
+        raise HTTPException(status_code=400, detail=f"Project status {project.status} does not permit matching.")
+        
+    # Validate freelancer profile
+    profile = db.query(FreelancerProfile).filter(FreelancerProfile.id == payload.freelancer_profile_id).first()
+    if not profile:
+        raise HTTPException(status_code=404, detail="Freelancer profile not found.")
+        
+    freelancer_user = profile.user
+    if not freelancer_user:
+        raise HTTPException(status_code=404, detail="User associated with freelancer profile not found.")
+        
+    if not freelancer_user.is_active:
+        raise HTTPException(status_code=400, detail="Freelancer user is inactive.")
+        
+    if freelancer_user.role != UserRole.FREELANCER:
+        raise HTTPException(status_code=400, detail="User role is not FREELANCER.")
+        
+    if freelancer_user.id == project.client_id:
+        raise HTTPException(status_code=400, detail="Freelancer cannot match client of the project.")
+        
+    if payload.offered_payout_amount is not None and payload.offered_payout_amount < 0:
+        raise HTTPException(status_code=400, detail="Offered payout amount must be non-negative.")
+
+    # 1. Get or create Booking (Only once per project!)
+    booking = db.query(Booking).filter(Booking.project_id == project.id).first()
+    if not booking:
+        # Create new Booking
+        from app.api.v1.endpoints.projects import decode_project
+        decoded_project = decode_project(project)
+        
+        # Resolve schedule date from deadline if possible
+        scheduled_date_val = datetime.now().date()
+        if decoded_project.deadline:
+            try:
+                scheduled_date_val = datetime.strptime(decoded_project.deadline, "%Y-%m-%d").date()
+            except Exception:
+                pass
+                
+        # Generate booking number
+        from app.repositories.booking_repository import BookingRepository
+        booking_num = BookingRepository.generate_booking_number(db)
+        
+        # Financial splits
+        agreed_amt = project.budget
+        dep_amt = agreed_amt * Decimal("0.30")
+        
+        from app.models.booking import BookingSourceType
+        booking = Booking(
+            booking_number=booking_num,
+            client_id=project.client_id,
+            project_id=project.id,
+            source_type=BookingSourceType.PROJECT,
+            title=project.title,
+            description=project.description,
+            booking_type=project.project_type,
+            status=BookingStatus.MATCHING_IN_PROGRESS,
+            scheduled_date=scheduled_date_val,
+            timezone="Asia/Kolkata",
+            agreed_amount=agreed_amt,
+            price=agreed_amt,
+            deposit_amount=dep_amt,
+            deposit_paid_amount=Decimal("0.00"),
+            remaining_balance=agreed_amt,
+            total_paid=Decimal("0.00"),
+            payment_completion_state="UNPAID",
+            is_admin_managed=True,
+            assigned_by_admin_id=admin.id
+        )
+        db.add(booking)
+        db.commit()
+        db.refresh(booking)
+        
+        # Link CLIENT_ADMIN convo to the new booking
+        from app.models.message import Conversation
+        convo = db.query(Conversation).filter(
+            Conversation.project_id == project.id,
+            Conversation.conversation_type == "CLIENT_ADMIN"
+        ).first()
+        if convo:
+            convo.booking_id = booking.id
+            db.add(convo)
+            db.commit()
+
+    # 2. Call AssignmentService.assign_freelancer
+    from app.services.assignment_service import AssignmentService
+    from app.models.booking_assignment import BookingAssignment
+    
+    assignment_out = AssignmentService.assign_freelancer(
+        db=db,
+        admin_user=admin,
+        booking_id=booking.id,
+        payload=payload
+    )
+    
+    # 3. Force Client Approval is Required (since client did not choose freelancer on open project)
+    assignment_row = db.query(BookingAssignment).filter(
+        BookingAssignment.booking_id == booking.id,
+        BookingAssignment.status == "OFFERED"
+    ).order_by(BookingAssignment.created_at.desc()).first()
+    
+    if assignment_row:
+        assignment_row.is_replacement = True
+        assignment_row.client_approval_required = True
+        assignment_row.client_approval_status = "PENDING"
+        db.add(assignment_row)
+        
+        # Update booking status to MATCHING_IN_PROGRESS (already set by assign_freelancer)
+        # Update project status to BOOKING_CREATED
+        project.status = "BOOKING_CREATED"
+        db.add(project)
+        db.commit()
+        db.refresh(assignment_row)
+        
+        # Re-build response from updated row
+        assignment_out = AssignmentService._build_assignment_out(assignment_row)
+        
+    return assignment_out
+
+
+@router.get("/deliveries", response_model=List[Any], summary="List all workspace submissions for admin review")
+def list_deliveries(
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    from app.models.delivery import Delivery
+    from app.models.booking import Booking
+    from app.models.revision import RevisionRequest
+    from app.models.freelancer import FreelancerProfile
+    
+    deliveries = db.query(Delivery).join(Booking, Booking.id == Delivery.booking_id).order_by(Delivery.submitted_at.desc()).all()
+    
+    res = []
+    for d in deliveries:
+        b = d.booking
+        # Client name
+        client_name = b.client.full_name if b.client else "Client"
+        
+        # Freelancer name
+        freelancer_name = ""
+        if b.freelancer_profile_id:
+            profile = db.query(FreelancerProfile).filter(FreelancerProfile.id == b.freelancer_profile_id).first()
+            if profile:
+                freelancer_name = profile.user.full_name if profile.user else ""
+                
+        # Revision count
+        rev_count = db.query(func.count(RevisionRequest.id)).filter(RevisionRequest.booking_id == b.id).scalar() or 0
+        
+        res.append({
+            "id": d.id,
+            "booking_id": b.id,
+            "booking_number": b.booking_number,
+            "booking_title": b.title,
+            "client_name": client_name,
+            "freelancer_name": freelancer_name,
+            "delivery_type": d.delivery_type.value if hasattr(d.delivery_type, "value") else str(d.delivery_type),
+            "version": d.version,
+            "title": d.title,
+            "status": d.status.value if hasattr(d.status, "value") else str(d.status),
+            "admin_review_status": d.admin_review_status,
+            "submitted_at": d.submitted_at,
+            "shared_with_client_at": d.shared_with_client_at,
+            "approved_at": d.approved_at,
+            "revision_count": rev_count,
+            "agreed_amount": float(b.agreed_amount),
+            "deposit_paid_amount": float(b.deposit_paid_amount or 0.0),
+            "remaining_balance": float(b.remaining_balance or 0.0),
+            "payment_completion_state": b.payment_completion_state.value if hasattr(b.payment_completion_state, "value") else str(b.payment_completion_state)
+        })
+    return res
+
+
+@router.get("/completed-jobs", response_model=List[Any], summary="List all completed marketplace bookings for audit review")
+def list_completed_jobs(
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    from app.models.booking import Booking, BookingStatus
+    from app.models.freelancer import FreelancerProfile
+    from app.models.review import Review
+    from app.models.payout import Payout
+    
+    bookings = db.query(Booking).filter(Booking.status == BookingStatus.COMPLETED).order_by(Booking.completed_at.desc()).all()
+    
+    res = []
+    for b in bookings:
+        # Client name
+        client_name = b.client.full_name if b.client else "Client"
+        
+        # Freelancer name
+        freelancer_name = ""
+        if b.freelancer_profile_id:
+            profile = db.query(FreelancerProfile).filter(FreelancerProfile.id == b.freelancer_profile_id).first()
+            if profile:
+                freelancer_name = profile.user.full_name if profile.user else ""
+                
+        # Review (Client review)
+        review_rating = None
+        review_comment = None
+        review = db.query(Review).filter(Review.booking_id == b.id).first()
+        if review:
+            review_rating = review.rating
+            review_comment = review.comment
+            
+        # Payout status
+        payout_status = "Not Released"
+        payout = db.query(Payout).filter(Payout.booking_id == b.id).first()
+        if payout:
+            payout_status = payout.status.value if hasattr(payout.status, "value") else str(payout.status)
+            
+        res.append({
+            "id": b.id,
+            "booking_number": b.booking_number,
+            "booking_title": b.title,
+            "client_name": client_name,
+            "freelancer_name": freelancer_name,
+            "source_type": b.source_type.value if hasattr(b.source_type, "value") else str(b.source_type),
+            "agreed_amount": float(b.agreed_amount),
+            "payment_status": "Paid in Full" if b.payment_completion_state.value == "PAID" or b.payment_completion_state == "PAID" else "Deposit Only",
+            "review_rating": review_rating,
+            "review_comment": review_comment,
+            "payout_status": payout_status,
+            "completed_at": b.completed_at
+        })
+    return res
+
+
+
+
 
 

@@ -13,6 +13,7 @@ import { reviewService } from "@/services/review.service";
 import { messageService } from "@/services/message.service";
 import Container from "@/components/ui/Container";
 import { useAuth } from "@/context/AuthContext";
+import BookProfessionalModal from "@/components/common/BookProfessionalModal";
 
 const PROFESSION_LABELS: Record<string, string> = {
   PHOTOGRAPHER: "Photographer",
@@ -36,6 +37,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [processing, setProcessing] = useState(false);
+  const [isBookModalOpen, setIsBookModalOpen] = useState(false);
 
   // Reviews state
   const [reviews, setReviews] = useState<any[]>([]);
@@ -500,33 +502,16 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
                         router.push("/login");
                         return;
                       }
-                      router.push(`/services?freelancer_id=${profile.id}`);
-                    }}
-                    disabled={processing}
-                    className="w-full py-3 bg-primary text-text-main text-xs font-bold rounded-xl border border-primary/10 hover:bg-primary-hover transition text-center disabled:opacity-50"
-                  >
-                    Book Professional
-                  </button>
-                  <button 
-                    onClick={async () => {
-                      if (!user) {
-                        router.push("/login");
+                      if (user.role !== "CLIENT") {
+                        alert("Only CLIENT accounts can submit booking requests.");
                         return;
                       }
-                      try {
-                        setProcessing(true);
-                        const convo = await messageService.createConversation({ freelancer_id: profile.id });
-                        router.push(`/client/messages?active=${convo.id}`);
-                      } catch (err: any) {
-                        alert(err.response?.data?.detail || "Could not open conversation. Ensure you have an active booking or proposal with this professional.");
-                      } finally {
-                        setProcessing(false);
-                      }
+                      setIsBookModalOpen(true);
                     }}
                     disabled={processing}
-                    className="w-full py-3 bg-surface text-text-main hover:bg-surface-elevated text-xs font-bold rounded-xl border border-border-custom transition text-center disabled:opacity-50"
+                    className="w-full py-3 bg-primary text-text-main text-xs font-bold rounded-xl border border-primary/10 hover:bg-primary-hover transition text-center disabled:opacity-50 cursor-pointer"
                   >
-                    {processing ? "Starting..." : "Send Message"}
+                    Book Professional
                   </button>
                 </div>
               )}
@@ -543,6 +528,14 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
         </div>
 
       </Container>
+
+      {profile && (
+        <BookProfessionalModal
+          isOpen={isBookModalOpen}
+          onClose={() => setIsBookModalOpen(false)}
+          freelancer={profile}
+        />
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ from app.models.project import Project, Proposal
 from app.models.freelancer_profile import FreelancerProfile, FreelancerProfession
 from app.models.booking import Booking, BookingStatus, BookingSourceType
 from app.core.security import create_token
+from app.models.booking_assignment import BookingAssignment
 
 
 def create_test_user(db_session, email: str, role: UserRole) -> User:
@@ -199,7 +200,7 @@ def test_accept_proposal_transaction(client, db):
         headers={"Authorization": f"Bearer {client_token}"}
     )
     assert res.status_code == 201
-    assert res.json()["status"] == "CONFIRMED"
+    assert res.json()["status"] == "PENDING_CONFIRMATION"
 
     db.refresh(prop_a)
     db.refresh(prop_b)
@@ -216,8 +217,20 @@ def test_accept_proposal_transaction(client, db):
     assert db_booking.client_id == client_user.id
     assert db_booking.freelancer_profile_id == profile_a.id
     assert db_booking.source_type == BookingSourceType.PROJECT
-    assert db_booking.status == BookingStatus.CONFIRMED
+    assert db_booking.status == BookingStatus.PENDING_CONFIRMATION
     assert db_booking.agreed_amount == Decimal("28000.00")
+
+    # Freelancer A accepts assignment to transition status to CONFIRMED
+    free_token_a = create_token(freelancer_a.id, "access", role="FREELANCER")
+    assignment = db.query(BookingAssignment).filter(BookingAssignment.booking_id == db_booking.id).first()
+    assert assignment is not None
+    accept_assign_res = client.post(
+        f"/api/v1/freelancer/assignments/{assignment.id}/accept",
+        headers={"Authorization": f"Bearer {free_token_a}"}
+    )
+    assert accept_assign_res.status_code == 200
+    db.refresh(db_booking)
+    assert db_booking.status == BookingStatus.CONFIRMED
 
 
 def test_proposal_ownership_idor(client, db):

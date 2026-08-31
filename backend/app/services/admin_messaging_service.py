@@ -312,15 +312,21 @@ class AdminMessagingService:
 
         # Role-based query scoping
         if user_role_str == "CLIENT":
-            # Client can only see CLIENT_ADMIN conversations where client_id == current_user.id
+            # Client can see CLIENT_ADMIN and DIRECT_LEGACY conversations where client_id == current_user.id
             query = query.filter(
-                Conversation.conversation_type == ConversationType.CLIENT_ADMIN.value,
+                Conversation.conversation_type.in_([
+                    ConversationType.CLIENT_ADMIN.value,
+                    ConversationType.DIRECT_LEGACY.value
+                ]),
                 Conversation.client_id == current_user.id
             )
         elif user_role_str == "FREELANCER":
-            # Freelancer can only see FREELANCER_ADMIN conversations where freelancer_id == current_user.id
+            # Freelancer can see FREELANCER_ADMIN and DIRECT_LEGACY conversations where freelancer_id == current_user.id
             query = query.filter(
-                Conversation.conversation_type == ConversationType.FREELANCER_ADMIN.value,
+                Conversation.conversation_type.in_([
+                    ConversationType.FREELANCER_ADMIN.value,
+                    ConversationType.DIRECT_LEGACY.value
+                ]),
                 Conversation.freelancer_id == current_user.id
             )
         elif user_role_str == "ADMIN":

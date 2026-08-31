@@ -75,5 +75,15 @@ export const projectService = {
   },
   async rejectClientProposal(proposalId: number | string): Promise<any> {
     return api.post<any>(`/client/proposals/${proposalId}/reject`, {});
+  },
+  async respondToAssignment(
+    assignmentId: number | string,
+    approved: boolean,
+    notes?: string
+  ): Promise<any> {
+    return api.post(`/client/assignments/${assignmentId}/respond`, {
+      approved,
+      notes
+    });
   }
 };

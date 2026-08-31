@@ -13,7 +13,7 @@ class ReviewBase(BaseModel):
     timeliness_rating: Optional[int] = Field(None, ge=1, le=5)
     value_rating: Optional[int] = Field(None, ge=1, le=5)
     title: Optional[str] = Field(None, max_length=150)
-    comment: str = Field(..., min_length=20, max_length=3000)
+    comment: Optional[str] = Field(None, max_length=3000)
 
 
 class ReviewCreate(ReviewBase):
@@ -28,7 +28,7 @@ class ReviewUpdate(BaseModel):
     timeliness_rating: Optional[int] = Field(None, ge=1, le=5)
     value_rating: Optional[int] = Field(None, ge=1, le=5)
     title: Optional[str] = Field(None, max_length=150)
-    comment: Optional[str] = Field(None, min_length=20, max_length=3000)
+    comment: Optional[str] = Field(None, max_length=3000)
 
 
 class ReviewResponseCreate(BaseModel):

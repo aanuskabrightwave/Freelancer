@@ -1,191 +1,431 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Container from "@/components/ui/Container";
-import PageHeader from "@/components/ui/PageHeader";
-import ReviewCard from "@/components/reviews/ReviewCard";
-import StarRating from "@/components/reviews/StarRating";
+import Link from "next/link";
 import { reviewService } from "@/services/review.service";
-import LoadingState from "@/components/common/LoadingState";
-import EmptyState from "@/components/common/EmptyState";
+import { bookingService } from "@/services/booking.service";
+import { Star, MessageSquare, CheckCircle, Calendar, Sparkles, AlertCircle, Trash2 } from "lucide-react";
 
 export default function ClientReviewsPage() {
   const [reviews, setReviews] = useState<any[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
-  // Editing review modal state
-  const [editingReview, setEditingReview] = useState<any | null>(null);
-  const [editRating, setEditRating] = useState(5);
-  const [editTitle, setEditTitle] = useState("");
-  const [editComment, setEditComment] = useState("");
-  const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  const loadReviews = async () => {
+  // Leave Review Modal States
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [activeBooking, setActiveBooking] = useState<any | null>(null);
+  const [overallRating, setOverallRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // Edit Review Modal States
+  const [editingReview, setEditingReview] = useState<any | null>(null);
+  const [editRating, setEditRating] = useState(5);
+  const [editComment, setEditComment] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function loadData() {
     try {
       setLoading(true);
-      const list = await reviewService.getClientReviews();
-      setReviews(list);
+      setErrorMsg(null);
+      
+      const [reviewsData, bookingsData] = await Promise.all([
+        reviewService.getClientReviews(),
+        bookingService.getClientBookings()
+      ]);
+      
+      setReviews(reviewsData);
+      setBookings(bookingsData);
     } catch (err) {
-      console.error("Failed to load client reviews", err);
+      setErrorMsg("We couldn't load your review dashboard.");
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   useEffect(() => {
-    loadReviews();
+    loadData();
   }, []);
 
-  const handleEditClick = (review: any) => {
-    setEditingReview(review);
-    setEditRating(review.overall_rating);
-    setEditTitle(review.title || "");
-    setEditComment(review.comment);
-    setErrorMsg(null);
+  // Filter completed bookings that do not have reviews yet (Part 5)
+  const pendingReviews = bookings.filter((b) => {
+    if (b.status !== "COMPLETED") return false;
+    // Check if there is already a review matching booking.id
+    return !reviews.some((r) => r.booking_id === b.id);
+  });
+
+  const handleSubmitReview = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (overallRating < 1 || overallRating > 5) {
+      alert("Please select a rating between 1 and 5 stars.");
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      setErrorMsg(null);
+
+      const payload = {
+        overall_rating: overallRating,
+        comment: reviewComment.trim() || "", // Comment is optional (Part 8)
+      };
+
+      await reviewService.submitReview(activeBooking.id, payload);
+      
+      setShowReviewModal(false);
+      setOverallRating(0);
+      setReviewComment("");
+      await loadData();
+      alert("Thank you! Your review has been submitted successfully.");
+    } catch (err: any) {
+      setErrorMsg(err.response?.data?.detail || "Failed to submit review.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editComment.length < 20) {
-      setErrorMsg("Your comment must be at least 20 characters.");
+    if (editRating < 1 || editRating > 5) {
+      alert("Please select a rating between 1 and 5 stars.");
       return;
     }
 
     try {
       setSaving(true);
-      const updated = await reviewService.editReview(editingReview.id, {
+      setErrorMsg(null);
+
+      await reviewService.editReview(editingReview.id, {
         overall_rating: editRating,
-        title: editTitle.trim() || undefined,
-        comment: editComment,
+        comment: editComment.trim() || "",
       });
 
-      // Update reviews list locally
-      setReviews((prev) =>
-        prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r))
-      );
       setEditingReview(null);
+      await loadData();
+      alert("Review updated successfully.");
     } catch (err: any) {
-      setErrorMsg(err.message || "Failed to save changes.");
+      setErrorMsg(err.response?.data?.detail || "Failed to update review.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDeleteSuccess = (id: number) => {
-    setReviews((prev) => prev.filter((r) => r.id !== id));
+  const handleDeleteReview = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this review?")) {
+      return;
+    }
+    try {
+      setLoading(true);
+      await reviewService.deleteReview(id);
+      await loadData();
+    } catch (err: any) {
+      alert(err.response?.data?.detail || "Failed to delete review.");
+      setLoading(false);
+    }
   };
 
   if (loading) {
-    return <LoadingState message="Loading your submitted reviews..." />;
+    return (
+      <div className="min-h-screen bg-background py-10 px-4 md:px-8 font-sans">
+        <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
+          <div className="bg-surface border border-border-custom rounded-3xl p-6 h-32 flex flex-col justify-between">
+            <div className="w-1/3 h-5 bg-surface-elevated rounded"></div>
+            <div className="w-1/2 h-3 bg-surface-elevated rounded"></div>
+          </div>
+          <div className="h-48 bg-surface rounded-3xl border border-border-custom"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <Container className="py-12">
-      <div className="space-y-8">
-        <PageHeader
-          title="Submitted Reviews"
-          description="View and manage the ratings and feedback you have posted for completed bookings."
-        />
+    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
+      <div className="max-w-4xl mx-auto space-y-8">
+        
+        {/* Header Block */}
+        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-xl md:text-2xl font-black text-text-main">Reviews</h1>
+            <p className="text-text-sub text-xs mt-1">
+              Rate professionals you've worked with and view your previous reviews.
+            </p>
+          </div>
+          <Link
+            href="/client/dashboard"
+            className="text-xs uppercase tracking-widest font-bold text-text-sub hover:text-primary flex items-center gap-2 group transition"
+          >
+            Dashboard →
+          </Link>
+        </div>
 
-        {reviews.length === 0 ? (
-          <EmptyState
-            title="No reviews posted yet"
-            description="Completed bookings will appear in your history, where you can leave verified feedback."
-          />
-        ) : (
-          <div className="grid grid-cols-1 gap-6 max-w-3xl">
-            {reviews.map((r) => (
-              <ReviewCard
-                key={r.id}
-                review={r}
-                clientMode={true}
-                onEdit={handleEditClick}
-                onDeleteSuccess={handleDeleteSuccess}
-              />
-            ))}
+        {errorMsg && (
+          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded-xl p-4 text-xs">
+            {errorMsg}
           </div>
         )}
+
+        {/* Bookings Awaiting Your Review (Part 5) */}
+        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-6">
+          <h3 className="text-xs font-black text-text-main uppercase tracking-wider">Bookings Awaiting Your Review</h3>
+          
+          {pendingReviews.length > 0 ? (
+            <div className="space-y-4">
+              {pendingReviews.map((booking) => {
+                const assignedName = booking.freelancer?.full_name || booking.freelancer?.user?.full_name || "Specialist";
+                return (
+                  <div
+                    key={booking.id}
+                    className="border border-border-custom/50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-elevated/20"
+                  >
+                    <div className="space-y-1">
+                      <span className="text-[10px] text-text-muted font-mono font-bold">{booking.booking_number}</span>
+                      <h4 className="font-extrabold text-sm text-text-main">{booking.title}</h4>
+                      <p className="text-[10px] text-text-sub font-semibold">
+                        Assigned Professional: <span className="text-text-main font-bold">{assignedName}</span>
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        setActiveBooking(booking);
+                        setOverallRating(0);
+                        setReviewComment("");
+                        setShowReviewModal(true);
+                      }}
+                      className="px-4 py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer shrink-0 text-center"
+                    >
+                      Leave Review
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="py-8 text-center text-xs text-text-muted bg-surface-elevated/10 border border-border-custom/40 rounded-2xl italic">
+              No pending reviews. You are all caught up!
+            </div>
+          )}
+        </div>
+
+        {/* Submitted Reviews History (Part 13) */}
+        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-6">
+          <h3 className="text-xs font-black text-text-main uppercase tracking-wider">Review History</h3>
+
+          {reviews.length > 0 ? (
+            <div className="space-y-4">
+              {reviews.map((r) => {
+                const professionalName = r.freelancer_profile?.user?.full_name || "Specialist";
+                return (
+                  <div
+                    key={r.id}
+                    className="border border-border-custom/50 rounded-2xl p-5 bg-surface-elevated/10 space-y-4 relative"
+                  >
+                    {/* Delete and Edit action controls */}
+                    <div className="absolute top-4 right-4 flex gap-2">
+                      <button
+                        onClick={() => {
+                          setEditingReview(r);
+                          setEditRating(r.overall_rating);
+                          setEditComment(r.comment || "");
+                        }}
+                        className="text-[10px] font-bold text-primary hover:underline cursor-pointer"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteReview(r.id)}
+                        className="text-[10px] font-bold text-rose-400 hover:underline cursor-pointer flex items-center gap-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, idx) => (
+                          <Star
+                            key={idx}
+                            className={`w-3.5 h-3.5 ${
+                              idx < r.overall_rating
+                                ? "fill-amber-400 text-amber-400"
+                                : "text-text-muted"
+                            }`}
+                          />
+                        ))}
+                      </div>
+
+                      <h4 className="font-extrabold text-sm text-text-main mt-1">
+                        Review for {professionalName}
+                      </h4>
+                      
+                      <div className="flex items-center gap-2 text-[9px] text-text-muted font-bold font-mono">
+                        <span>Reference: Booking #{r.booking_id}</span>
+                        <span>•</span>
+                        <span>Date: {new Date(r.created_at).toLocaleDateString("en-IN")}</span>
+                      </div>
+                    </div>
+
+                    {r.comment && (
+                      <p className="text-xs text-text-sub leading-relaxed font-medium">
+                        "{r.comment}"
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="py-12 text-center text-xs text-text-muted bg-surface-elevated/10 border border-border-custom/40 rounded-2xl italic">
+              You haven't posted any reviews yet.
+            </div>
+          )}
+        </div>
+
       </div>
 
-      {/* Edit Review Modal */}
-      {editingReview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-surface-elevated border border-border-custom rounded-3xl w-full max-w-lg p-6 md:p-8 space-y-6 shadow-xl relative animate-fade-in">
-            <button
-              onClick={() => setEditingReview(null)}
-              className="absolute top-4 right-4 text-text-muted hover:text-text-main font-bold text-sm cursor-pointer"
-            >
-              ✕
-            </button>
-
-            <div>
-              <span className="text-[10px] text-primary font-bold uppercase tracking-wider block">
-                Edit Feedback
-              </span>
-              <h3 className="text-base font-semibold text-text-main">Update Your Review</h3>
-            </div>
-
-            {errorMsg && (
-              <div className="bg-rose-50 border border-rose-200 text-rose-700 p-3 rounded-xl text-xs font-semibold">
-                {errorMsg}
-              </div>
-            )}
-
-            <form onSubmit={handleEditSubmit} className="space-y-4">
-              <div className="flex items-center justify-between bg-surface p-4 border border-border-custom rounded-2xl">
-                <span className="text-xs font-semibold text-text-sub">Overall Rating</span>
-                <StarRating rating={editRating} interactive size="md" onChange={setEditRating} />
+      {/* Leave Review Dialog Modal */}
+      {showReviewModal && activeBooking && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/60 backdrop-blur-xs">
+          <form onSubmit={handleSubmitReview} className="bg-surface border border-border-custom max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 font-sans">
+            <h3 className="font-bold text-sm text-text-main uppercase tracking-wider">Leave Feedback</h3>
+            
+            <div className="space-y-3">
+              <div className="border border-border-custom/50 rounded-xl p-3 bg-surface-elevated/20 text-xs">
+                <span className="text-[8px] font-bold text-text-muted block uppercase">Booking</span>
+                <span className="font-bold text-text-main">{activeBooking.title}</span>
+                <span className="text-[9px] text-text-sub block mt-1">
+                  Professional: {activeBooking.freelancer?.full_name || activeBooking.freelancer?.user?.full_name || "Specialist"}
+                </span>
               </div>
 
+              {/* Star rating selector (Part 7) */}
               <div>
-                <label className="block text-[10px] text-text-sub font-bold uppercase mb-1.5">
-                  Title
-                </label>
-                <input
-                  type="text"
-                  maxLength={150}
-                  value={editTitle}
-                  onChange={(e) => setEditTitle(e.target.value)}
-                  className="w-full bg-surface border border-border-custom rounded-xl px-4 py-2.5 text-xs text-text-main focus:outline-none placeholder-text-muted"
-                />
+                <label className="block text-[9px] uppercase tracking-wider font-extrabold text-text-muted mb-1.5">Rating (Required)</label>
+                <div className="flex gap-2 items-center">
+                  {Array.from({ length: 5 }).map((_, idx) => {
+                    const stars = idx + 1;
+                    return (
+                      <button
+                        type="button"
+                        key={idx}
+                        onClick={() => setOverallRating(stars)}
+                        className="text-text-muted hover:text-amber-400 cursor-pointer focus:outline-none"
+                      >
+                        <Star
+                          className={`w-7 h-7 transition ${
+                            stars <= overallRating ? "fill-amber-400 text-amber-400" : "text-text-muted"
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
+              {/* Optional Comment textarea (Part 8) */}
               <div>
-                <label className="block text-[10px] text-text-sub font-bold uppercase mb-1.5">
-                  Comment (min 20 chars)
+                <label className="block text-[9px] uppercase tracking-wider font-extrabold text-text-muted mb-1">
+                  Share your experience (optional)
                 </label>
                 <textarea
                   rows={4}
-                  required
-                  minLength={20}
-                  maxLength={3000}
-                  value={editComment}
-                  onChange={(e) => setEditComment(e.target.value)}
-                  className="w-full bg-surface border border-border-custom rounded-xl px-4 py-3 text-xs text-text-main focus:outline-none placeholder-text-muted resize-none"
+                  placeholder="Tell us about the project quality, responsiveness, or timeline..."
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  className="w-full bg-background border border-border-custom rounded-xl p-3 text-xs text-text-main resize-none focus:outline-none focus:border-primary"
                 />
               </div>
+            </div>
 
-              <div className="flex gap-3 justify-end pt-2">
-                <button
-                  type="button"
-                  onClick={() => setEditingReview(null)}
-                  className="px-5 py-2.5 bg-surface border border-border-custom text-xs font-bold rounded-full text-text-sub hover:text-text-main transition cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-6 py-2.5 bg-primary hover:bg-primary-hover text-xs font-bold rounded-full text-text-on-dark transition cursor-pointer"
-                >
-                  {saving ? "Saving Changes..." : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </div>
+            <div className="flex gap-2 justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowReviewModal(false);
+                  setOverallRating(0);
+                  setReviewComment("");
+                }}
+                className="px-3.5 py-1.5 bg-background border border-border-custom rounded-lg text-text-sub text-xs font-bold"
+              >
+                Dismiss
+              </button>
+              <button
+                type="submit"
+                disabled={submitting || overallRating === 0}
+                className="px-4 py-1.5 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-lg transition"
+              >
+                Submit Review
+              </button>
+            </div>
+          </form>
         </div>
       )}
-    </Container>
+
+      {/* Edit Review Dialog Modal */}
+      {editingReview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-dark/60 backdrop-blur-xs">
+          <form onSubmit={handleEditSubmit} className="bg-surface border border-border-custom max-w-md w-full rounded-2xl p-6 shadow-2xl space-y-4 font-sans">
+            <h3 className="font-bold text-sm text-text-main uppercase tracking-wider">Edit Review</h3>
+            
+            <div className="space-y-3">
+              <div>
+                <label className="block text-[9px] uppercase tracking-wider font-extrabold text-text-muted mb-1.5">Rating (Required)</label>
+                <div className="flex gap-2 items-center">
+                  {Array.from({ length: 5 }).map((_, idx) => {
+                    const stars = idx + 1;
+                    return (
+                      <button
+                        type="button"
+                        key={idx}
+                        onClick={() => setEditRating(stars)}
+                        className="text-text-muted hover:text-amber-400 cursor-pointer focus:outline-none"
+                      >
+                        <Star
+                          className={`w-7 h-7 transition ${
+                            stars <= editRating ? "fill-amber-400 text-amber-400" : "text-text-muted"
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[9px] uppercase tracking-wider font-extrabold text-text-muted mb-1">
+                  Share your experience (optional)
+                </label>
+                <textarea
+                  rows={4}
+                  placeholder="Tell us about the project quality, responsiveness, or timeline..."
+                  value={editComment}
+                  onChange={(e) => setEditComment(e.target.value)}
+                  className="w-full bg-background border border-border-custom rounded-xl p-3 text-xs text-text-main resize-none focus:outline-none focus:border-primary"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-2 justify-end pt-2">
+              <button
+                type="button"
+                onClick={() => setEditingReview(null)}
+                className="px-3.5 py-1.5 bg-background border border-border-custom rounded-lg text-text-sub text-xs font-bold"
+              >
+                Dismiss
+              </button>
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-4 py-1.5 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-lg transition"
+              >
+                Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+    </div>
   );
 }

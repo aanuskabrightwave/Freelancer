@@ -130,5 +130,5 @@ def request_refund(
 async def razorpay_webhook(request: Request, db: Session = Depends(get_db)):
     body = await request.body()
     signature = request.headers.get("X-Razorpay-Signature", "")
-    PaymentService.process_webhook(db, body, signature)
+    PaymentService.handle_webhook(db, body, signature)
     return {"status": "success"}

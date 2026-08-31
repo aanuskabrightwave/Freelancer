@@ -40,14 +40,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   // Determine active item from path
-  let activeItem = "Dashboard";
-  if (pathname.includes("/admin/users")) activeItem = "Users";
-  else if (pathname.includes("/admin/freelancers")) activeItem = "Freelancers";
-  else if (pathname.includes("/admin/bookings")) activeItem = "Bookings";
-  else if (pathname.includes("/admin/payments")) activeItem = "Payments";
+  let activeItem = "Overview";
+  if (pathname.includes("/admin/dashboard")) activeItem = "Overview";
+  else if (pathname.includes("/admin/bookings")) activeItem = "Booking Inbox";
+  else if (pathname.includes("/admin/job-posts")) activeItem = "Job Posts";
+  else if (pathname.includes("/admin/assignments")) activeItem = "Assignments";
+  else if (pathname.includes("/admin/active-jobs")) activeItem = "Active Jobs";
+  else if (pathname.includes("/admin/deliveries")) activeItem = "Deliveries";
+  else if (pathname.includes("/admin/completed-jobs")) activeItem = "Completed Jobs";
   else if (pathname.includes("/admin/disputes")) activeItem = "Disputes";
-  else if (pathname.includes("/admin/settings")) activeItem = "Settings";
-  else if (pathname.includes("/admin/verification")) activeItem = "Verification";
+  else if (pathname.includes("/admin/settings")) activeItem = "Platform Settings";
+  else if (pathname.includes("/admin/verification")) activeItem = "Verifications";
   else if (pathname.includes("/admin/audit")) activeItem = "Audit Logs";
 
   return (

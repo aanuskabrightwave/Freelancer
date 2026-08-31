@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { getMediaUrl } from "@/lib/api";
 import { marketplaceService } from "@/services/service.service";
@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { bookingService } from "@/services/booking.service";
 import { messageService } from "@/services/message.service";
 import Container from "@/components/ui/Container";
+import BookProfessionalModal from "@/components/common/BookProfessionalModal";
 
 const SERVICE_TYPE_LABELS = {
   ON_SITE: "On-Site Delivery",
@@ -18,6 +19,7 @@ const SERVICE_TYPE_LABELS = {
 
 export default function ServiceDetailClient({ id }: { id: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [service, setService] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
@@ -31,10 +33,19 @@ export default function ServiceDetailClient({ id }: { id: string }) {
   const { user } = useAuth();
   const [showCheckout, setShowCheckout] = useState(false);
   const [bookingDate, setBookingDate] = useState("");
+
   const [notes, setNotes] = useState("");
   const [reqAnswers, setReqAnswers] = useState<Record<string, string>>({});
   const [bookingError, setBookingError] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [isBookModalOpen, setIsBookModalOpen] = useState(false);
+
+  // Auto-open modal if URL query param 'book' is present (Part 21, 31)
+  useEffect(() => {
+    if (searchParams.get("book") === "true") {
+      setIsBookModalOpen(true);
+    }
+  }, [searchParams]);
 
   const handleCheckoutClick = () => {
     if (!user) {
@@ -45,7 +56,7 @@ export default function ServiceDetailClient({ id }: { id: string }) {
       alert("Freelancers cannot book services. Please log in as a Client.");
       return;
     }
-    setShowCheckout(true);
+    setIsBookModalOpen(true);
   };
 
   const handleContactClick = async () => {
@@ -434,13 +445,6 @@ export default function ServiceDetailClient({ id }: { id: string }) {
                     >
                       Continue (₹{parseInt(activePackage.price).toLocaleString()})
                     </button>
-                    <button
-                      onClick={handleContactClick}
-                      disabled={bookingLoading}
-                      className="w-full py-3 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-xs font-bold rounded-full transition text-center cursor-pointer"
-                    >
-                      Contact Freelancer
-                    </button>
                   </div>
                 </div>
               ) : (
@@ -575,6 +579,15 @@ export default function ServiceDetailClient({ id }: { id: string }) {
             </form>
           </div>
         </div>
+      )}
+      {service && (
+        <BookProfessionalModal
+          isOpen={isBookModalOpen}
+          onClose={() => setIsBookModalOpen(false)}
+          freelancer={service.freelancer}
+          service={service}
+          activePackage={service.packages?.find((p: any) => p.package_type === activePkgType)}
+        />
       )}
     </div>
   );

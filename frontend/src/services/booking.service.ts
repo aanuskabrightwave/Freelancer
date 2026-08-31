@@ -110,6 +110,33 @@ export const bookingService = {
     return api.post(`/bookings/${id}/approve-final`, {});
   },
 
+  async respondToReplacement(
+    bookingId: number | string,
+    assignmentId: number | string,
+    approved: boolean,
+    notes?: string
+  ): Promise<any> {
+    return api.post(`/client/bookings/${bookingId}/replacement/${assignmentId}/respond`, {
+      approved,
+      notes
+    });
+  },
+
+  async getFreelancerAssignments(): Promise<any[]> {
+    return api.get("/freelancer/assignments");
+  },
+
+  async acceptAssignment(id: number | string): Promise<any> {
+    return api.post(`/freelancer/assignments/${id}/accept`, {});
+  },
+
+  async rejectAssignment(
+    id: number | string,
+    data: { reason: string; counter_offer_amount?: number; counter_offer_notes?: string }
+  ): Promise<any> {
+    return api.post(`/freelancer/assignments/${id}/reject`, data);
+  },
+
   async openDispute(id: number | string, reason: string, description: string): Promise<any> {
     return api.post(`/bookings/${id}/disputes`, { reason, description });
   }

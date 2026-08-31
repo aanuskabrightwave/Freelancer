@@ -38,3 +38,28 @@ class DeliveryCreatePayload(BaseModel):
     title: str = Field(..., min_length=2, max_length=255)
     message: Optional[str] = None
     file_ids: List[int] = Field(default_factory=list)
+
+
+class AdminDeliveryListItem(BaseModel):
+    id: int
+    booking_id: int
+    booking_number: str
+    booking_title: Optional[str] = None
+    client_name: str
+    freelancer_name: Optional[str] = None
+    delivery_type: str
+    version: int
+    title: str
+    status: str
+    admin_review_status: str
+    submitted_at: datetime
+    shared_with_client_at: Optional[datetime] = None
+    approved_at: Optional[datetime] = None
+    revision_count: int
+    agreed_amount: float
+    deposit_paid_amount: float
+    remaining_balance: float
+    payment_completion_state: str
+
+    model_config = ConfigDict(from_attributes=True)
+

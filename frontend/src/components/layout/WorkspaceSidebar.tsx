@@ -63,8 +63,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       group: "Discover",
       items: [
         { name: "Explore Creatives", href: "/freelancers", icon: Users },
-        { name: "Services", href: "/services", icon: Briefcase },
-        { name: "Browse Projects", href: "/client/browse-projects", icon: FileText }
+        { name: "Browse Services", href: "/services", icon: Briefcase }
       ]
     },
     {
@@ -72,7 +71,8 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       items: [
         { name: "My Projects", href: "/client/projects", icon: FolderOpen },
         { name: "Bookings", href: "/client/bookings", icon: Calendar },
-        { name: "Messages", href: "/client/messages", icon: MessageSquare }
+        { name: "Messages", href: "/client/messages", icon: MessageSquare },
+        { name: "Deliveries", href: "/client/deliveries", icon: FileText }
       ]
     },
     {
@@ -86,7 +86,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       items: [
         { name: "Favourites", href: "/client/favourites", icon: Heart },
         { name: "Reviews", href: "/client/reviews", icon: Star },
-        { name: "Notifications", href: "/notifications", icon: Bell }
+        { name: "Notifications", href: "/client/notifications", icon: Bell }
       ]
     },
     {
@@ -121,17 +121,11 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       ]
     },
     {
-      group: "Find Work",
-      items: [
-        { name: "Browse Projects", href: "/freelancer/jobs", icon: FileText },
-        { name: "My Proposals", href: "/freelancer/proposals", icon: FolderOpen }
-      ]
-    },
-    {
       group: "Work",
       items: [
         { name: "Bookings", href: "/freelancer/bookings", icon: Calendar },
-        { name: "Messages", href: "/freelancer/messages", icon: MessageSquare }
+        { name: "Messages", href: "/freelancer/messages", icon: MessageSquare },
+        { name: "Deliveries", href: "/freelancer/bookings", icon: FileText }
       ]
     },
     {

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FolderOpen, Calendar, ArrowRight, DollarSign, Search, Filter, MapPin } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -11,6 +12,12 @@ import LoadingState from "@/components/common/LoadingState";
 import EmptyState from "@/components/common/EmptyState";
 
 export default function FreelancerBrowseJobsPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/freelancer/bookings");
+  }, [router]);
+
   const [jobs, setJobs] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);

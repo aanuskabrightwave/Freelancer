@@ -4,14 +4,12 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
-import { freelancerService } from "@/services/freelancer.service";
 import { bookingService } from "@/services/booking.service";
-import { marketplaceService } from "@/services/service.service";
-import { projectService } from "@/services/project.service";
+import { paymentService } from "@/services/payment.service";
 import { notificationService } from "@/services/notification.service";
+import { freelancerService } from "@/services/freelancer.service";
+import { workspaceService } from "@/services/workspace.service";
 import { 
-  Plus, 
-  Search, 
   AlertCircle, 
   CheckCircle, 
   Clock, 
@@ -24,231 +22,289 @@ import {
   MapPin,
   ShieldCheck,
   Award,
-  BookOpen
+  BookOpen,
+  DollarSign,
+  Briefcase,
+  HelpCircle,
+  Inbox
 } from "lucide-react";
 
 export default function FreelancerDashboardPage() {
   const { user } = useAuth();
   const router = useRouter();
 
-  // Metrics & State
+  // Dashboard Data States
   const [profile, setProfile] = useState<any | null>(null);
-  const [activeCount, setActiveCount] = useState(0);
-  const [upcomingCount, setUpcomingCount] = useState(0);
-  const [totalEarnings, setTotalEarnings] = useState(0);
   const [bookings, setBookings] = useState<any[]>([]);
-  const [opportunities, setOpportunities] = useState<any[]>([]);
+  const [assignments, setAssignments] = useState<any[]>([]);
+  const [earnings, setEarnings] = useState<any>({
+    total_earned: 0,
+    pending: 0,
+    available: 0,
+    paid_out: 0
+  });
   const [unreadCount, setUnreadCount] = useState(0);
+  const [bookingRevisions, setBookingRevisions] = useState<Record<number, any[]>>({});
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      try {
-        setLoading(true);
-        setErrorMsg(null);
+  async function loadDashboardData() {
+    try {
+      setLoading(true);
+      setErrorMsg(null);
 
-        // Fetch Profile
-        try {
-          const prof = await freelancerService.getProfile();
-          setProfile(prof);
-        } catch (e) {
-          // If not onboarded yet, profile might fail
-          setProfile(null);
-        }
+      // Fetch all required dashboard datasets in parallel (Part 33 & 34)
+      const [profData, bookingsData, assignmentsData, earningsData, unreadData] = await Promise.all([
+        freelancerService.getProfile().catch(() => null),
+        bookingService.getFreelancerBookings().catch(() => []),
+        bookingService.getFreelancerAssignments().catch(() => []),
+        paymentService.getFreelancerEarnings().catch(() => ({ total_earned: 0, pending: 0, available: 0, paid_out: 0 })),
+        notificationService.getUnreadCount().catch(() => ({ count: 0 }))
+      ]);
 
-        // Fetch Bookings
-        const bookingsList = await bookingService.getFreelancerBookings();
-        setBookings(bookingsList);
+      setProfile(profData);
+      setBookings(bookingsData);
+      setAssignments(assignmentsData);
+      setEarnings(earningsData);
+      setUnreadCount(unreadData.count);
 
-        let active = 0;
-        let upcoming = 0;
-        let earnings = 0;
-
-        bookingsList.forEach(b => {
-          if (["REQUESTED", "CONFIRMED", "IN_PROGRESS", "DELIVERY_PENDING", "RESCHEDULE_REQUESTED"].includes(b.status)) {
-            active += 1;
+      // Query revisions for any active booking in parallel (Part 3)
+      const inProgressBookings = bookingsData.filter((b) => b.status === "IN_PROGRESS");
+      const revsMap: Record<number, any[]> = {};
+      await Promise.all(
+        inProgressBookings.map(async (b) => {
+          try {
+            const revList = await workspaceService.getRevisions(b.id);
+            revsMap[b.id] = revList;
+          } catch (err) {
+            revsMap[b.id] = [];
           }
-          if (["CONFIRMED", "IN_PROGRESS"].includes(b.status)) {
-            upcoming += 1;
-          }
-          if (b.status === "COMPLETED") {
-            earnings += parseFloat(b.agreed_amount || b.price || "0");
-          }
-        });
-
-        setActiveCount(active);
-        setUpcomingCount(upcoming);
-        setTotalEarnings(earnings);
-
-        // Fetch real open client projects/jobs for opportunities
-        try {
-          const params = { status: "OPEN" };
-          const ops = await projectService.listProjects(params);
-          const sortedOps = (ops || [])
-            .filter((p: any) => p.status === "OPEN")
-            .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-          setOpportunities(sortedOps.slice(0, 3));
-        } catch (e) {
-          console.error("Failed to load opportunities", e);
-        }
-
-        // Fetch notifications
-        try {
-          const countRes = await notificationService.getUnreadCount();
-          setUnreadCount(countRes.count);
-        } catch (e) {
-          console.error("Failed to load notifications count", e);
-        }
-
-      } catch (err) {
-        setErrorMsg("Failed to load freelancer dashboard metrics.");
-      } finally {
-        setLoading(false);
-      }
+        })
+      );
+      setBookingRevisions(revsMap);
+    } catch (err) {
+      setErrorMsg("We couldn't load your dashboard. Please try again.");
+    } finally {
+      setLoading(false);
     }
+  }
 
+  useEffect(() => {
     if (user) {
       loadDashboardData();
     }
   }, [user]);
 
-  if (loading) {
-    return (
-      <div className="flex flex-col gap-6 p-8 animate-pulse font-sans">
-        <div className="h-8 bg-surface-elevated rounded-lg w-1/3"></div>
-        <div className="h-20 bg-surface-elevated rounded-2xl w-full"></div>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {[1, 2, 3, 4].map(n => (
-            <div key={n} className="h-28 bg-surface-elevated rounded-2xl"></div>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="h-64 bg-surface-elevated rounded-2xl"></div>
-          <div className="h-64 bg-surface-elevated rounded-2xl"></div>
-        </div>
-      </div>
-    );
-  }
-
-  const completion = profile ? profile.profile_completion_percentage : 0;
-  const verification = profile ? profile.verification_status : "NOT_SUBMITTED";
-  const portfolioCount = profile?.portfolio?.length || 0;
-
-  const getVerificationLabel = (status: string) => {
+  // Status mapping logic (Part 8 & 27)
+  const getFriendlyAssignmentStatus = (status: string, hasCounter: boolean) => {
     switch (status) {
-      case "VERIFIED": return "Verified";
-      case "PENDING": return "Pending";
-      case "REJECTED": return "Rejected";
-      default: return "Not Submitted";
+      case "OFFERED":
+        return { label: "Awaiting Your Response", style: "bg-amber-500/10 border-amber-500/30 text-amber-400 font-bold animate-pulse" };
+      case "REJECTED":
+        return hasCounter
+          ? { label: "Counter Sent", style: "bg-blue-500/10 border-blue-500/30 text-blue-400" }
+          : { label: "Declined", style: "bg-rose-500/10 border-rose-500/30 text-rose-400" };
+      case "ACCEPTED":
+        return { label: "Waiting for Client Approval", style: "bg-purple-500/10 border-purple-500/30 text-purple-400" };
+      case "CONFIRMED":
+        return { label: "Confirmed", style: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" };
+      default:
+        return { label: status.replace(/_/g, " "), style: "bg-surface-elevated border-border-custom text-text-sub" };
     }
   };
 
-  // Needs Attention items
-  const attentionItems: { label: string; actionText: string; link: string; type: "booking" | "profile" | "message" }[] = [];
+  // Profile completion percentage helpers (Part 18)
+  const completion = profile ? profile.profile_completion_percentage : 0;
+  const verification = profile ? profile.verification_status : "NOT_SUBMITTED";
 
-  // 1. Pending Booking Requests awaiting response
-  bookings.forEach(b => {
-    if (b.status === "REQUESTED") {
+  // Build Actionable Needs Your Attention Items (Part 5)
+  const attentionItems: { label: string; actionText: string; link: string; type: "assignment" | "work" | "profile" | "message" }[] = [];
+
+  // 1. Pending Offered Assignments
+  assignments.forEach((a) => {
+    if (a.status === "OFFERED") {
       attentionItems.push({
-        label: `New booking request #${b.booking_number} from client. Action required.`,
-        actionText: "Accept / Reject →",
-        link: "/freelancer/bookings",
-        type: "booking"
+        label: `New assignment request for ${a.title || "Creative Brief"}. Offered payout: ₹${Number(a.offered_payout_amount).toLocaleString("en-IN")}.`,
+        actionText: "Review Offer",
+        link: `/freelancer/bookings`, // Detailed accept/reject is located inside bookings/assignments workflow (Part 9)
+        type: "assignment"
       });
     }
   });
 
-  // 2. Profile completion alert
+  // 2. Confirmed bookings ready to start (deposit paid but work not started)
+  bookings.forEach((b) => {
+    const revs = bookingRevisions[b.id] || [];
+    const activeRev = revs.find((r) => r.status === "OPEN" || r.status === "IN_PROGRESS");
+    if (b.status === "IN_PROGRESS" && activeRev) {
+      attentionItems.push({
+        label: `Revision Required: "${activeRev.title}" for booking ${b.booking_number}.`,
+        actionText: "View Revision",
+        link: `/freelancer/bookings/${b.id}`,
+        type: "work"
+      });
+    }
+
+    if (b.status === "CONFIRMED" && b.payment_completion_state !== "UNPAID") {
+      attentionItems.push({
+        label: `Client deposit confirmed for ${b.title || "Creative Booking"}. Ready to begin work.`,
+        actionText: "View Booking",
+        link: `/freelancer/bookings/${b.id}`,
+        type: "work"
+      });
+    }
+  });
+
+  // 3. Profile Completion Alert
   if (!profile || completion < 100) {
     attentionItems.push({
-      label: `Your freelancer profile is only ${completion}% complete. Complete it to unlock search.`,
-      actionText: "Complete Profile →",
-      link: "/freelancer/onboarding",
+      label: `Your professional profile is only ${completion}% complete. Fill out details to rank higher.`,
+      actionText: "Complete Profile",
+      link: "/freelancer/profile",
       type: "profile"
     });
   }
 
-  // 3. Unread Notifications / Messages alert
+  // 4. Unread Messages alert
   if (unreadCount > 0) {
     attentionItems.push({
-      label: `You have ${unreadCount} unread system notifications.`,
-      actionText: "View Alerts →",
-      link: "/notifications",
+      label: `You have unread system notifications or coordination alerts.`,
+      actionText: "View Alerts",
+      link: "/notifications", // Point directly to verified notification center route
       type: "message"
     });
   }
 
   const getAlertIcon = (type: string) => {
     switch (type) {
-      case "booking": return <Calendar className="w-4 h-4 text-primary" />;
-      case "profile": return <AlertCircle className="w-4 h-4 text-primary" />;
-      default: return <MessageSquare className="w-4 h-4 text-primary" />;
+      case "assignment":
+        return <BookOpen className="w-4 h-4 text-amber-400" />;
+      case "work":
+        return <CheckCircle className="w-4 h-4 text-emerald-400" />;
+      case "profile":
+        return <AlertCircle className="w-4 h-4 text-primary" />;
+      default:
+        return <MessageSquare className="w-4 h-4 text-blue-450" />;
     }
   };
 
+  // Filters active bookings for list summary
+  const activeBookings = bookings.filter((b) =>
+    ["REQUESTED", "CONFIRMED", "IN_PROGRESS", "DELIVERY_PENDING"].includes(b.status)
+  );
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6 p-8 animate-pulse font-sans bg-background min-h-screen">
+        <div className="h-8 bg-surface border border-border-custom rounded-lg w-1/3"></div>
+        <div className="h-20 bg-surface border border-border-custom rounded-2xl w-full"></div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {[1, 2, 3, 4].map(n => (
+            <div key={n} className="h-28 bg-surface border border-border-custom rounded-2xl"></div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-background text-text-main py-8 px-6 font-sans space-y-8 animate-in fade-in duration-300">
+    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans space-y-8">
       
-      {/* Top Welcome Panel */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      {/* Welcome Block */}
+      <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-1">
-            Freelancer Workspace
+            Professional Workspace
           </span>
-          <h1 className="text-2xl md:text-3xl font-semibold text-text-main tracking-tight">
-            Welcome, {user?.full_name?.split(" ")[0] || "Freelancer"}
+          <h1 className="text-xl md:text-2xl font-black text-text-main">
+            Welcome back, {user?.full_name?.split(" ")[0] || "Specialist"}
           </h1>
           <p className="text-text-sub text-xs mt-1">
-            Here's what's happening with your creative business.
+            Manage your assignments, view schedule balances, and complete coordination deliverables.
           </p>
         </div>
         
-        {/* QUICK ACTIONS */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push("/freelancer/jobs")}
-            className="flex items-center gap-1.5 px-4 py-2 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-xs font-bold rounded-full transition shadow-xs cursor-pointer"
+        {/* Quick Actions (Part 17) */}
+        <div className="flex gap-2">
+          <Link
+            href="/freelancer/profile"
+            className="px-4 py-2 bg-surface-elevated hover:bg-surface border border-border-custom text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer"
           >
-            <Search className="w-3.5 h-3.5" />
-            <span>Browse Projects</span>
-          </button>
-          <button
-            onClick={() => router.push("/freelancer/services/new")}
-            className="flex items-center gap-1.5 px-4 py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-full transition shadow-xs cursor-pointer"
+            Manage Profile
+          </Link>
+          <Link
+            href="/freelancer/services"
+            className="px-4 py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>Create Service</span>
-          </button>
+            Manage Services
+          </Link>
         </div>
       </div>
 
       {errorMsg && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl p-4 text-xs font-medium">
+        <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 rounded-xl p-4 text-xs">
           {errorMsg}
         </div>
       )}
 
-      {/* NEEDS YOUR ATTENTION */}
-      <section className="bg-surface border border-border-custom rounded-3xl p-6 space-y-4 shadow-xs">
-        <div className="flex items-center gap-2 border-b border-border-custom/50 pb-3">
-          <AlertCircle className="w-4 h-4 text-primary" />
-          <h2 className="text-xs font-bold uppercase tracking-wider text-text-main">
-            Needs Your Attention
-          </h2>
+      {/* Metrics Widgets Grid (Part 4, 19, 20, 21) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="bg-surface border border-border-custom rounded-2xl p-5 flex items-center justify-between shadow-md">
+          <div>
+            <span className="text-[10px] text-text-muted uppercase tracking-wider font-extrabold block">Awaiting Response</span>
+            <span className="text-2xl font-black mt-1 block">{assignments.filter(a => a.status === "OFFERED").length} Offers</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+            <Clock className="w-5 h-5" />
+          </div>
         </div>
+
+        <div className="bg-surface border border-border-custom rounded-2xl p-5 flex items-center justify-between shadow-md">
+          <div>
+            <span className="text-[10px] text-text-muted uppercase tracking-wider font-extrabold block">Active Jobs</span>
+            <span className="text-2xl font-black mt-1 block">{activeBookings.length} Bookings</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
+            <Briefcase className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="bg-surface border border-border-custom rounded-2xl p-5 flex items-center justify-between shadow-md">
+          <div>
+            <span className="text-[10px] text-text-muted uppercase tracking-wider font-extrabold block">Locked Earnings (Escrow)</span>
+            <span className="text-2xl font-black mt-1 block text-amber-450">₹{Number(earnings.pending).toLocaleString("en-IN")}</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+            <DollarSign className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="bg-surface border border-border-custom rounded-2xl p-5 flex items-center justify-between shadow-md">
+          <div>
+            <span className="text-[10px] text-text-muted uppercase tracking-wider font-extrabold block">Available to Withdraw</span>
+            <span className="text-2xl font-black mt-1 block text-emerald-450">₹{Number(earnings.available).toLocaleString("en-IN")}</span>
+          </div>
+          <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+            <CheckCircle className="w-5 h-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* Needs Your Attention (Part 5) */}
+      <section className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-4">
+        <h3 className="text-xs font-black text-text-main uppercase tracking-wider">Needs Your Attention</h3>
         
         {attentionItems.length > 0 ? (
-          <div className="divide-y divide-border-custom/30">
+          <div className="divide-y divide-border-custom/30 text-xs font-semibold text-text-sub">
             {attentionItems.map((item, idx) => (
-              <div key={idx} className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3.5 first:pt-1 last:pb-1">
-                <div className="flex items-center gap-3 text-xs text-text-sub font-medium">
+              <div key={idx} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 first:pt-0 last:pb-0">
+                <div className="flex items-center gap-3">
                   {getAlertIcon(item.type)}
-                  <span>{item.label}</span>
+                  <span className="leading-relaxed">{item.label}</span>
                 </div>
                 <Link
                   href={item.link}
-                  className="text-xs text-primary font-bold hover:underline self-start sm:self-auto"
+                  className="px-3.5 py-1 bg-surface hover:bg-surface-elevated border border-border-custom text-[10px] font-bold rounded-xl transition cursor-pointer text-center shrink-0 self-start sm:self-auto"
                 >
                   {item.actionText}
                 </Link>
@@ -256,228 +312,194 @@ export default function FreelancerDashboardPage() {
             ))}
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-xs text-success font-medium py-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <span>You're all caught up. Business operational.</span>
+          <div className="py-2 flex items-center gap-2 text-xs text-emerald-450 font-bold">
+            <CheckCircle className="w-4 h-4" />
+            <span>You're all caught up. Ready for assignments!</span>
           </div>
         )}
       </section>
 
-      {/* FREELANCER SUMMARY CARDS (4-Column Grid) */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        
-        <Link href="/freelancer/earnings" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Earnings</span>
-          <div className="flex items-baseline justify-between">
-            <span className="text-2xl font-extrabold text-primary">₹{totalEarnings.toLocaleString()}</span>
-            <span className="text-[10px] text-primary font-bold flex items-center gap-0.5">
-              Ledger <ChevronRight className="w-3 h-3" />
-            </span>
-          </div>
-        </Link>
-
-        <Link href="/freelancer/bookings" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Active Shoots</span>
-          <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-extrabold text-text-main group-hover:text-primary transition">{activeCount}</span>
-            <span className="text-[10px] text-primary font-bold flex items-center gap-0.5">
-              Bookings <ChevronRight className="w-3 h-3" />
-            </span>
-          </div>
-        </Link>
-
-        <Link href="/freelancer/bookings" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Upcoming Work</span>
-          <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-extrabold text-text-main group-hover:text-primary transition">{upcomingCount}</span>
-            <span className="text-[10px] text-primary font-bold flex items-center gap-0.5">
-              Schedule <ChevronRight className="w-3 h-3" />
-            </span>
-          </div>
-        </Link>
-
-        <div className="bg-surface border border-border-custom/70 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Verification</span>
-          <div className="flex items-baseline justify-between">
-            <span className={`text-xs font-bold ${verification === "VERIFIED" ? "text-success" : "text-primary"}`}>
-              {getVerificationLabel(verification)}
-            </span>
-            <span className="text-[10px] text-text-muted">
-              {portfolioCount} Media Uploads
-            </span>
-          </div>
-        </div>
-
-      </section>
-
-      {/* DASHBOARD CONTENT ROWS (Bookings & Opportunities) */}
+      {/* Dashboard Lists Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        {/* Left/Center Columns: Upcoming Work */}
-        <section className="lg:col-span-2 bg-surface border border-border-custom rounded-3xl p-6 space-y-6 shadow-xs">
-          <div className="flex items-center justify-between border-b border-border-custom/50 pb-3">
-            <h3 className="text-sm font-bold text-text-main flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-primary" />
-              <span>Upcoming & Active Work</span>
-            </h3>
-            <Link href="/freelancer/bookings" className="text-xs text-primary font-bold hover:underline">
-              View All Work →
-            </Link>
-          </div>
-
-          <div className="space-y-4">
-            {bookings.length > 0 ? (
-              bookings.slice(0, 3).map((b) => (
-                <div key={b.id} className="p-4 border border-border-custom/60 rounded-2xl hover:border-border-custom transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono font-bold text-primary">{b.booking_number}</span>
-                      <span className="text-[8px] px-2 py-0.5 border border-primary/20 bg-primary/5 rounded-full text-primary font-extrabold uppercase">
-                        {b.status}
-                      </span>
-                    </div>
-                    <h4 className="text-xs font-bold text-text-main leading-snug">{b.title || "Creative Shoot"}</h4>
-                    <p className="text-[10px] text-text-sub font-medium">
-                      Date: {b.scheduled_date ? `${b.scheduled_date} (${String(b.start_time).substring(0, 5)})` : "Not scheduled"}
-                    </p>
-                  </div>
-                  
-                  <Link
-                    href={`/freelancer/bookings/${b.id}`}
-                    className="px-4 py-2 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-[10px] font-bold rounded-full transition text-center"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              ))
-            ) : (
-              <div className="py-12 text-center text-text-muted border border-dashed border-border-custom/50 rounded-2xl bg-surface-elevated">
-                <p className="text-xs">No booking inquiries received yet.</p>
-                <Link
-                  href="/freelancer/services/new"
-                  className="mt-4 inline-block px-4 py-2 bg-primary text-text-on-dark text-[10px] font-bold rounded-full hover:bg-primary-hover transition"
-                >
-                  Create Service Package
-                </Link>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {/* Right column: Profile strength indicator */}
-        <section className="bg-surface border border-border-custom rounded-3xl p-6 space-y-6 shadow-xs">
-          <div className="flex items-center gap-2 border-b border-border-custom/50 pb-3">
-            <Award className="w-4 h-4 text-primary" />
-            <h3 className="text-sm font-bold text-text-main">Profile Strength</h3>
-          </div>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between text-xs font-bold">
-              <span className="text-text-sub">Completion Progress</span>
-              <span className="text-primary">{completion}%</span>
-            </div>
+        {/* Offered Assignments & Active Bookings (Left Columns) */}
+        <div className="lg:col-span-2 space-y-8">
+          
+          {/* Offered Assignments Section (Part 6) */}
+          <section className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-4">
+            <h3 className="text-xs font-black text-text-main uppercase tracking-wider">Admin Booking Assignments</h3>
             
-            {/* Visual Progress Bar */}
-            <div className="w-full bg-border-custom rounded-full h-2">
-              <div 
-                className="bg-primary h-2 rounded-full transition-all duration-500" 
-                style={{ width: `${completion}%` }}
-              ></div>
-            </div>
-
-            <div className="space-y-3 pt-2 text-xs text-text-sub">
-              {completion < 100 ? (
-                <>
-                  <p className="leading-relaxed font-normal">To reach 100% and rank higher:</p>
-                  <ul className="list-disc pl-4 space-y-1.5 text-text-muted leading-relaxed font-normal">
-                    <li>Add physical gear & equipment</li>
-                    <li>Upload sample portfolio images/videos</li>
-                    <li>Configure calendar override availability</li>
-                  </ul>
-                </>
-              ) : (
-                <p className="text-success font-semibold leading-relaxed">
-                  ✨ Excellent! Your profile is 100% complete and fully visible in the public directory search index.
-                </p>
-              )}
-            </div>
-
-            <Link
-              href="/freelancer/profile"
-              className="w-full mt-4 block py-2.5 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-xs font-bold rounded-full text-center transition"
-            >
-              Complete Profile
-            </Link>
-          </div>
-        </section>
-
-      </div>
-
-      {/* NEW PROJECT OPPORTUNITIES (Horizontal Project Briefs Grid) */}
-      <section className="space-y-6">
-        <div className="flex items-center justify-between border-b border-border-custom/50 pb-3">
-          <h3 className="text-sm font-bold text-text-main flex items-center gap-2">
-            <BookOpen className="w-4 h-4 text-primary" />
-            <span>New Project Opportunities</span>
-          </h3>
-          <Link href="/freelancer/jobs" className="text-xs text-primary font-bold hover:underline">
-            Browse Jobs →
-          </Link>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {opportunities.length > 0 ? (
-            opportunities.slice(0, 3).map((job) => {
-              return (
-                <div 
-                  key={job.id}
-                  className="bg-surface border border-border-custom/60 rounded-2xl overflow-hidden hover:border-primary/20 transition flex flex-col justify-between shadow-xs group"
-                >
-                  <div className="aspect-[4/3] bg-surface-elevated relative overflow-hidden flex flex-col items-center justify-center border-b border-border-custom/50 px-4 text-center">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-indigo-500/10 opacity-70"></div>
-                    <BookOpen className="w-10 h-10 text-primary/40 relative z-10 mb-2" />
-                    <span className="text-[10px] text-text-sub font-bold uppercase tracking-widest relative z-10">
-                      Project Brief
-                    </span>
-                    <span className="absolute top-3 left-3 bg-dark/80 backdrop-blur-xs px-2.5 py-0.5 rounded text-[8px] font-black uppercase text-primary tracking-wider z-10">
-                      {job.project_type || "REMOTE"}
-                    </span>
-                  </div>
-
-                  <div className="p-4 flex-grow flex flex-col justify-between">
-                    <div>
-                      <h4 className="text-xs font-bold text-text-main group-hover:text-primary transition line-clamp-2 leading-relaxed">{job.title}</h4>
-                      <div className="flex items-center gap-1.5 text-[10px] text-text-sub mt-1">
-                        <MapPin className="w-3 h-3 text-text-muted" />
-                        <span>{job.city || "Remote"}</span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-border-custom/50 flex justify-between items-center text-xs">
-                      <div>
-                        <span className="text-[9px] text-text-muted block">Budget Range</span>
-                        <span className="font-extrabold text-text-main text-[11px]">
-                          ₹{Number(job.budget_min).toLocaleString()} - ₹{Number(job.budget_max).toLocaleString()}
+            {assignments.length > 0 ? (
+              <div className="space-y-4">
+                {assignments.map((assign) => {
+                  const hasCounter = assign.counter_offer_amount !== null;
+                  const status = getFriendlyAssignmentStatus(assign.status, hasCounter);
+                  
+                  return (
+                    <div
+                      key={assign.id}
+                      className="border border-border-custom/50 rounded-2xl p-4 bg-surface-elevated/20 space-y-3"
+                    >
+                      <div className="flex justify-between items-start flex-wrap gap-2">
+                        <div>
+                          <span className="text-[9px] text-text-muted font-mono font-bold">{assign.booking_number}</span>
+                          <h4 className="font-extrabold text-sm text-text-main mt-0.5">{assign.title || "Creative Shoot"}</h4>
+                        </div>
+                        <span className={`px-2 py-0.5 rounded text-[8px] font-bold border uppercase tracking-wider ${status.style}`}>
+                          {status.label}
                         </span>
                       </div>
-                      <button
-                        onClick={() => router.push(`/freelancer/jobs/${job.id}`)}
-                        className="px-3.5 py-1.5 bg-surface-elevated hover:bg-surface border border-border-custom text-[10px] font-bold rounded-full transition cursor-pointer"
-                      >
-                        View Project
-                      </button>
+
+                      <p className="text-[10px] text-text-sub font-medium">
+                        Venue: <span className="text-text-main font-bold">{assign.venue_name || "Coordinator Assigned"}</span> 
+                        {assign.location_city && ` (${assign.location_city}, ${assign.location_state || ""})`}
+                      </p>
+
+                      <div className="pt-2 border-t border-border-custom/30 flex justify-between items-center flex-wrap gap-2">
+                        <div>
+                          <span className="text-[8px] text-text-muted uppercase block">Offered Payout</span>
+                          <span className="font-extrabold text-xs text-text-main">
+                            ₹{Number(assign.offered_payout_amount).toLocaleString("en-IN")}
+                          </span>
+                        </div>
+
+                        <Link
+                          href="/freelancer/bookings"
+                          className="px-3.5 py-1.5 bg-surface hover:bg-surface-elevated border border-border-custom text-[10px] font-bold rounded-xl transition cursor-pointer"
+                        >
+                          Review Assignment
+                        </Link>
+                      </div>
+
                     </div>
-                  </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="py-12 text-center text-xs text-text-muted flex flex-col justify-center items-center space-y-3 bg-surface-elevated/10 border border-dashed border-border-custom/50 rounded-2xl">
+                <Inbox className="w-8 h-8 text-text-muted" />
+                <div>
+                  <h4 className="font-bold text-text-main text-[11px]">No new assignments right now</h4>
+                  <p className="text-[9px] text-text-sub mt-1">New booking opportunities assigned by our team will appear here.</p>
                 </div>
-              );
-            })
-          ) : (
-            <div className="col-span-full py-12 text-center text-text-muted border border-dashed border-border-custom/50 rounded-2xl bg-surface-elevated">
-              <p className="text-xs">No open projects available right now.</p>
+              </div>
+            )}
+          </section>
+
+          {/* Active Bookings (Part 10) */}
+          <section className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-4">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xs font-black text-text-main uppercase tracking-wider">Active Bookings</h3>
+              <Link href="/freelancer/bookings" className="text-[10px] font-bold text-primary hover:underline">
+                View All
+              </Link>
             </div>
-          )}
+
+            {activeBookings.length > 0 ? (
+              <div className="space-y-4">
+                {activeBookings.map((b) => {
+                  const depPaid = b.payment_completion_state !== "UNPAID";
+                  
+                  return (
+                    <div
+                      key={b.id}
+                      className="border border-border-custom/50 rounded-2xl p-4 bg-surface-elevated/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4"
+                    >
+                      <div className="space-y-1">
+                        <span className="text-[9px] text-text-muted font-mono font-bold">{b.booking_number}</span>
+                        <h4 className="font-extrabold text-sm text-text-main">{b.title}</h4>
+                        <div className="flex gap-2.5 text-[9px] font-bold uppercase tracking-wider flex-wrap">
+                          <span className={`px-1.5 py-0.2 rounded border ${
+                            depPaid ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" : "bg-rose-500/10 border-rose-500/30 text-rose-400"
+                          }`}>
+                            {depPaid ? "Deposit Paid" : "Waiting for Deposit"}
+                          </span>
+                          <span className="px-1.5 py-0.2 rounded border bg-blue-500/10 border-blue-500/30 text-blue-400">
+                            {b.status}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/freelancer/bookings/${b.id}`}
+                        className="px-3.5 py-1.5 bg-surface hover:bg-surface-elevated border border-border-custom text-[10px] font-bold rounded-xl transition cursor-pointer text-center shrink-0 w-full sm:w-auto"
+                      >
+                        Open Job
+                      </Link>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="py-12 text-center text-xs text-text-muted bg-surface-elevated/10 border border-border-custom/40 rounded-2xl italic">
+                No active bookings.
+              </div>
+            )}
+          </section>
+
         </div>
-      </section>
+
+        {/* Profile Strength & Business Tools Column */}
+        <div className="space-y-8">
+          
+          <section className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-6">
+            <div className="flex items-center gap-2 border-b border-border-custom/50 pb-3">
+              <Award className="w-4 h-4 text-primary" />
+              <h3 className="text-xs font-black text-text-main uppercase tracking-wider">Profile Strength</h3>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex items-center justify-between text-xs font-bold">
+                <span className="text-text-sub">Completion Progress</span>
+                <span className="text-primary">{completion}%</span>
+              </div>
+              
+              <div className="w-full bg-border-custom rounded-full h-2">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-500" 
+                  style={{ width: `${completion}%` }}
+                ></div>
+              </div>
+
+              <div className="text-xs text-text-sub leading-relaxed font-medium space-y-2">
+                {completion < 100 ? (
+                  <>
+                    <p>To reach 100% and unlock public listing search:</p>
+                    <ul className="list-disc pl-4 space-y-1 text-text-muted">
+                      <li>Configure physical gear & equipment listings</li>
+                      <li>Upload high-quality portfolio images</li>
+                      <li>Add availability exceptions</li>
+                    </ul>
+                  </>
+                ) : (
+                  <p className="text-success font-semibold">
+                    ✨ Your profile is complete and actively indexing in coordinator recommendations.
+                  </p>
+                )}
+              </div>
+            </div>
+          </section>
+
+          {/* Quick Support / Contact Admin Info */}
+          <section className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl text-center space-y-4">
+            <HelpCircle className="w-8 h-8 text-primary mx-auto" />
+            <div>
+              <h4 className="font-extrabold text-sm text-text-main">Platform Managed Workflows</h4>
+              <p className="text-text-sub text-[11px] leading-relaxed mt-1">
+                All client communication and work verification is mediated securely through our coordination team. No direct payments or client links should occur.
+              </p>
+            </div>
+            <Link
+              href="/freelancer/messages"
+              className="w-full block py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer"
+            >
+              Message Coordinator
+            </Link>
+          </section>
+
+        </div>
+
+      </div>
 
     </div>
   );

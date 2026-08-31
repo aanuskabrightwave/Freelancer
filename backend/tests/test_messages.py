@@ -80,16 +80,14 @@ def test_freelancer_starts_chat_with_client_success(client, db):
 
     free_token = create_token(freelancer.id, "access", role="FREELANCER")
 
-    # Post to create conversation with client_id
+    # Post to create conversation with client_id (should fail with 403)
     res = client.post(
         "/api/v1/messages/conversations",
         json={"client_id": client_user.id},
         headers={"Authorization": f"Bearer {free_token}"},
     )
-    assert res.status_code == 200
-    data = res.json()
-    assert data["client_id"] == client_user.id
-    assert data["freelancer_id"] == freelancer.id
+    assert res.status_code == 403
+    assert "conversations are disabled" in res.json()["detail"]
 
 
 def test_freelancer_starts_chat_with_client_self_protection(client, db):
@@ -99,14 +97,13 @@ def test_freelancer_starts_chat_with_client_self_protection(client, db):
 
     free_token = create_token(freelancer.id, "access", role="FREELANCER")
 
-    # Self-messaging should yield 400 Bad Request
     res = client.post(
         "/api/v1/messages/conversations",
         json={"client_id": freelancer.id},
         headers={"Authorization": f"Bearer {free_token}"},
     )
-    assert res.status_code == 400
-    assert res.json()["detail"] == "You cannot start a conversation with yourself"
+    assert res.status_code == 403
+    assert "conversations are disabled" in res.json()["detail"]
 
 
 def test_freelancer_starts_chat_with_client_unauthorized(client, db):
@@ -117,14 +114,13 @@ def test_freelancer_starts_chat_with_client_unauthorized(client, db):
 
     free_token = create_token(freelancer.id, "access", role="FREELANCER")
 
-    # Access without booking or proposal should fail with 403 Forbidden
     res = client.post(
         "/api/v1/messages/conversations",
         json={"client_id": unrelated_client.id},
         headers={"Authorization": f"Bearer {free_token}"},
     )
     assert res.status_code == 403
-    assert "active booking or proposal" in res.json()["detail"]
+    assert "conversations are disabled" in res.json()["detail"]
 
 
 def test_client_starts_chat_with_freelancer_success(client, db):
@@ -138,13 +134,10 @@ def test_client_starts_chat_with_freelancer_success(client, db):
 
     client_token = create_token(client_user.id, "access", role="CLIENT")
 
-    # Legacy client-initiated endpoint usage
     res = client.post(
         "/api/v1/messages/conversations",
         json={"freelancer_id": profile.id},
         headers={"Authorization": f"Bearer {client_token}"},
     )
-    assert res.status_code == 200
-    data = res.json()
-    assert data["client_id"] == client_user.id
-    assert data["freelancer_id"] == freelancer.id
+    assert res.status_code == 403
+    assert "conversations are disabled" in res.json()["detail"]

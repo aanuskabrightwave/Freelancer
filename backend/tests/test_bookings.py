@@ -33,7 +33,8 @@ def create_test_freelancer(db_session, email: str) -> tuple[User, FreelancerProf
         country="India",
         service_radius_km=30,
         willing_to_travel=True,
-        profile_completion_percentage=80
+        profile_completion_percentage=80,
+        is_profile_public=True
     )
     db_session.add(profile)
     db_session.commit()
@@ -186,27 +187,62 @@ def test_booking_workflow_and_chat_logs(client, db):
     assert messages_res.status_code == 200
     assert len(messages_res.json()) >= 1
     # Check that system message contains booking details
-    assert "system notice" in messages_res.json()[0]["message_text"].lower()
+    assert "concierge" in messages_res.json()[0]["message_text"].lower() or "system notice" in messages_res.json()[0]["message_text"].lower()
 
-    # 8. Freelancer accepts booking
-    approve_res = client.put(
-        f"/api/v1/bookings/{booking_id}/status",
-        json={"status": "CONFIRMED"},
-        headers=free_headers
+    # 8. Setup Admin user and headers
+    admin_user = User(
+        full_name="Platform Admin",
+        email="admin_test_booking@example.com",
+        phone="9999999999",
+        password_hash="hashedpassword",
+        role=UserRole.ADMIN,
+        is_active=True
     )
-    assert approve_res.status_code == 200
-    assert approve_res.json()["status"] == "CONFIRMED"
+    db.add(admin_user)
+    db.commit()
+    db.refresh(admin_user)
+    admin_token = create_token(admin_user.id, "access", role="ADMIN")
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
 
-    # 9. Send direct message in thread (Client -> Freelancer)
-    msg_payload = {"message_text": "Hey freelancer, let's schedule a call."}
+    # Admin reviews booking
+    review_res = client.post(
+        f"/api/v1/admin/bookings/{booking_id}/review",
+        json={"admin_notes": "Looks good"},
+        headers=admin_headers
+    )
+    assert review_res.status_code == 200
+
+    # Admin assigns freelancer
+    assign_res = client.post(
+        f"/api/v1/admin/bookings/{booking_id}/assign",
+        json={"freelancer_profile_id": free_prof.id, "offered_payout_amount": 4000.0},
+        headers=admin_headers
+    )
+    assert assign_res.status_code == 200
+    assignment_id = assign_res.json()["id"]
+
+    # 9. Send message in thread (Client -> Admin)
+    msg_payload = {"message_text": "Hey concierge, let's schedule a call."}
     send_res = client.post(
         f"/api/v1/messages/conversations/{convo_id}",
         json=msg_payload,
         headers=client_headers
     )
     assert send_res.status_code == 201
-    assert send_res.json()["message_text"] == "Hey freelancer, let's schedule a call."
+    assert send_res.json()["message_text"] == "Hey concierge, let's schedule a call."
 
-    # 10. Fetch messages as Freelancer -> check new messages count
-    messages_free = client.get(f"/api/v1/messages/conversations/{convo_id}/messages", headers=free_headers)
-    assert len(messages_free.json()) >= 3 # 1. System booking alert, 2. System approval alert, 3. Direct Message
+    # 10. Fetch messages in Freelancer-Admin conversation
+    convo_free_res = client.get("/api/v1/freelancer/messages/conversations", headers=free_headers)
+    assert convo_free_res.status_code == 200
+    assert len(convo_free_res.json()) >= 1
+    free_convo_id = convo_free_res.json()[0]["id"]
+    
+    messages_free = client.get(f"/api/v1/messages/conversations/{free_convo_id}/messages", headers=free_headers)
+    assert len(messages_free.json()) >= 1 # contains welcoming message
+    
+    # Freelancer accepts assignment to finalize booking
+    accept_res = client.post(
+        f"/api/v1/freelancer/assignments/{assignment_id}/accept",
+        headers=free_headers
+    )
+    assert accept_res.status_code == 200

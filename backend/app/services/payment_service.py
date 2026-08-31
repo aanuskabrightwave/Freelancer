@@ -31,15 +31,10 @@ class PaymentService:
 
         # Security check: only booking client owner can pay
         if booking.client_id != user.id:
-            return {
-                "booking_id": booking.id,
-                "total_amount": float(booking.agreed_amount),
-                "amount_paid": float(booking.total_paid),
-                "remaining_amount": float(booking.remaining_balance),
-                "payment_stage": "UNKNOWN",
-                "can_pay": False,
-                "blocking_reason": "Only the client owner of this booking can initiate payment."
-            }
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only the client owner of this booking can initiate payment."
+            )
 
         if booking.status == BookingStatus.CANCELLED:
             return {
@@ -183,53 +178,51 @@ class PaymentService:
         provider = RazorpayProvider()
         is_valid = provider.verify_payment(payload)
         
-        try:
-            with db.begin_nested():
-                if not is_valid:
-                    # Mark attempt as failed
-                    attempt_data = {
-                        "payment_id": payment.id,
-                        "provider_order_id": order_id,
-                        "provider_payment_id": payload.get("razorpay_payment_id"),
-                        "status": "FAILED",
-                        "failure_code": "BAD_SIGNATURE"
+        if not is_valid:
+            # Mark attempt as failed
+            attempt_data = {
+                "payment_id": payment.id,
+                "provider_order_id": order_id,
+                "provider_payment_id": payload.get("razorpay_payment_id"),
+                "status": "FAILED",
+                "failure_code": "BAD_SIGNATURE"
+            }
+            PaymentRepository.create_attempt(db, attempt_data)
+            
+            payment.status = "FAILED"
+            payment.failure_code = "BAD_SIGNATURE"
+            payment.failure_description = "Returned signature mismatch."
+            db.commit()
+            
+            # Trigger PAYMENT_FAILED notification to client
+            try:
+                from app.services.notification_service import NotificationService
+                NotificationService.dispatch(
+                    db=db,
+                    recipient_id=payment.client_id,
+                    event_code="PAYMENT_FAILED",
+                    title="Payment Failed",
+                    message=f"An attempt to capture payment for booking '{booking.booking_number}' failed.",
+                    action_url=f"/client/bookings/{booking.id}/payment",
+                    entity_type="payment",
+                    entity_id=payment.id,
+                    deduplication_key=f"payment:{payment.id}:failed:client:{payment.client_id}",
+                    payload_meta={
+                        "booking_number": booking.booking_number,
+                        "amount": str(int(payment.gross_amount)),
+                        "booking_id": booking.id
                     }
-                    PaymentRepository.create_attempt(db, attempt_data)
-                    
-                    payment.status = "FAILED"
-                    payment.failure_code = "BAD_SIGNATURE"
-                    payment.failure_description = "Returned signature mismatch."
-                    
-                    # Trigger PAYMENT_FAILED notification to client
-                    try:
-                        from app.services.notification_service import NotificationService
-                        NotificationService.dispatch(
-                            db=db,
-                            recipient_id=payment.client_id,
-                            event_code="PAYMENT_FAILED",
-                            title="Payment Failed",
-                            message=f"An attempt to capture payment for booking '{booking.booking_number}' failed.",
-                            action_url=f"/client/bookings/{booking.id}/payment",
-                            entity_type="payment",
-                            entity_id=payment.id,
-                            deduplication_key=f"payment:{payment.id}:failed:client:{payment.client_id}",
-                            payload_meta={
-                                "booking_number": booking.booking_number,
-                                "amount": str(int(payment.gross_amount)),
-                                "booking_id": booking.id
-                            }
-                        )
-                    except Exception as e:
-                        import logging
-                        logging.getLogger("payment_service").exception("Payment failure notification failed")
+                )
+            except Exception as e:
+                import logging
+                logging.getLogger("payment_service").exception("Payment failure notification failed")
 
-                    raise HTTPException(status_code=400, detail="Invalid payment signature returned.")
+            raise HTTPException(status_code=400, detail="Invalid payment signature returned.")
 
-                # Process successful capture within transaction
-                PaymentService.mark_payment_captured(db, payment, payload.get("razorpay_payment_id"), "verify_signature")
-            db.commit()
+        try:
+            # Process successful capture
+            PaymentService.mark_payment_captured(db, payment, payload.get("razorpay_payment_id"), "verify_signature")
         except HTTPException:
-            db.commit()
             raise
         except Exception as e:
             db.rollback()

@@ -18,5 +18,9 @@ export const messageService = {
 
   async sendMessage(conversationId: number, messageText: string): Promise<any> {
     return api.post(`/messages/conversations/${conversationId}`, { message_text: messageText });
+  },
+
+  async markConversationRead(conversationId: number): Promise<any> {
+    return api.post(`/messages/conversations/${conversationId}/read`, {});
   }
 };

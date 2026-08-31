@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { FolderOpen, Calendar, DollarSign, XCircle, Clock, AlertCircle } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -12,6 +13,12 @@ import EmptyState from "@/components/common/EmptyState";
 type TabType = "PENDING" | "ACCEPTED" | "REJECTED" | "WITHDRAWN" | "ALL";
 
 export default function FreelancerProposalsPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/freelancer/bookings");
+  }, [router]);
+
   const [proposals, setProposals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<TabType>("PENDING");

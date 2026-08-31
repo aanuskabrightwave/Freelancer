@@ -18,8 +18,9 @@ class BookingRequirementAnswerOut(BaseModel):
 
 
 class BookingCreate(BaseModel):
-    service_id: int
-    service_package_id: int
+    service_id: Optional[int] = None
+    service_package_id: Optional[int] = None
+    selected_freelancer_profile_id: Optional[int] = None
     scheduled_date: Optional[date] = None
     booking_date: Optional[datetime] = None  # Backward-compatibility fallback
     start_time: Optional[str] = None
@@ -30,6 +31,9 @@ class BookingCreate(BaseModel):
     venue_address: Optional[str] = None
     notes: Optional[str] = None
     requirements_answers: Optional[dict[str, Any]] = None
+    requirement_description: Optional[str] = None
+    budget: Optional[Decimal] = None
+    booking_type: Optional[str] = "REMOTE"
 
 
 class BookingUpdateStatus(BaseModel):
@@ -43,6 +47,23 @@ class UserSummaryOut(BaseModel):
     full_name: str
     email: str
     phone: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class UserPublicSummaryOut(BaseModel):
+    id: int
+    full_name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class FreelancerProfileSummaryOut(BaseModel):
+    id: int
+    user_id: int
+    professional_title: Optional[str] = None
+    primary_profession: str
+    user: UserPublicSummaryOut
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -89,6 +110,15 @@ class BookingResponse(BaseModel):
     service_id: Optional[int] = None
     service_package_id: Optional[int] = None
     
+    selected_freelancer: Optional[FreelancerProfileSummaryOut] = None
+    freelancer: Optional[FreelancerProfileSummaryOut] = None
+    conversation_id: Optional[int] = None
+    latest_assignment_status: Optional[str] = None
+    client_approval_status: Optional[str] = None
+    client_approval_required: Optional[bool] = None
+    latest_assignment_id: Optional[int] = None
+    proposed_freelancer: Optional[FreelancerProfileSummaryOut] = None
+    
     # Project flow
     project_id: Optional[int] = None
     proposal_id: Optional[int] = None
@@ -99,7 +129,7 @@ class BookingResponse(BaseModel):
     status: BookingStatus
     
     scheduled_date: Optional[date] = None
-    booking_date: datetime  # Kept for backward compatibility
+    booking_date: Optional[datetime] = None  # Kept for backward compatibility
     start_time: Optional[time] = None
     end_time: Optional[time] = None
     timezone: str

@@ -128,7 +128,7 @@ def test_payment_and_payout_ledger_pipeline(client, db):
         json=good_verify_payload,
         headers=client_headers
     )
-    assert verify_res.status_code == 200
+    assert verify_res.status_code == 200, f"Status: {verify_res.status_code}, Body: {verify_res.text}"
     assert verify_res.json()["status"] == "CAPTURED"
     payment_id = verify_res.json()["id"]
 
