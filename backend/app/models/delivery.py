@@ -18,6 +18,13 @@ class DeliveryStatus(str, enum.Enum):
     SUPERSEDED = "SUPERSEDED"
 
 
+class AdminReviewStatus(str, enum.Enum):
+    PENDING = "PENDING"
+    UNDER_REVIEW = "UNDER_REVIEW"
+    REVISION_REQUIRED = "REVISION_REQUIRED"
+    APPROVED = "APPROVED"
+
+
 class Delivery(Base):
     __tablename__ = "deliveries"
 
@@ -40,6 +47,17 @@ class Delivery(Base):
     message = Column(Text, nullable=True)
     status = Column(Enum(DeliveryStatus), default=DeliveryStatus.SUBMITTED, nullable=False)
     
+    # Admin Quality Gate & Review fields
+    admin_review_status = Column(String(50), default=AdminReviewStatus.PENDING.value, nullable=False)
+    admin_reviewed_by_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True
+    )
+    admin_reviewed_at = Column(DateTime(timezone=True), nullable=True)
+    admin_feedback_to_freelancer = Column(Text, nullable=True)
+    shared_with_client_at = Column(DateTime(timezone=True), nullable=True)
+
     submitted_by_user_id = Column(
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),
@@ -58,7 +76,8 @@ class Delivery(Base):
 
     booking = relationship("Booking", backref="deliveries")
     workspace = relationship("BookingWorkspace", backref="deliveries")
-    submitted_by = relationship("User")
+    submitted_by = relationship("User", foreign_keys=[submitted_by_user_id])
+    admin_reviewed_by = relationship("User", foreign_keys=[admin_reviewed_by_id])
 
 
 class DeliveryFile(Base):

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Numeric, String, Text, func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -17,11 +17,16 @@ class Project(Base):
     country = Column(String(100), nullable=True)
     status = Column(String(50), default="OPEN", nullable=False, index=True)  # OPEN, AWARDED, COMPLETED, CANCELLED
 
+    is_admin_managed = Column(Boolean, default=True, nullable=False)
+    admin_reviewed_by_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    admin_review_notes = Column(Text, nullable=True)
+
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 
     # Relationships
     client = relationship("User", foreign_keys=[client_id], backref="client_projects")
+    admin_reviewed_by = relationship("User", foreign_keys=[admin_reviewed_by_id], backref="reviewed_projects")
     proposals = relationship("Proposal", back_populates="project", cascade="all, delete-orphan")
 
 

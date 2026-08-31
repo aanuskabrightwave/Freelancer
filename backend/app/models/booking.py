@@ -1,11 +1,12 @@
 import enum
-from sqlalchemy import Column, DateTime, Date, Time, Enum, ForeignKey, Integer, Numeric, String, Text, JSON, func
+from sqlalchemy import Boolean, Column, DateTime, Date, Time, Enum, ForeignKey, Integer, Numeric, String, Text, JSON, func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
 
 class BookingStatus(str, enum.Enum):
     REQUESTED = "REQUESTED"
+    MATCHING_IN_PROGRESS = "MATCHING_IN_PROGRESS"
     PENDING_CONFIRMATION = "PENDING_CONFIRMATION"
     CONFIRMED = "CONFIRMED"
     IN_PROGRESS = "IN_PROGRESS"
@@ -27,7 +28,13 @@ class Booking(Base):
     id = Column(Integer, primary_key=True, index=True)
     booking_number = Column(String(50), unique=True, index=True, nullable=False)
     client_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    freelancer_profile_id = Column(Integer, ForeignKey("freelancer_profiles.id", ondelete="CASCADE"), nullable=False, index=True)
+    
+    # Creator tracking: original client choice vs active assigned creator
+    selected_freelancer_profile_id = Column(Integer, ForeignKey("freelancer_profiles.id", ondelete="SET NULL"), nullable=True, index=True)
+    freelancer_profile_id = Column(Integer, ForeignKey("freelancer_profiles.id", ondelete="CASCADE"), nullable=True, index=True)
+    assigned_by_admin_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    is_admin_managed = Column(Boolean, default=True, nullable=False)
+
     source_type = Column(Enum(BookingSourceType), default=BookingSourceType.SERVICE, nullable=False, index=True)
 
     # DIRECT flow specifics (optional if project flow)
@@ -61,6 +68,7 @@ class Booking(Base):
 
     # Financials
     agreed_amount = Column(Numeric(precision=10, scale=2), nullable=False)
+    freelancer_payout_amount = Column(Numeric(precision=10, scale=2), nullable=True)
     currency = Column(String(10), default="INR", nullable=False)
     price = Column(Numeric(precision=10, scale=2), nullable=False)  # Kept for backward compatibility with Phase 5 endpoints
 
@@ -77,6 +85,7 @@ class Booking(Base):
 
     # Notes and requirements answers
     notes = Column(Text, nullable=True)
+    admin_notes = Column(Text, nullable=True)
     requirements_answers = Column(JSON, nullable=True)  # Legacy json answers
 
     # Cancellation audit
@@ -94,7 +103,11 @@ class Booking(Base):
 
     # Relationships
     client = relationship("User", foreign_keys=[client_id], backref="client_bookings")
+    selected_freelancer = relationship("FreelancerProfile", foreign_keys=[selected_freelancer_profile_id], backref="selected_in_bookings")
     freelancer = relationship("FreelancerProfile", foreign_keys=[freelancer_profile_id], backref="freelancer_bookings")
+    assigned_by_admin = relationship("User", foreign_keys=[assigned_by_admin_id], backref="admin_assigned_bookings")
+    assignments = relationship("BookingAssignment", back_populates="booking", cascade="all, delete-orphan", order_by="BookingAssignment.assignment_round")
+    
     service = relationship("Service", foreign_keys=[service_id])
     package = relationship("ServicePackage", foreign_keys=[service_package_id])
     project = relationship("Project", foreign_keys=[project_id])

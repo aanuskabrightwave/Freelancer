@@ -123,7 +123,9 @@ class BookingService:
         booking_record = {
             "booking_number": b_number,
             "client_id": client_id,
-            "freelancer_profile_id": freelancer_profile.id,
+            "selected_freelancer_profile_id": freelancer_profile.id,
+            "freelancer_profile_id": None,
+            "is_admin_managed": True,
             "source_type": BookingSourceType.SERVICE,
             "service_id": service.id,
             "service_package_id": package.id,
@@ -167,53 +169,45 @@ class BookingService:
                 db.add(ans_record)
         db.commit()
 
-        # 12. Spin up conversation thread & inject intro text
-        conversation = MessageRepository.get_or_create_conversation(
+        # 12. Spin up CLIENT_ADMIN conversation thread (No direct Client-Freelancer chat!)
+        from app.services.admin_messaging_service import AdminMessagingService
+        conversation = AdminMessagingService.get_or_create_client_admin_conversation(
             db,
             client_id=client_id,
-            freelancer_id=freelancer_profile.user_id
+            booking_id=new_booking.id
         )
 
-        intro_text = (
-            f"🔔 System Notice: A new booking request has been submitted.\n\n"
-            f"Booking ID: {new_booking.booking_number}\n"
-            f"Service: {service.title}\n"
-            f"Package: {package.name}\n"
-            f"Agreed Amount: ₹{package.price:.2f}\n"
-            f"Scheduled Date: {scheduled_date_val.strftime('%Y-%m-%d')} ({start_t.strftime('%H:%M')} - {end_t.strftime('%H:%M')})\n\n"
-            f"Freelancer, please review this request."
-        )
-        MessageRepository.create_message(
-            db,
-            conversation_id=conversation.id,
-            sender_id=client_id,
-            text=intro_text,
-            is_system=True
-        )
-
-        # Trigger notification
+        # 13. Trigger notification to Admin & Client
         try:
             from app.services.notification_service import NotificationService
             client_user = db.query(User).filter(User.id == client_id).first()
             client_name = client_user.full_name if client_user else "Client"
+            
+            # Notify Client
             NotificationService.dispatch(
                 db=db,
-                recipient_id=freelancer_profile.user_id,
+                recipient_id=client_id,
                 event_code="BOOKING_REQUESTED",
-                title="New Booking Request",
-                message=f"{client_name} wants to book your package '{service.title}' for {scheduled_date_val.strftime('%Y-%m-%d')}.",
-                action_url=f"/freelancer/bookings/{new_booking.id}",
+                title="Booking Request Received",
+                message=f"We have received your booking request '{service.title}' for {scheduled_date_val.strftime('%Y-%m-%d')}. Our curation team will review and coordinate creator assignment.",
+                action_url=f"/client/bookings/{new_booking.id}",
                 entity_type="booking",
-                entity_id=new_booking.id,
-                payload_meta={
-                    "service_title": service.title,
-                    "client_name": client_name,
-                    "agreed_amount": str(package.price),
-                    "scheduled_date": scheduled_date_val.strftime('%Y-%m-%d'),
-                    "booking_id": new_booking.id
-                }
+                entity_id=new_booking.id
             )
-        except Exception as e:
+            
+            # Notify Admin
+            admin_user = AdminMessagingService._get_default_admin(db)
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=admin_user.id,
+                event_code="BOOKING_REQUESTED",
+                title="New Managed Booking Request",
+                message=f"{client_name} submitted a new booking request '{service.title}'. Review and assign creator.",
+                action_url=f"/admin/bookings/{new_booking.id}",
+                entity_type="booking",
+                entity_id=new_booking.id
+            )
+        except Exception:
             import logging
             logging.getLogger("booking_service").exception("Booking notification failed")
 

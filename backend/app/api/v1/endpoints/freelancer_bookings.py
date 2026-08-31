@@ -76,3 +76,47 @@ def freelancer_cancel_booking(
     db: Session = Depends(get_db)
 ):
     return BookingService.update_booking_status(db, current_user, id, BookingStatus.CANCELLED, cancellation_reason=payload.reason)
+
+
+# ----------------------------------------------------
+# ADMIN-MANAGED ASSIGNMENTS ENGINE
+# ----------------------------------------------------
+from app.services.assignment_service import AssignmentService
+from app.schemas.assignment import (
+    FreelancerAssignmentListItem, FreelancerRejectPayload, BookingAssignmentOut
+)
+
+
+@router.get("/freelancer/bookings/assignments", response_model=List[FreelancerAssignmentListItem], summary="List assignment offers addressed to current freelancer")
+@router.get("/freelancer/assignments", response_model=List[FreelancerAssignmentListItem], summary="List assignment offers addressed to current freelancer (alias)")
+def list_freelancer_assignments(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != UserRole.FREELANCER:
+        raise HTTPException(status_code=403, detail="Only freelancers can view assignment offers.")
+    return AssignmentService.list_freelancer_assignments(db, current_user)
+
+
+@router.post("/freelancer/assignments/{id}/accept", response_model=BookingAssignmentOut, summary="Accept booking assignment offer")
+def accept_assignment(
+    id: int,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != UserRole.FREELANCER:
+        raise HTTPException(status_code=403, detail="Only freelancers can accept assignment offers.")
+    return AssignmentService.freelancer_accept_assignment(db, current_user, id)
+
+
+@router.post("/freelancer/assignments/{id}/reject", response_model=BookingAssignmentOut, summary="Decline assignment offer or submit counter-offer")
+def reject_assignment(
+    id: int,
+    payload: FreelancerRejectPayload,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != UserRole.FREELANCER:
+        raise HTTPException(status_code=403, detail="Only freelancers can decline assignment offers.")
+    return AssignmentService.freelancer_reject_assignment(db, current_user, id, payload)
+

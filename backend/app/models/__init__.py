@@ -11,7 +11,8 @@ from app.models.service_package import ServicePackage, PackageType, PackageDeliv
 from app.models.service_media import ServiceMedia
 from app.models.service_requirement import ServiceRequirement, RequirementFieldType
 from app.models.booking import Booking, BookingStatus, BookingSourceType
-from app.models.message import Conversation, Message
+from app.models.booking_assignment import BookingAssignment, AssignmentStatus, ClientApprovalStatus
+from app.models.message import Conversation, Message, ConversationType, MessageType
 from app.models.project import Project, Proposal
 from app.models.booking_requirement_answer import BookingRequirementAnswer
 from app.models.availability import FreelancerWeeklySchedule, FreelancerAvailability, AvailabilityType
@@ -19,7 +20,7 @@ from app.models.reschedule import BookingRescheduleRequest, RescheduleRequestSta
 from app.models.workspace import BookingWorkspace
 from app.models.conversation_participant import ConversationParticipant
 from app.models.workspace_file import WorkspaceFile, WorkspaceLink, MessageAttachment
-from app.models.delivery import Delivery, DeliveryFile, DeliveryType, DeliveryStatus
+from app.models.delivery import Delivery, DeliveryFile, DeliveryType, DeliveryStatus, AdminReviewStatus
 from app.models.revision import RevisionRequest, RevisionComment, RevisionStatus
 from app.models.workspace_event import WorkspaceEvent, WorkspaceEventType
 from app.models.payment import Payment, PaymentAttempt, PaymentWebhookEvent
@@ -65,8 +66,13 @@ __all__ = [
     "Booking",
     "BookingStatus",
     "BookingSourceType",
+    "BookingAssignment",
+    "AssignmentStatus",
+    "ClientApprovalStatus",
     "Conversation",
+    "ConversationType",
     "Message",
+    "MessageType",
     "Project",
     "Proposal",
     "BookingRequirementAnswer",
@@ -84,6 +90,7 @@ __all__ = [
     "DeliveryFile",
     "DeliveryType",
     "DeliveryStatus",
+    "AdminReviewStatus",
     "RevisionRequest",
     "RevisionComment",
     "RevisionStatus",

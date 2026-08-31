@@ -29,7 +29,7 @@ class Review(Base):
     value_rating = Column(Integer, nullable=True)
 
     title = Column(String(150), nullable=True)
-    comment = Column(Text, nullable=False)
+    comment = Column(Text, nullable=True)
     status = Column(Enum(ReviewStatus), default=ReviewStatus.PUBLISHED, nullable=False, index=True)
     is_verified_booking = Column(Boolean, default=True, nullable=False)
 

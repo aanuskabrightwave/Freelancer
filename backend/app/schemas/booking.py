@@ -78,7 +78,11 @@ class BookingResponse(BaseModel):
     id: int
     booking_number: str
     client_id: int
-    freelancer_profile_id: int
+    freelancer_profile_id: Optional[int] = None
+    selected_freelancer_profile_id: Optional[int] = None
+    assigned_by_admin_id: Optional[int] = None
+    is_admin_managed: bool = True
+    freelancer_payout_amount: Optional[Decimal] = None
     source_type: BookingSourceType
     
     # Direct service

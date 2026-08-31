@@ -90,3 +90,36 @@ def accept_proposal(
         city=payload.city,
         state=payload.state
     )
+
+
+# ----------------------------------------------------
+# ADMIN-MANAGED REPLACEMENT CLIENT DECISION
+# ----------------------------------------------------
+from app.services.assignment_service import AssignmentService
+from app.schemas.assignment import (
+    ClientReplacementDecisionPayload, BookingAssignmentOut
+)
+
+
+@router.post("/client/bookings/{booking_id}/replacement/{assignment_id}/respond", response_model=BookingAssignmentOut, summary="Approve or decline replacement creator suggested by admin")
+@router.post("/client/assignments/{assignment_id}/respond", response_model=BookingAssignmentOut, summary="Approve or decline replacement creator (alias)")
+def respond_to_replacement(
+    booking_id: Optional[int] = None,
+    assignment_id: int = 0,
+    payload: ClientReplacementDecisionPayload = ...,
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.role != UserRole.CLIENT:
+        raise HTTPException(status_code=403, detail="Only client accounts can respond to replacement creator offers.")
+    
+    # If booking_id is not in URL (alias path), resolve from assignment
+    if not booking_id:
+        from app.models.booking_assignment import BookingAssignment
+        assign = db.query(BookingAssignment).filter(BookingAssignment.id == assignment_id).first()
+        if not assign:
+            raise HTTPException(status_code=404, detail="Assignment not found.")
+        booking_id = assign.booking_id
+
+    return AssignmentService.client_respond_to_replacement(db, current_user, booking_id, assignment_id, payload)
+

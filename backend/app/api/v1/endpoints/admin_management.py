@@ -677,58 +677,74 @@ def list_projects(
 
 
 # ----------------------------------------------------
-# 7. BOOKINGS INSPECTION
+# 7. BOOKINGS INSPECTION & ASSIGNMENT ENGINE
 # ----------------------------------------------------
+from datetime import date
+from app.services.assignment_service import AssignmentService
+from app.schemas.assignment import (
+    AdminBookingListItem, AdminBookingDetail, AdminReviewBookingPayload,
+    AdminAssignFreelancerPayload, BookingAssignmentOut
+)
 
-@router.get("/bookings")
+
+@router.get("/bookings", response_model=List[AdminBookingListItem], summary="List managed marketplace bookings")
 def list_bookings(
+    status_filter: Optional[str] = Query(None, alias="status"),
+    assignment_status: Optional[str] = None,
+    source_type: Optional[str] = None,
+    date_from: Optional[date] = None,
+    date_to: Optional[date] = None,
+    client_id: Optional[int] = None,
+    freelancer_profile_id: Optional[int] = None,
+    search: Optional[str] = None,
     page: int = Query(1, ge=1),
-    page_size: int = Query(15, ge=1, le=100),
+    page_size: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
     admin: User = Depends(require_role("ADMIN"))
 ):
-    query = db.query(Booking)
-    total = query.count()
-    items = query.offset((page - 1) * page_size).limit(page_size).all()
-    return {
-        "total": total,
-        "page": page,
-        "page_size": page_size,
-        "items": [{
-            "id": b.id,
-            "booking_number": b.booking_number,
-            "client_name": b.client.full_name if b.client else "",
-            "freelancer_name": b.freelancer.user.full_name if b.freelancer and b.freelancer.user else "",
-            "agreed_amount": str(b.agreed_amount),
-            "status": b.status,
-            "created_at": b.created_at
-        } for b in items]
-    }
+    return AssignmentService.list_admin_bookings(
+        db=db,
+        status_filter=status_filter,
+        assignment_status=assignment_status,
+        source_type=source_type,
+        date_from=date_from,
+        date_to=date_to,
+        client_id=client_id,
+        freelancer_profile_id=freelancer_profile_id,
+        search=search,
+        page=page,
+        page_size=page_size
+    )
 
 
-@router.get("/bookings/{id}")
+@router.get("/bookings/{id}", response_model=AdminBookingDetail, summary="Get operational booking detail and assignment history")
 def get_booking_detail(
     id: int,
     db: Session = Depends(get_db),
     admin: User = Depends(require_role("ADMIN"))
 ):
-    b = db.query(Booking).filter(Booking.id == id).first()
-    if not b:
-        raise HTTPException(status_code=404, detail="Booking details not found.")
+    return AssignmentService.get_admin_booking_detail(db, id)
 
-    return {
-        "id": b.id,
-        "booking_number": b.booking_number,
-        "client_name": b.client.full_name if b.client else "",
-        "freelancer_name": b.freelancer.user.full_name if b.freelancer and b.freelancer.user else "",
-        "agreed_amount": str(b.agreed_amount),
-        "status": b.status,
-        "created_at": b.created_at,
-        "confirmed_at": b.confirmed_at,
-        "completed_at": b.completed_at,
-        "cancelled_at": b.cancelled_at,
-        "cancellation_reason": b.cancellation_reason
-    }
+
+@router.post("/bookings/{id}/review", response_model=AdminBookingDetail, summary="Review booking and transition to MATCHING_IN_PROGRESS")
+def review_booking(
+    id: int,
+    payload: AdminReviewBookingPayload,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    return AssignmentService.review_booking(db, admin, id, payload)
+
+
+@router.post("/bookings/{id}/assign", response_model=BookingAssignmentOut, summary="Assign freelancer or suggest replacement")
+def assign_freelancer(
+    id: int,
+    payload: AdminAssignFreelancerPayload,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    return AssignmentService.assign_freelancer(db, admin, id, payload)
+
 
 
 # ----------------------------------------------------
@@ -1092,4 +1108,5 @@ def list_audit_logs(
         query = query.filter(AdminAuditLog.admin_user_id == admin_id)
         
     return query.order_by(AdminAuditLog.created_at.desc()).all()
+
 

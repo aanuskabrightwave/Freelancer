@@ -1,5 +1,5 @@
 import enum
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Text, Enum, func
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, Text, Enum, String, func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -13,20 +13,39 @@ class MessageType(str, enum.Enum):
     REVISION = "REVISION"
 
 
+class ConversationType(str, enum.Enum):
+    CLIENT_ADMIN = "CLIENT_ADMIN"
+    FREELANCER_ADMIN = "FREELANCER_ADMIN"
+    DIRECT_LEGACY = "DIRECT_LEGACY"
+    DISPUTE = "DISPUTE"
+
+
 class Conversation(Base):
     __tablename__ = "conversations"
 
     id = Column(Integer, primary_key=True, index=True)
+    conversation_type = Column(
+        String(50),
+        default=ConversationType.DIRECT_LEGACY.value,
+        nullable=False,
+        index=True
+    )
     client_id = Column(
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
         index=True
     )
     freelancer_id = Column(
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
+        nullable=True,
+        index=True
+    )
+    admin_id = Column(
+        Integer,
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
         index=True
     )
     workspace_id = Column(
@@ -38,6 +57,12 @@ class Conversation(Base):
     booking_id = Column(
         Integer,
         ForeignKey("bookings.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True
+    )
+    project_id = Column(
+        Integer,
+        ForeignKey("projects.id", ondelete="CASCADE"),
         nullable=True,
         index=True
     )
@@ -53,6 +78,8 @@ class Conversation(Base):
     # Relationships
     client = relationship("User", foreign_keys=[client_id], backref="client_conversations")
     freelancer = relationship("User", foreign_keys=[freelancer_id], backref="freelancer_conversations")
+    admin = relationship("User", foreign_keys=[admin_id], backref="admin_conversations")
+    project = relationship("Project", foreign_keys=[project_id], backref="project_conversations")
     messages = relationship(
         "Message",
         back_populates="conversation",
@@ -61,7 +88,8 @@ class Conversation(Base):
     )
 
     def __repr__(self) -> str:
-        return f"<Conversation id={self.id} client_id={self.client_id} freelancer_id={self.freelancer_id}>"
+        return f"<Conversation id={self.id} type={self.conversation_type} client_id={self.client_id} freelancer_id={self.freelancer_id} admin_id={self.admin_id}>"
+
 
 
 class Message(Base):
