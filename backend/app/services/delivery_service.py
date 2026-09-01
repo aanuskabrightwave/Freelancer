@@ -40,10 +40,10 @@ class DeliveryService:
                 detail="Only the assigned freelancer can submit project deliverables."
             )
 
-        # Confirm workspace is active
+        # Confirm workspace is active (auto-initialize if needed)
         workspace = WorkspaceRepository.get_by_booking_id(db, booking.id)
         if not workspace:
-            raise HTTPException(status_code=400, detail="Booking workspace is not active.")
+            workspace = WorkspaceRepository.create(db, booking.id)
 
         # Require resources
         if not file_ids and not message:

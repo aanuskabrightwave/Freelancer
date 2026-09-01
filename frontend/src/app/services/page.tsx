@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { marketplaceService } from "@/services/service.service";
 import Container from "@/components/ui/Container";
@@ -11,7 +11,7 @@ const SERVICE_TYPE_LABELS = {
   HYBRID: "Hybrid"
 };
 
-export default function PublicServicesDirectory() {
+function PublicServicesDirectoryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -282,5 +282,17 @@ export default function PublicServicesDirectory() {
         )}
       </Container>
     </div>
+  );
+}
+
+export default function PublicServicesDirectory() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <PublicServicesDirectoryContent />
+    </Suspense>
   );
 }

@@ -71,8 +71,8 @@ class ServiceService:
                     "Commercial Videography"
                 ]
             },
-            "Editing": {
-                "description": "Post-production, editing and grading services",
+            "Editor": {
+                "description": "Post-production, video and photo editing, and color grading services",
                 "subcategories": [
                     "Video Editing",
                     "Reel Editing",
@@ -82,6 +82,27 @@ class ServiceService:
                     "Photo Retouching",
                     "Color Grading",
                     "Motion Graphics"
+                ]
+            },
+            "3D Animator": {
+                "description": "3D modeling, animation, visual effects, and CGI rendering",
+                "subcategories": [
+                    "3D Character Animation",
+                    "3D Product Modeling",
+                    "Architectural Visualization",
+                    "VFX & Compositing",
+                    "Game Asset Design"
+                ]
+            },
+            "Graphics": {
+                "description": "Graphic design, branding, vector illustration, and digital marketing creatives",
+                "subcategories": [
+                    "Brand Identity & Logo Design",
+                    "Social Media Graphics",
+                    "Thumbnail Design",
+                    "Print & Poster Design",
+                    "Vector Illustrations",
+                    "UI/UX Visual Assets"
                 ]
             }
         }

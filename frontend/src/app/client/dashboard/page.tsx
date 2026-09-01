@@ -158,7 +158,7 @@ export default function ClientDashboardPage() {
     return isUnpaidDeposit || isUnpaidBalance;
   }).length;
 
-  const unreadMessagesCount = conversations.reduce((acc, c) => acc + c.unread_count, 0);
+  const deliveriesCount = bookings.filter((b) => b.status === "DELIVERY_PENDING").length;
 
   // Build Needs Attention Items (Part 5)
   const attentionItems: { label: string; actionText: string; link: string; type: "payment" | "delivery" | "message" | "approval" }[] = [];
@@ -197,15 +197,7 @@ export default function ClientDashboardPage() {
     }
   });
 
-  // Unread Admin messages (Part 16)
-  if (unreadMessagesCount > 0) {
-    attentionItems.push({
-      label: `You have ${unreadMessagesCount} unread mediated message(s) from the Admin coordinator.`,
-      actionText: "Reply to Admin",
-      link: "/client/messages",
-      type: "message"
-    });
-  }
+
 
   const getAlertIcon = (type: string) => {
     switch (type) {
@@ -331,14 +323,14 @@ export default function ClientDashboardPage() {
           </div>
         </Link>
 
-        <Link href="/client/messages" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Admin Chats</span>
+        <Link href="/client/deliveries" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
+          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Deliveries</span>
           <div className="flex items-baseline justify-between font-semibold">
-            <span className={`text-3xl font-extrabold transition ${unreadMessagesCount > 0 ? "text-primary" : "text-text-main group-hover:text-primary"}`}>
-              {unreadMessagesCount}
+            <span className="text-3xl font-extrabold text-text-main group-hover:text-primary transition">
+              {deliveriesCount}
             </span>
             <span className="text-[10px] text-primary font-bold flex items-center gap-0.5">
-              Open Inbox <ChevronRight className="w-3 h-3" />
+              Review Work <ChevronRight className="w-3 h-3" />
             </span>
           </div>
         </Link>

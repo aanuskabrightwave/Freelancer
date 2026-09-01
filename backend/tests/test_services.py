@@ -69,7 +69,9 @@ def test_service_categories_seed(client, db):
     root_names = [cat["name"] for cat in categories]
     assert "Photography" in root_names
     assert "Videography" in root_names
-    assert "Editing" in root_names
+    assert "Editor" in root_names
+    assert "3D Animator" in root_names
+    assert "Graphics" in root_names
 
 
 def test_service_creation_and_ownership(client, db):

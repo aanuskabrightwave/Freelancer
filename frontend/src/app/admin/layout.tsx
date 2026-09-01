@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Sidebar from "@/components/layout/Sidebar";
 import IdleSessionManager from "@/components/auth/IdleSessionManager";
+import AuthenticatedFluidBackground from "@/components/backgrounds/AuthenticatedFluidBackground";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, isLoading, isAuthenticated } = useAuth();
@@ -56,10 +57,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <>
       <IdleSessionManager />
-      <div className="flex flex-row flex-grow bg-background text-text-main">
-        <Sidebar role="admin" activeItem={activeItem} />
-        <div className="flex-grow flex flex-col min-w-0 bg-background">
-          {children}
+      <div className="flex flex-row flex-grow bg-background text-text-main relative">
+        <AuthenticatedFluidBackground />
+        <div className="relative z-10 flex flex-row flex-grow">
+          <Sidebar role="admin" activeItem={activeItem} />
+          <div className="flex-grow flex flex-col min-w-0 bg-transparent">
+            {children}
+          </div>
         </div>
       </div>
     </>

@@ -283,15 +283,6 @@ export default function ClientProjectsPage() {
                   >
                     {actionConfig.label}
                   </Link>
-
-                  {project.admin_conversation_id && (
-                    <Link
-                      href={`/client/messages?active=${project.admin_conversation_id}`}
-                      className="px-3.5 py-2 bg-surface hover:bg-surface-elevated text-text-sub border border-border-custom rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <MessageSquare className="w-3.5 h-3.5" />
-                    </Link>
-                  )}
                 </div>
               </div>
             );

@@ -403,16 +403,12 @@ def test_13_client_selects_non_freelancer_user():
     """TEST 13: Client tries selecting non-Freelancer user."""
     with SessionLocal() as db:
         client_user = create_fixture_user(db, UserRole.CLIENT, "client")
-        other_client = create_fixture_user(db, UserRole.CLIENT, "other_client")
-        # Manually create profile for non-freelancer role to bypass standard creations
-        profile_invalid = FreelancerProfile(
-            user_id=other_client.id,
-            primary_profession=FreelancerProfession.CINEMATOGRAPHER,
-            is_profile_public=True
-        )
-        db.add(profile_invalid)
+        freelancer_user = create_fixture_user(db, UserRole.FREELANCER, "former_free")
+        profile_invalid = create_fixture_profile(db, freelancer_user)
+        
+        # Change user role to CLIENT
+        freelancer_user.role = UserRole.CLIENT
         db.commit()
-        db.refresh(profile_invalid)
 
         client_token = get_token_for_user(client_user)
 

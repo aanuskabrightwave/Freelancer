@@ -71,7 +71,6 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       items: [
         { name: "My Projects", href: "/client/projects", icon: FolderOpen },
         { name: "Bookings", href: "/client/bookings", icon: Calendar },
-        { name: "Messages", href: "/client/messages", icon: MessageSquare },
         { name: "Deliveries", href: "/client/deliveries", icon: FileText }
       ]
     },

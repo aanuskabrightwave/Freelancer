@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Response, Request
+from typing import Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Request, Body
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -84,7 +85,7 @@ def login(credentials: LoginRequest, response: Response, db: Session = Depends(g
     status_code=status.HTTP_200_OK,
     summary="Refresh access token using refresh token"
 )
-def refresh_token(request_obj: Request, response: Response, request: RefreshTokenRequest = None, db: Session = Depends(get_db)):
+def refresh_token(request_obj: Request, response: Response, request: Optional[RefreshTokenRequest] = Body(None), db: Session = Depends(get_db)):
     """
     Generate a new access token using a valid refresh token from HttpOnly cookie.
     """

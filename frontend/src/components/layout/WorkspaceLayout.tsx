@@ -6,6 +6,7 @@ import WorkspaceNavbar from "./WorkspaceNavbar";
 import WorkspaceSidebar from "./WorkspaceSidebar";
 import MessageWidget from "@/components/messaging/MessageWidget";
 import HelpModal from "@/components/common/HelpModal";
+import AuthenticatedFluidBackground from "@/components/backgrounds/AuthenticatedFluidBackground";
 
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
@@ -20,13 +21,17 @@ export default function WorkspaceLayout({ children, role }: WorkspaceLayoutProps
   const isMessagesPage = pathname?.includes("/messages");
 
   return (
-    <div className="flex flex-col h-[100dvh] overflow-hidden bg-background text-text-main font-sans">
+    <div className="flex flex-col h-[100dvh] overflow-hidden bg-background text-text-main font-sans relative">
+      {/* ThreeUI Fluid Field Authenticated Background */}
+      <AuthenticatedFluidBackground />
       
       {/* Top navbar */}
-      <WorkspaceNavbar />
+      <div className="relative z-40 shrink-0">
+        <WorkspaceNavbar />
+      </div>
 
       {/* Main panel layout */}
-      <div className="flex flex-row flex-grow overflow-hidden relative">
+      <div className="flex flex-row flex-grow overflow-hidden relative z-10">
         
         {/* Left collapsible sidebar */}
         <WorkspaceSidebar
@@ -37,16 +42,16 @@ export default function WorkspaceLayout({ children, role }: WorkspaceLayoutProps
         />
 
         {/* Scrollable workspace content */}
-        <main className={`flex-1 flex flex-col min-w-0 overflow-x-hidden bg-background ${isMessagesPage ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-          <div className="flex-1 flex flex-col min-w-0 min-h-0">
+        <main className={`flex-1 flex flex-col min-w-0 overflow-x-hidden bg-transparent ${isMessagesPage ? 'overflow-hidden' : 'overflow-y-auto'}`}>
+          <div className={`flex-1 flex flex-col min-w-0 min-h-0 ${isMessagesPage ? '' : 'pb-16'}`}>
             {children}
           </div>
         </main>
         
       </div>
 
-      {/* Bottom right message widget */}
-      <MessageWidget />
+      {/* Bottom right message widget (Freelancer only) */}
+      {role === "freelancer" && <MessageWidget />}
 
       {/* Shared Help center modal */}
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />

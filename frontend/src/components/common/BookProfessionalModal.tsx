@@ -240,18 +240,9 @@ export default function BookProfessionalModal({
                     onClose();
                     router.push("/client/bookings");
                   }}
-                  className="flex-1 py-2.5 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-xl transition cursor-pointer text-center"
+                  className="w-full py-2.5 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-xl transition cursor-pointer text-center shadow-xs"
                 >
                   View Booking
-                </button>
-                <button
-                  onClick={() => {
-                    onClose();
-                    router.push("/client/messages");
-                  }}
-                  className="flex-1 py-2.5 bg-surface hover:bg-surface-elevated text-text-main border border-border-custom text-xs font-bold rounded-xl transition cursor-pointer text-center"
-                >
-                  Message Admin
                 </button>
               </div>
             </div>

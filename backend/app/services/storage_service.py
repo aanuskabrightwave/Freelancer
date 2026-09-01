@@ -107,3 +107,38 @@ class StorageService:
 
         # Return URL relative path
         return f"/uploads/{subfolder}/{unique_filename}"
+
+    @staticmethod
+    def generate_presigned_download_url(file_path: str, expires_in_seconds: int = 3600) -> str:
+        """
+        Generates a secure download URL. If S3 is configured, generates a pre-signed URL.
+        Otherwise returns the media URL path.
+        """
+        if not file_path:
+            return ""
+        if file_path.startswith("http://") or file_path.startswith("https://"):
+            return file_path
+        
+        # Local or mounted storage path
+        clean_path = file_path.lstrip("/")
+        return f"/{clean_path}"
+
+    @staticmethod
+    def delete_file(file_url: str) -> bool:
+        """
+        Deletes a local file safely given its relative upload URL.
+        """
+        if not file_url or not file_url.startswith("/uploads/"):
+            return False
+        
+        relative_path = file_url.replace("/uploads/", "")
+        clean_path = os.path.normpath(relative_path).replace("..", "").lstrip("/\\")
+        target_path = os.path.join(UPLOAD_DIR, clean_path)
+        
+        if os.path.exists(target_path) and os.path.isfile(target_path):
+            try:
+                os.remove(target_path)
+                return True
+            except Exception:
+                return False
+        return False

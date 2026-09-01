@@ -35,6 +35,17 @@ class AuthService:
         password = user_data.pop("password")
         user_data["password_hash"] = get_password_hash(password)
 
+        # Autogenerate unique Login ID / Account ID if not provided (CL-XXXXXX for Client, FL-XXXXXX for Freelancer)
+        if not user_data.get("login_id"):
+            import random
+            from app.models.user import UserRole
+            prefix = "CL" if user_in.role == UserRole.CLIENT else ("FL" if user_in.role == UserRole.FREELANCER else "ADM")
+            while True:
+                candidate = f"{prefix}-{random.randint(100000, 999999)}"
+                if not UserRepository.get_by_login_id(db, candidate):
+                    user_data["login_id"] = candidate
+                    break
+
         # Save to DB
         user = UserRepository.create(db, user_data)
         

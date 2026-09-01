@@ -194,6 +194,19 @@ def create_project(
             detail="Maximum budget must be greater than or equal to minimum budget, and both must be non-negative."
         )
 
+    if project_in.deadline:
+        date_part = project_in.deadline.split(" to ")[0].strip()
+        try:
+            from datetime import date
+            parsed_date = datetime.strptime(date_part, "%Y-%m-%d").date()
+            if parsed_date < date.today():
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Event Start Date cannot be in the Past"
+                )
+        except ValueError:
+            pass
+
     encoded_desc = encode_description(
         project_in.category_id,
         project_in.budget_min,

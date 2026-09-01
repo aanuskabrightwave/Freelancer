@@ -27,6 +27,8 @@ class FreelancerRepository:
         """
         Create a new freelancer profile.
         """
+        if profile_data.get("experience_years") is None:
+            profile_data["experience_years"] = 0
         db_profile = FreelancerProfile(**profile_data)
         db.add(db_profile)
         db.commit()

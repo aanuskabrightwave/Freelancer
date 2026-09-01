@@ -14,7 +14,6 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
       { name: "Projects", href: "/client/projects" },
       { name: "New Project", href: "/client/projects/new" },
       { name: "Bookings", href: "/client/bookings" },
-      { name: "Messages", href: "/client/messages" },
       { name: "Payments", href: "/client/payments" },
       { name: "Favourites", href: "/client/favourites" },
       { name: "Reviews", href: "/client/reviews" },

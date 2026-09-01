@@ -391,16 +391,6 @@ export default function ClientDeliveriesPage() {
                       </button>
                     </>
                   )}
-
-                  {b.conversation_id && (
-                    <Link
-                      href={`/client/messages?active=${b.conversation_id}`}
-                      className="px-5 py-2.5 bg-surface hover:bg-surface-elevated text-text-sub border border-border-custom hover:text-text-main text-xs font-bold rounded-xl transition flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <MessageSquare className="w-4 h-4" />
-                      <span>Message Admin</span>
-                    </Link>
-                  )}
                 </div>
 
                 {/* Revision logs for this booking (Part 12) */}

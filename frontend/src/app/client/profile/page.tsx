@@ -143,7 +143,7 @@ export default function ClientProfilePage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-3 bg-surface border border-border-custom rounded-xl">
                 <span className="text-text-muted">Account ID / Login ID</span>
-                <span className="font-bold text-text-main">{user.login_id || "Not configured"}</span>
+                <span className="font-bold text-text-main font-mono">{user.login_id || `CL-${String(user.id).padStart(6, '0')}`}</span>
               </div>
               <div className="flex items-center justify-between p-3 bg-surface border border-border-custom rounded-xl">
                 <span className="text-text-muted">Email Address</span>

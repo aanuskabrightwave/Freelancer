@@ -1489,6 +1489,136 @@ def list_completed_jobs(
     return res
 
 
+# ----------------------------------------------------
+# 13. ADMIN PAYOUTS MANAGEMENT
+# ----------------------------------------------------
+
+from pydantic import BaseModel
+
+class PayoutProcessPayload(BaseModel):
+    action: str  # "APPROVE" or "REJECT"
+    transaction_ref: Optional[str] = None
+    notes: Optional[str] = None
+
+
+@router.get("/payouts", response_model=List[Dict[str, Any]], summary="List all freelancer payout requests")
+def list_admin_payouts(
+    status_filter: Optional[str] = None,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    query = db.query(Payout)
+    if status_filter:
+        query = query.filter(Payout.status == status_filter)
+    payouts = query.order_by(Payout.created_at.desc()).all()
+    res = []
+    for p in payouts:
+        profile = p.freelancer_profile
+        freelancer_name = profile.user.full_name if (profile and profile.user) else "Freelancer"
+        res.append({
+            "id": p.id,
+            "payout_number": p.payout_number,
+            "freelancer_profile_id": p.freelancer_profile_id,
+            "freelancer_name": freelancer_name,
+            "amount": float(p.amount),
+            "status": p.status.value if hasattr(p.status, "value") else str(p.status),
+            "provider": p.provider,
+            "provider_transfer_id": p.provider_transfer_id,
+            "initiated_at": p.initiated_at,
+            "processed_at": p.processed_at,
+            "created_at": p.created_at
+        })
+    return res
+
+
+@router.post("/payouts/{id}/process", summary="Approve or reject a freelancer payout request")
+def process_admin_payout(
+    id: int,
+    payload: PayoutProcessPayload,
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    payout = db.query(Payout).filter(Payout.id == id).first()
+    if not payout:
+        raise HTTPException(status_code=404, detail="Payout record not found.")
+
+    if payload.action == "APPROVE":
+        payout.status = "PROCESSED"
+        payout.processed_at = datetime.now()
+        if payload.transaction_ref:
+            payout.provider_transfer_id = payload.transaction_ref
+        db.commit()
+        db.refresh(payout)
+        return {"message": "Payout marked as processed successfully", "status": "PROCESSED"}
+    elif payload.action == "REJECT":
+        payout.status = "FAILED"
+        profile = payout.freelancer_profile
+        if profile and profile.user:
+            ledger_data = {
+                "user_id": profile.user.id,
+                "freelancer_profile_id": profile.id,
+                "booking_id": None,
+                "payment_id": None,
+                "payout_id": payout.id,
+                "entry_type": "ADJUSTMENT",
+                "amount": payout.amount,
+                "currency": "INR",
+                "status": "AVAILABLE",
+                "description": f"Reversal for failed payout: {payout.payout_number}"
+            }
+            from app.repositories.ledger_repository import LedgerRepository
+            LedgerRepository.create(db, ledger_data)
+        db.commit()
+        db.refresh(payout)
+        return {"message": "Payout rejected and balance returned to freelancer", "status": "FAILED"}
+    else:
+        raise HTTPException(status_code=400, detail="Invalid action. Must be APPROVE or REJECT.")
+
+
+# ----------------------------------------------------
+# 14. ADMIN PLATFORM SETTINGS
+# ----------------------------------------------------
+
+@router.get("/settings", response_model=List[Dict[str, Any]], summary="List all platform configurations")
+def list_admin_settings(
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    PlatformSettingsService.seed_defaults_if_empty(db)
+    settings_list = db.query(PlatformSetting).order_by(PlatformSetting.id.asc()).all()
+    return [
+        {
+            "id": s.id,
+            "key": s.key,
+            "value": s.value,
+            "value_type": s.value_type.value if hasattr(s.value_type, "value") else str(s.value_type),
+            "description": s.description,
+            "is_public": s.is_public,
+            "updated_at": s.updated_at
+        }
+        for s in settings_list
+    ]
+
+
+@router.patch("/settings/{key}", summary="Update a platform setting value")
+def update_admin_setting(
+    key: str,
+    payload: Dict[str, Any],
+    db: Session = Depends(get_db),
+    admin: User = Depends(require_role("ADMIN"))
+):
+    new_value = str(payload.get("value", ""))
+    setting = PlatformSettingsService.update_setting(db, admin.id, key, new_value)
+    return {
+        "message": f"Setting '{key}' updated successfully",
+        "key": setting.key,
+        "value": setting.value,
+        "updated_at": setting.updated_at
+    }
+
+
+
+
 
 
 

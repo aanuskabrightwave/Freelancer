@@ -39,12 +39,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self.window_seconds = window_seconds
         self.request_history = defaultdict(list)
         self.custom_rules = {
-            "/api/v1/auth/login": (5, 60),
-            "/api/v1/auth/register": (5, 60),
-            "/api/v1/auth/forgot-password": (5, 60),
-            "/api/v1/auth/reset-password": (5, 60),
-            "/api/v1/bookings": (15, 60),
-            "/api/v1/messages": (30, 60),
+            "/api/v1/auth/login": (30, 60),
+            "/api/v1/auth/register": (15, 60),
+            "/api/v1/auth/forgot-password": (10, 60),
+            "/api/v1/auth/reset-password": (10, 60),
+            "/api/v1/bookings": (30, 60),
+            "/api/v1/messages": (60, 60),
         }
 
     async def dispatch(self, request: Request, call_next):

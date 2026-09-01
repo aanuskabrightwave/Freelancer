@@ -135,8 +135,14 @@ def get_conversation_detail(
     return AdminMessagingService.get_conversation_detail(db, current_user, id)
 
 
+import json
+import asyncio
+from fastapi import WebSocket, WebSocketDisconnect
+from app.services.ws_manager import ws_manager
+from app.core.security import decode_token
+
 # =============================================================================
-# 5. SEND MESSAGE (Role-Protected & Legacy-Blocked)
+# 5. SEND MESSAGE (Role-Protected & Broadcasted)
 # =============================================================================
 @router.post(
     "/messages/conversations/{id}/messages",
@@ -157,7 +163,7 @@ def send_message(
     db: Session = Depends(get_db)
 ):
     content = payload.content or payload.message_text or ""
-    return AdminMessagingService.send_message(
+    msg_out = AdminMessagingService.send_message(
         db=db,
         current_user=current_user,
         conversation_id=id,
@@ -165,6 +171,82 @@ def send_message(
         reply_to_message_id=payload.reply_to_message_id,
         file_ids=payload.file_ids
     )
+
+    try:
+        payload_dict = {
+            "type": "new_message",
+            "conversation_id": id,
+            "message": {
+                "id": msg_out.id,
+                "conversation_id": msg_out.conversation_id,
+                "sender_id": msg_out.sender_id,
+                "sender_name": msg_out.sender_name,
+                "sender_role": msg_out.sender_role,
+                "content": msg_out.content,
+                "created_at": msg_out.created_at.isoformat() if hasattr(msg_out.created_at, "isoformat") else str(msg_out.created_at),
+                "is_from_admin": msg_out.is_from_admin,
+            }
+        }
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            asyncio.create_task(ws_manager.broadcast_to_conversation(id, payload_dict))
+    except Exception:
+        pass
+
+    return msg_out
+
+
+@router.websocket("/ws/{conversation_id}")
+async def websocket_endpoint(
+    websocket: WebSocket,
+    conversation_id: int,
+    token: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
+):
+    if not token:
+        token = websocket.cookies.get("access_token")
+    if not token:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    try:
+        token_payload = decode_token(token, "access")
+        user_id = int(token_payload.get("sub"))
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user or not user.is_active:
+            await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+            return
+    except Exception:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    try:
+        AdminMessagingService._validate_access(db, user, conversation_id)
+    except Exception:
+        await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
+        return
+
+    await ws_manager.connect(websocket, conversation_id, user.id)
+    try:
+        while True:
+            data = await websocket.receive_text()
+            try:
+                msg_json = json.loads(data)
+                if msg_json.get("type") == "typing":
+                    await ws_manager.broadcast_to_conversation(
+                        conversation_id,
+                        {
+                            "type": "typing",
+                            "user_id": user.id,
+                            "user_name": user.full_name,
+                            "conversation_id": conversation_id
+                        }
+                    )
+            except Exception:
+                pass
+    except WebSocketDisconnect:
+        ws_manager.disconnect(websocket, conversation_id, user.id)
+
 
 
 # =============================================================================

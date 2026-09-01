@@ -90,7 +90,7 @@ export default function ClientNotificationsPage() {
     } else if (type === "PROJECT") {
       router.push(`/client/projects/${id}`);
     } else if (type === "CONVERSATION" || type === "MESSAGE" || n.notification_type === "ADMIN_MESSAGE") {
-      router.push(`/client/messages?active=${id}`);
+      router.push(`/client/dashboard`);
     } else if (type === "DELIVERY") {
       router.push("/client/deliveries");
     } else if (type === "REVIEW") {

@@ -152,7 +152,7 @@ export default function ClientReviewsPage() {
             </p>
           </div>
           <Link
-            href="/client/dashboard"
+            href="/client/bookings?status=COMPLETED"
             className="text-xs uppercase tracking-widest font-bold text-text-sub hover:text-primary flex items-center gap-2 group transition"
           >
             Dashboard →
@@ -164,49 +164,6 @@ export default function ClientReviewsPage() {
             {errorMsg}
           </div>
         )}
-
-        {/* Bookings Awaiting Your Review (Part 5) */}
-        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-6">
-          <h3 className="text-xs font-black text-text-main uppercase tracking-wider">Bookings Awaiting Your Review</h3>
-          
-          {pendingReviews.length > 0 ? (
-            <div className="space-y-4">
-              {pendingReviews.map((booking) => {
-                const assignedName = booking.freelancer?.full_name || booking.freelancer?.user?.full_name || "Specialist";
-                return (
-                  <div
-                    key={booking.id}
-                    className="border border-border-custom/50 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-elevated/20"
-                  >
-                    <div className="space-y-1">
-                      <span className="text-[10px] text-text-muted font-mono font-bold">{booking.booking_number}</span>
-                      <h4 className="font-extrabold text-sm text-text-main">{booking.title}</h4>
-                      <p className="text-[10px] text-text-sub font-semibold">
-                        Assigned Professional: <span className="text-text-main font-bold">{assignedName}</span>
-                      </p>
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        setActiveBooking(booking);
-                        setOverallRating(0);
-                        setReviewComment("");
-                        setShowReviewModal(true);
-                      }}
-                      className="px-4 py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer shrink-0 text-center"
-                    >
-                      Leave Review
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="py-8 text-center text-xs text-text-muted bg-surface-elevated/10 border border-border-custom/40 rounded-2xl italic">
-              No pending reviews. You are all caught up!
-            </div>
-          )}
-        </div>
 
         {/* Submitted Reviews History (Part 13) */}
         <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-6">

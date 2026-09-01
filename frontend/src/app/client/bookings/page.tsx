@@ -1,15 +1,14 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import { bookingService } from "@/services/booking.service";
 import { X, Calendar, MapPin, User, ArrowRight, MessageSquare, ChevronRight, Inbox } from "lucide-react";
 
 type ClientFilterTab =
   | "ALL"
-  | "AWAITING_REVIEW"
   | "MATCHING"
   | "APPROVAL_REQUIRED"
   | "PAYMENT_DUE"
@@ -20,7 +19,6 @@ type ClientFilterTab =
 
 const FILTER_LABELS: Record<ClientFilterTab, string> = {
   ALL: "All Bookings",
-  AWAITING_REVIEW: "Awaiting Review",
   MATCHING: "Matching Professional",
   APPROVAL_REQUIRED: "Approval Required",
   PAYMENT_DUE: "Payment Due",
@@ -30,14 +28,29 @@ const FILTER_LABELS: Record<ClientFilterTab, string> = {
   CANCELLED: "Cancelled",
 };
 
-export default function ClientBookingsPage() {
+function ClientBookingsContent() {
   const { user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ClientFilterTab>("ALL");
+
+  useEffect(() => {
+    const statusParam = searchParams.get("status") || searchParams.get("tab") || searchParams.get("filter");
+    if (statusParam) {
+      const upper = statusParam.toUpperCase();
+      if (upper === "COMPLETED") setActiveTab("COMPLETED");
+      else if (upper === "IN_PROGRESS") setActiveTab("IN_PROGRESS");
+      else if (upper === "PAYMENT_DUE") setActiveTab("PAYMENT_DUE");
+      else if (upper === "APPROVAL_REQUIRED") setActiveTab("APPROVAL_REQUIRED");
+      else if (upper === "DELIVERY") setActiveTab("DELIVERY");
+      else if (upper === "CANCELLED") setActiveTab("CANCELLED");
+      else if (upper === "MATCHING") setActiveTab("MATCHING");
+    }
+  }, [searchParams]);
 
   async function loadBookings() {
     try {
@@ -58,7 +71,7 @@ export default function ClientBookingsPage() {
     }
   }, [user]);
 
-  // Client-Friendly Status Mapping (Part 6)
+  // Client-Friendly Status Mapping
   const getClientFriendlyStatus = (b: any) => {
     const s = b.status;
     const payState = b.payment_completion_state;
@@ -126,7 +139,6 @@ export default function ClientBookingsPage() {
     }
   };
 
-  // Next Action Selector (Part 7)
   const getNextActionLabel = (b: any) => {
     const friendly = getClientFriendlyStatus(b);
     if (friendly === "Your Approval Required") return "Review Professional";
@@ -140,12 +152,10 @@ export default function ClientBookingsPage() {
 
   const filteredBookings = bookings.filter((b) => {
     const friendly = getClientFriendlyStatus(b);
-    const s = b.status;
 
     if (activeTab === "ALL") return true;
-    if (activeTab === "AWAITING_REVIEW") return friendly === "Awaiting Admin Review";
     if (activeTab === "MATCHING") {
-      return friendly === "Matching a Professional" || friendly === "Professional Contacted";
+      return friendly === "Matching a Professional" || friendly === "Professional Contacted" || friendly === "Awaiting Admin Review";
     }
     if (activeTab === "APPROVAL_REQUIRED") return friendly === "Your Approval Required";
     if (activeTab === "PAYMENT_DUE") {
@@ -194,7 +204,7 @@ export default function ClientBookingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
+    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans pb-16">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header Card */}
@@ -211,14 +221,13 @@ export default function ClientBookingsPage() {
           </div>
         )}
 
-        {/* Tab Filters (Part 5) */}
+        {/* Tab Filters (Awaiting Review removed) */}
         <div className="flex gap-2 pb-2 overflow-x-auto border-b border-border-custom scrollbar-thin">
           {(Object.keys(FILTER_LABELS) as ClientFilterTab[]).map((tab) => {
             const count = bookings.filter((b) => {
               const friendly = getClientFriendlyStatus(b);
               if (tab === "ALL") return true;
-              if (tab === "AWAITING_REVIEW") return friendly === "Awaiting Admin Review";
-              if (tab === "MATCHING") return friendly === "Matching a Professional" || friendly === "Professional Contacted";
+              if (tab === "MATCHING") return friendly === "Matching a Professional" || friendly === "Professional Contacted" || friendly === "Awaiting Admin Review";
               if (tab === "APPROVAL_REQUIRED") return friendly === "Your Approval Required";
               if (tab === "PAYMENT_DUE") return friendly === "Deposit Due" || friendly === "Balance Payment Due";
               if (tab === "IN_PROGRESS") return friendly === "Work in Progress";
@@ -251,12 +260,11 @@ export default function ClientBookingsPage() {
           })}
         </div>
 
-        {/* Bookings List (Part 3) */}
+        {/* Bookings List */}
         <div className="space-y-6">
           {filteredBookings.map((booking) => {
             const friendlyStatus = getClientFriendlyStatus(booking);
             
-            // Extract profile summary details
             const selectedName = booking.selected_freelancer?.full_name || booking.selected_freelancer?.user?.full_name || "N/A";
             const assignedName = booking.freelancer?.full_name || booking.freelancer?.user?.full_name || null;
 
@@ -284,7 +292,7 @@ export default function ClientBookingsPage() {
                     </p>
                   </div>
 
-                  {/* Professional assignment visual mapping (Part 4) */}
+                  {/* Professional assignment visual mapping */}
                   <div className="bg-surface-elevated/40 border border-border-custom/50 rounded-2xl p-3 grid grid-cols-1 sm:grid-cols-2 gap-3 text-[10px]">
                     <div>
                       <span className="text-text-muted font-bold block uppercase tracking-wider text-[8px]">Selected Professional</span>
@@ -318,16 +326,6 @@ export default function ClientBookingsPage() {
                     >
                       {getNextActionLabel(booking)}
                     </Link>
-                    
-                    {booking.conversation_id && (
-                      <button
-                        onClick={() => router.push(`/client/messages?active=${booking.conversation_id}`)}
-                        className="w-full py-2 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-xs font-bold rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        <span>Message Admin</span>
-                      </button>
-                    )}
                   </div>
                 </div>
 
@@ -336,13 +334,12 @@ export default function ClientBookingsPage() {
           })}
 
           {filteredBookings.length === 0 && (
-            /* Empty State (Part 37) */
             <div className="py-20 text-center text-text-muted border border-dashed border-border-custom rounded-3xl flex flex-col justify-center items-center space-y-4">
               <Inbox className="w-10 h-10 text-text-muted" />
               <div>
                 <h3 className="font-bold text-text-main text-sm">No Bookings Found</h3>
                 <p className="text-xs text-text-sub mt-1 max-w-xs mx-auto">
-                  You haven't created any bookings yet. Browse creators or catalog services to submit a new request.
+                  You haven't created any bookings in this category yet.
                 </p>
               </div>
               <div className="flex gap-3 pt-2">
@@ -359,5 +356,17 @@ export default function ClientBookingsPage() {
 
       </div>
     </div>
+  );
+}
+
+export default function ClientBookingsPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    }>
+      <ClientBookingsContent />
+    </Suspense>
   );
 }

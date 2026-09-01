@@ -98,6 +98,7 @@ class FreelancerProfileBase(BaseModel):
     website: Optional[str] = Field(None, max_length=500)
     instagram: Optional[str] = Field(None, max_length=500)
     behance: Optional[str] = Field(None, max_length=500)
+    is_profile_public: Optional[bool] = False
 
 
 class FreelancerProfileCreate(FreelancerProfileBase):

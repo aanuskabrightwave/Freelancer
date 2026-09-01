@@ -220,14 +220,16 @@ export default function WorkspaceNavbar() {
             )}
           </div>
 
-          {/* Messages Link */}
-          <Link
-            href={role === "CLIENT" ? "/client/messages" : "/freelancer/messages"}
-            className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-surface-elevated transition"
-            title="Messages"
-          >
-            <MessageSquare className="w-4.5 h-4.5" />
-          </Link>
+          {/* Messages Link (Freelancers only) */}
+          {role === "FREELANCER" && (
+            <Link
+              href="/freelancer/messages"
+              className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-surface-elevated transition"
+              title="Messages"
+            >
+              <MessageSquare className="w-4.5 h-4.5" />
+            </Link>
+          )}
 
           {/* Notifications Bell */}
           <div className="relative" ref={notificationsRef}>
@@ -319,7 +321,7 @@ export default function WorkspaceNavbar() {
                 </div>
 
                 <Link
-                  href={role === "CLIENT" ? "/client/bookings" : "/freelancer/profile"}
+                  href={role === "CLIENT" ? "/client/profile" : "/freelancer/profile"}
                   onClick={() => setProfileOpen(false)}
                   className="flex items-center gap-2 px-4 py-2 text-text-sub hover:text-text-main hover:bg-surface-elevated transition"
                 >
