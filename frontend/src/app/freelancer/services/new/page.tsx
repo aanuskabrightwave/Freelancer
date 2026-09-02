@@ -429,7 +429,7 @@ export default function CreateServiceWizard() {
   const selectedParentCategory = categories.find(c => String(c.id) === selectedParentId);
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8">
+    <div className="min-h-full bg-transparent text-text-main py-10 px-4 md:px-8">
       <div className="max-w-4xl mx-auto">
         
         {/* Wizard Progress Header */}

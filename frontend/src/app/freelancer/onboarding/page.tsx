@@ -448,7 +448,7 @@ export default function FreelancerOnboarding() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+      <div className="min-h-full bg-transparent flex flex-col justify-center items-center text-text-main py-20">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
         <p className="mt-4 text-text-sub">Loading Onboarding Wizard...</p>
       </div>
@@ -456,11 +456,11 @@ export default function FreelancerOnboarding() {
   }
 
   return (
-    <div className="min-h-screen bg-background py-10 px-4 md:px-8 text-text-main font-sans">
+    <div className="min-h-full bg-transparent py-10 px-4 md:px-8 text-text-main font-sans">
       <div className="max-w-4xl mx-auto">
         
         {/* Onboarding Header */}
-        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between bg-surface border border-border-custom rounded-2xl p-6 backdrop-blur-xl">
+        <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between bg-surface/80 border border-white/10 rounded-2xl p-6 backdrop-blur-xl">
           <div>
             <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               Creative Professional Onboarding

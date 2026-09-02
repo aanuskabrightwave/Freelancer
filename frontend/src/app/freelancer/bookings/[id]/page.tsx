@@ -339,7 +339,7 @@ function BookingDetailsContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+      <div className="min-h-full bg-transparent flex flex-col justify-center items-center text-text-main py-20">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -347,7 +347,7 @@ function BookingDetailsContent() {
 
   if (!booking) {
     return (
-      <div className="min-h-screen bg-background text-text-sub flex justify-center items-center">
+      <div className="min-h-full bg-transparent text-text-sub flex justify-center items-center py-20">
         Booking details are unavailable.
       </div>
     );
@@ -367,7 +367,7 @@ function BookingDetailsContent() {
   const activeRevision = revisions.find((r: any) => r.status === "OPEN" || r.status === "IN_PROGRESS");
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-12 px-4 md:px-8 font-sans">
+    <div className="min-h-full bg-transparent text-text-main py-12 px-4 md:px-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-8">
         
         {/* Navigation Breadcrumb */}

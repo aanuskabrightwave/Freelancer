@@ -213,18 +213,18 @@ export default function ClientDashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-8 px-6 font-sans space-y-8 animate-in fade-in duration-300">
+    <div className="min-h-screen bg-transparent text-text-main py-8 px-6 font-sans space-y-8 animate-in fade-in duration-300">
       
       {/* Top Welcome Panel */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-1">
+          <span className="text-overline-accent block mb-1">
             Client Workspace
           </span>
-          <h1 className="text-2xl md:text-3xl font-semibold text-text-main tracking-tight">
+          <h1 className="text-2xl md:text-3xl text-title-prominent">
             Welcome back, {user?.full_name?.split(" ")[0] || "Client"}
           </h1>
-          <p className="text-text-sub text-xs mt-1">
+          <p className="text-subtitle-prominent text-xs md:text-sm mt-1">
             Review status updates and messaging logs with the Coordinator.
           </p>
         </div>
@@ -233,16 +233,16 @@ export default function ClientDashboardPage() {
         <div className="flex items-center gap-3">
           <Link
             href="/freelancers"
-            className="flex items-center gap-1.5 px-4 py-2 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-xs font-bold rounded-full transition shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 btn-glass text-xs font-bold rounded-full transition shadow-sm cursor-pointer"
           >
-            <Search className="w-3.5 h-3.5" />
+            <Search className="w-3.5 h-3.5 text-primary" />
             <span>Explore Creatives</span>
           </Link>
           <Link
             href="/services"
-            className="flex items-center gap-1.5 px-4 py-2 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-xs font-bold rounded-full transition shadow-xs cursor-pointer"
+            className="flex items-center gap-1.5 px-4 py-2 btn-glass text-xs font-bold rounded-full transition shadow-sm cursor-pointer"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-primary" />
             <span>Browse Services</span>
           </Link>
         </div>
@@ -255,7 +255,7 @@ export default function ClientDashboardPage() {
       )}
 
       {/* NEEDS YOUR ATTENTION */}
-      <section className="bg-surface border border-border-custom rounded-3xl p-6 space-y-4 shadow-xs">
+      <section className="bg-surface/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 space-y-4 shadow-lg">
         <div className="flex items-center gap-2 border-b border-border-custom/50 pb-3">
           <AlertCircle className="w-4 h-4 text-primary" />
           <h2 className="text-xs font-bold uppercase tracking-wider text-text-main">
@@ -291,30 +291,30 @@ export default function ClientDashboardPage() {
       {/* SUMMARY KPI CARDS (4-Column Grid) */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        <Link href="/client/bookings" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Active Hirings</span>
+        <Link href="/client/bookings" className="bg-surface/80 backdrop-blur-xl border border-white/10 hover:border-primary/40 p-5 rounded-2xl flex flex-col justify-between shadow-lg transition group hover:bg-surface-elevated/85">
+          <span className="text-[11px] font-black text-gray-200 uppercase tracking-wider block mb-4 drop-shadow-sm">Active Hirings</span>
           <div className="flex items-baseline justify-between font-semibold">
-            <span className="text-3xl font-extrabold text-text-main group-hover:text-primary transition">{activeBookings.length}</span>
+            <span className="text-3xl font-extrabold text-white group-hover:text-primary transition">{activeBookings.length}</span>
             <span className="text-[10px] text-primary font-bold flex items-center gap-0.5">
               Manage <ChevronRight className="w-3 h-3" />
             </span>
           </div>
         </Link>
 
-        <Link href="/client/projects" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Projects Under Review</span>
+        <Link href="/client/projects" className="bg-surface/80 backdrop-blur-xl border border-white/10 hover:border-primary/40 p-5 rounded-2xl flex flex-col justify-between shadow-lg transition group hover:bg-surface-elevated/85">
+          <span className="text-[11px] font-black text-gray-200 uppercase tracking-wider block mb-4 drop-shadow-sm">Projects Under Review</span>
           <div className="flex items-baseline justify-between font-semibold">
-            <span className="text-3xl font-extrabold text-text-main group-hover:text-primary transition">{projectsUnderReviewCount}</span>
+            <span className="text-3xl font-extrabold text-white group-hover:text-primary transition">{projectsUnderReviewCount}</span>
             <span className="text-[10px] text-primary font-bold flex items-center gap-0.5">
               View Status <ChevronRight className="w-3 h-3" />
             </span>
           </div>
         </Link>
 
-        <Link href="/client/payments" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Payments Due</span>
+        <Link href="/client/payments" className="bg-surface/80 backdrop-blur-xl border border-white/10 hover:border-primary/40 p-5 rounded-2xl flex flex-col justify-between shadow-lg transition group hover:bg-surface-elevated/85">
+          <span className="text-[11px] font-black text-gray-200 uppercase tracking-wider block mb-4 drop-shadow-sm">Payments Due</span>
           <div className="flex items-baseline justify-between font-semibold">
-            <span className={`text-3xl font-extrabold transition ${paymentsDueCount > 0 ? "text-primary" : "text-text-main group-hover:text-primary"}`}>
+            <span className={`text-3xl font-extrabold transition ${paymentsDueCount > 0 ? "text-primary" : "text-white group-hover:text-primary"}`}>
               {paymentsDueCount}
             </span>
             <span className="text-[10px] text-primary font-bold flex items-center gap-0.5">
@@ -323,10 +323,10 @@ export default function ClientDashboardPage() {
           </div>
         </Link>
 
-        <Link href="/client/deliveries" className="bg-surface border border-border-custom/70 hover:border-primary/30 p-5 rounded-2xl flex flex-col justify-between shadow-xs transition group">
-          <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider block mb-4">Deliveries</span>
+        <Link href="/client/deliveries" className="bg-surface/80 backdrop-blur-xl border border-white/10 hover:border-primary/40 p-5 rounded-2xl flex flex-col justify-between shadow-lg transition group hover:bg-surface-elevated/85">
+          <span className="text-[11px] font-black text-gray-200 uppercase tracking-wider block mb-4 drop-shadow-sm">Deliveries</span>
           <div className="flex items-baseline justify-between font-semibold">
-            <span className="text-3xl font-extrabold text-text-main group-hover:text-primary transition">
+            <span className="text-3xl font-extrabold text-white group-hover:text-primary transition">
               {deliveriesCount}
             </span>
             <span className="text-[10px] text-primary font-bold flex items-center gap-0.5">
@@ -341,7 +341,7 @@ export default function ClientDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         
         {/* Bookings List */}
-        <section className="bg-surface border border-border-custom rounded-3xl p-6 space-y-6 shadow-xs flex flex-col justify-between">
+        <section className="bg-surface/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 space-y-6 shadow-lg flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between border-b border-border-custom/50 pb-3">
               <h3 className="text-sm font-bold text-text-main flex items-center gap-2">
@@ -358,7 +358,7 @@ export default function ClientDashboardPage() {
                 bookings.slice(0, 3).map((b) => {
                   const hasAssigned = b.freelancer !== null;
                   return (
-                    <div key={b.id} className="p-4 border border-border-custom/60 rounded-2xl hover:border-border-custom transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div key={b.id} className="p-4 bg-surface-elevated/80 border border-white/10 rounded-2xl hover:border-primary/30 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-mono font-bold text-primary">{b.booking_number}</span>
@@ -375,7 +375,7 @@ export default function ClientDashboardPage() {
                       
                       <Link
                         href={`/client/bookings/${b.id}`}
-                        className="px-4 py-1.5 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-[10px] font-bold rounded-full transition text-center self-start sm:self-auto"
+                        className="px-4 py-1.5 btn-glass text-[10px] font-bold rounded-full transition text-center self-start sm:self-auto"
                       >
                         View Booking
                       </Link>
@@ -383,7 +383,7 @@ export default function ClientDashboardPage() {
                   );
                 })
               ) : (
-                <div className="py-12 text-center text-text-muted border border-dashed border-border-custom/50 rounded-2xl bg-surface-elevated font-medium">
+                <div className="py-12 text-center text-text-muted border border-dashed border-border-custom/50 rounded-2xl bg-surface-elevated/80 font-medium">
                   <p>No active bookings requests yet.</p>
                 </div>
               )}
@@ -395,7 +395,7 @@ export default function ClientDashboardPage() {
               <Link href="/freelancers" className="flex-1 py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-[10px] font-bold rounded-full uppercase tracking-wider text-center">
                 Explore Creatives
               </Link>
-              <Link href="/services" className="flex-1 py-2 bg-surface hover:bg-surface-elevated text-text-sub border border-border-custom text-[10px] font-bold rounded-full uppercase tracking-wider text-center">
+              <Link href="/services" className="flex-1 py-2 btn-glass text-[10px] font-bold rounded-full uppercase tracking-wider text-center">
                 Browse Services
               </Link>
             </div>
@@ -403,7 +403,7 @@ export default function ClientDashboardPage() {
         </section>
 
         {/* Projects list */}
-        <section className="bg-surface border border-border-custom rounded-3xl p-6 space-y-6 shadow-xs flex flex-col justify-between">
+        <section className="bg-surface/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 space-y-6 shadow-lg flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between border-b border-border-custom/50 pb-3">
               <h3 className="text-sm font-bold text-text-main flex items-center gap-2">
@@ -420,7 +420,7 @@ export default function ClientDashboardPage() {
                 projects.slice(0, 3).map((p) => {
                   const refCode = `PRJ-${String(p.id).padStart(6, "0")}`;
                   return (
-                    <div key={p.id} className="p-4 border border-border-custom/60 rounded-2xl hover:border-border-custom transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div key={p.id} className="p-4 bg-surface-elevated/80 border border-white/10 rounded-2xl hover:border-primary/30 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-mono font-bold text-primary">{refCode}</span>
@@ -434,7 +434,7 @@ export default function ClientDashboardPage() {
                       
                       <Link
                         href={`/client/projects/${p.id}`}
-                        className="px-4 py-1.5 bg-surface hover:bg-surface-elevated text-text-sub hover:text-text-main border border-border-custom text-[10px] font-bold rounded-full transition text-center self-start sm:self-auto"
+                        className="px-4 py-1.5 btn-glass text-[10px] font-bold rounded-full transition text-center self-start sm:self-auto"
                       >
                         View Project
                       </Link>
@@ -442,7 +442,7 @@ export default function ClientDashboardPage() {
                   );
                 })
               ) : (
-                <div className="py-12 text-center text-text-muted border border-dashed border-border-custom/50 rounded-2xl bg-surface-elevated font-medium">
+                <div className="py-12 text-center text-text-muted border border-dashed border-border-custom/50 rounded-2xl bg-surface-elevated/80 font-medium">
                   <p>No active project posts yet.</p>
                 </div>
               )}

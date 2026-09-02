@@ -141,7 +141,7 @@ export default function WorkspaceNavbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-surface border-b border-border-custom px-6 h-[120px] min-h-[120px] shrink-0 flex items-center justify-between font-sans">
+      <header className="sticky top-0 z-40 bg-surface/75 backdrop-blur-xl border-b border-white/[0.06] px-6 md:px-8 h-[72px] min-h-[72px] shrink-0 flex items-center justify-between font-sans">
 
         {/* LEFT: Logo */}
         <div className="flex items-center gap-6">
@@ -178,18 +178,18 @@ export default function WorkspaceNavbar() {
             </button>
 
             {createOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-surface border border-border-custom rounded-2xl shadow-xl py-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150 text-xs font-medium text-text-sub">
+              <div className="absolute right-0 mt-2 w-48 !bg-[#1A1615] !bg-opacity-100 border border-white/10 rounded-2xl shadow-2xl py-2 z-[100] animate-in fade-in slide-in-from-top-1 duration-150 text-xs font-medium text-text-sub">
                 {role === "CLIENT" ? (
                   <>
                     <button
                       onClick={() => { setCreateOpen(false); router.push("/client/bookings"); }}
-                      className="w-full text-left px-4 py-2 hover:bg-surface-elevated hover:text-text-main transition"
+                      className="w-full text-left px-4 py-2 hover:!bg-[#26211F] hover:text-white transition"
                     >
                       Book a Service
                     </button>
                     <button
                       onClick={() => { setCreateOpen(false); router.push("/freelancers"); }}
-                      className="w-full text-left px-4 py-2 hover:bg-surface-elevated hover:text-text-main transition"
+                      className="w-full text-left px-4 py-2 hover:!bg-[#26211F] hover:text-white transition"
                     >
                       Find Creative
                     </button>
@@ -198,19 +198,19 @@ export default function WorkspaceNavbar() {
                   <>
                     <button
                       onClick={() => { setCreateOpen(false); router.push("/freelancer/services/new"); }}
-                      className="w-full text-left px-4 py-2 hover:bg-surface-elevated hover:text-text-main transition"
+                      className="w-full text-left px-4 py-2 hover:!bg-[#26211F] hover:text-white transition"
                     >
                       Create Service
                     </button>
                     <button
                       onClick={() => { setCreateOpen(false); router.push("/freelancer/profile"); }}
-                      className="w-full text-left px-4 py-2 hover:bg-surface-elevated hover:text-text-main transition"
+                      className="w-full text-left px-4 py-2 hover:!bg-[#26211F] hover:text-white transition"
                     >
                       Edit Profile
                     </button>
                     <button
                       onClick={() => { setCreateOpen(false); router.push("/services"); }}
-                      className="w-full text-left px-4 py-2 hover:bg-surface-elevated hover:text-text-main transition"
+                      className="w-full text-left px-4 py-2 hover:!bg-[#26211F] hover:text-white transition"
                     >
                       Browse Marketplace
                     </button>
@@ -244,9 +244,9 @@ export default function WorkspaceNavbar() {
             </button>
 
             {notificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-surface border border-border-custom rounded-2xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
-                <div className="flex items-center justify-between p-4 border-b border-border-custom/50">
-                  <span className="font-bold text-xs text-text-main">Recent Notifications</span>
+              <div className="absolute right-0 mt-2 w-80 !bg-[#1A1615] !bg-opacity-100 border border-white/10 rounded-2xl shadow-2xl z-[100] overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="flex items-center justify-between p-4 border-b border-white/10">
+                  <span className="font-bold text-xs text-white">Recent Notifications</span>
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllRead}
@@ -258,17 +258,17 @@ export default function WorkspaceNavbar() {
                   )}
                 </div>
 
-                <div className="max-h-64 overflow-y-auto divide-y divide-border-custom/30">
+                <div className="max-h-64 overflow-y-auto divide-y divide-white/5">
                   {recentNotifications.length > 0 ? (
                     recentNotifications.map(n => (
                       <button
                         key={n.id}
                         onClick={() => handleNotificationClick(n)}
-                        className={`w-full p-4 text-left hover:bg-surface-elevated transition flex gap-3 text-xs ${!n.is_read ? "bg-primary/5 font-semibold" : ""
+                        className={`w-full p-4 text-left hover:!bg-[#26211F] transition flex gap-3 text-xs ${!n.is_read ? "bg-primary/10 font-semibold" : ""
                           }`}
                       >
                         <div className="flex-grow space-y-1">
-                          <p className="text-text-main leading-snug">{n.message}</p>
+                          <p className="text-white leading-snug">{n.message}</p>
                           <span className="text-[9px] text-text-muted block">
                             {new Date(n.created_at).toLocaleDateString([], { month: "short", day: "numeric" })}
                           </span>
@@ -282,7 +282,7 @@ export default function WorkspaceNavbar() {
                   )}
                 </div>
 
-                <div className="p-2 border-t border-border-custom/50 bg-surface-elevated text-center">
+                <div className="p-2 border-t border-white/10 !bg-[#14100F] text-center">
                   <Link
                     href="/notifications"
                     onClick={() => setNotificationsOpen(false)}
@@ -314,16 +314,16 @@ export default function WorkspaceNavbar() {
             </button>
 
             {profileOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-surface border border-border-custom rounded-2xl shadow-xl py-3 z-50 text-xs animate-in fade-in slide-in-from-top-1 duration-150">
-                <div className="px-4 py-2 border-b border-border-custom/50 mb-2">
-                  <p className="font-bold text-text-main truncate">{user?.full_name}</p>
+              <div className="absolute right-0 mt-2 w-56 !bg-[#1A1615] !bg-opacity-100 border border-white/10 rounded-2xl shadow-2xl py-3 z-[100] text-xs animate-in fade-in slide-in-from-top-1 duration-150">
+                <div className="px-4 py-2 border-b border-white/10 mb-2">
+                  <p className="font-bold text-white truncate">{user?.full_name}</p>
                   <p className="text-[10px] text-text-muted capitalize">{role.toLowerCase()}</p>
                 </div>
 
                 <Link
                   href={role === "CLIENT" ? "/client/profile" : "/freelancer/profile"}
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-text-sub hover:text-text-main hover:bg-surface-elevated transition"
+                  className="flex items-center gap-2 px-4 py-2.5 text-text-sub hover:text-white hover:!bg-[#26211F] transition"
                 >
                   <User className="w-3.5 h-3.5" />
                   <span>My Profile</span>
@@ -332,7 +332,7 @@ export default function WorkspaceNavbar() {
                 <Link
                   href={role === "CLIENT" ? "/client/settings" : "/freelancer/settings"}
                   onClick={() => setProfileOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-text-sub hover:text-text-main hover:bg-surface-elevated transition"
+                  className="flex items-center gap-2 px-4 py-2.5 text-text-sub hover:text-white hover:!bg-[#26211F] transition"
                 >
                   <Settings className="w-3.5 h-3.5" />
                   <span>Settings</span>
@@ -340,16 +340,16 @@ export default function WorkspaceNavbar() {
 
                 <button
                   onClick={() => { setProfileOpen(false); setHelpOpen(true); }}
-                  className="w-full flex items-center gap-2 px-4 py-2 text-text-sub hover:text-text-main hover:bg-surface-elevated transition text-left cursor-pointer"
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-text-sub hover:text-white hover:!bg-[#26211F] transition text-left cursor-pointer"
                 >
                   <HelpCircle className="w-3.5 h-3.5" />
                   <span>Help & Support</span>
                 </button>
 
-                <div className="border-t border-border-custom/50 mt-2 pt-2">
+                <div className="border-t border-white/10 mt-2 pt-2">
                   <button
                     onClick={logout}
-                    className="w-full flex items-center gap-2 px-4 py-2 text-primary hover:text-primary hover:bg-primary/5 transition text-left font-bold cursor-pointer"
+                    className="w-full flex items-center gap-2 px-4 py-2 text-primary hover:text-primary-hover hover:!bg-[#26211F] transition text-left font-bold cursor-pointer"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Logout</span>

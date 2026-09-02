@@ -121,25 +121,25 @@ export default function ClientProjectsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background py-10 px-4 md:px-8 font-sans">
+      <div className="min-h-full bg-transparent py-10 px-4 md:px-8 font-sans">
         <div className="max-w-4xl mx-auto space-y-6">
-          <div className="bg-surface border border-border-custom rounded-3xl p-6 h-32 animate-pulse flex flex-col justify-between">
-            <div className="w-1/3 h-5 bg-surface-elevated rounded-lg"></div>
-            <div className="w-1/2 h-3 bg-surface-elevated rounded-lg"></div>
+          <div className="bg-surface/80 backdrop-blur-xl border border-white/10 rounded-3xl p-6 h-32 animate-pulse flex flex-col justify-between">
+            <div className="w-1/3 h-5 bg-surface-elevated/80 rounded-lg"></div>
+            <div className="w-1/2 h-3 bg-surface-elevated/80 rounded-lg"></div>
           </div>
           <div className="flex gap-2 pb-2 overflow-x-auto">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="w-24 h-8 bg-surface border border-border-custom rounded-xl animate-pulse shrink-0"></div>
+              <div key={i} className="w-24 h-8 bg-surface/80 border border-white/10 rounded-xl animate-pulse shrink-0"></div>
             ))}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-surface border border-border-custom rounded-3xl p-6 h-48 animate-pulse space-y-4">
+              <div key={i} className="bg-surface/80 border border-white/10 rounded-3xl p-6 h-48 animate-pulse space-y-4">
                 <div className="flex justify-between">
-                  <div className="w-1/4 h-4 bg-surface-elevated rounded"></div>
-                  <div className="w-1/6 h-4 bg-surface-elevated rounded"></div>
+                  <div className="w-1/4 h-4 bg-surface-elevated/80 rounded"></div>
+                  <div className="w-1/6 h-4 bg-surface-elevated/80 rounded"></div>
                 </div>
-                <div className="w-full h-12 bg-surface-elevated rounded-xl"></div>
+                <div className="w-full h-12 bg-surface-elevated/80 rounded-xl"></div>
               </div>
             ))}
           </div>
@@ -149,7 +149,7 @@ export default function ClientProjectsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
+    <div className="min-h-full bg-transparent text-text-main py-10 px-4 md:px-8 font-sans">
       <div className="max-w-4xl mx-auto space-y-6">
         
         {/* Header Block */}

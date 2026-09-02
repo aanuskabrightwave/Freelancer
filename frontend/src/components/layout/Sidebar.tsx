@@ -96,7 +96,7 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
 
   if (role === "admin") {
     return (
-      <aside className="w-64 border-r border-border-custom bg-surface-elevated text-text-main flex flex-col p-6 gap-6 h-screen sticky top-0 overflow-y-auto">
+      <aside className="w-64 border-r border-white/[0.06] bg-surface/75 backdrop-blur-xl text-text-main flex flex-col p-6 gap-6 h-screen sticky top-0 overflow-y-auto">
         <div className="border-b border-border-custom/50 pb-4">
           <span className="font-bold text-[10px] uppercase tracking-widest text-primary block">
             ADMIN WORKSPACE
@@ -105,7 +105,7 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
         <nav className="flex flex-col gap-5 flex-grow font-sans">
           {adminGroups.map((group) => (
             <div key={group.groupName} className="flex flex-col gap-1">
-              <span className="text-[9px] font-bold text-text-muted uppercase tracking-widest px-3 mb-1 block">
+              <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest px-3 mb-1 block drop-shadow-sm">
                 {group.groupName}
               </span>
               {group.items.map((item) => {
@@ -114,10 +114,10 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
                   return (
                     <div
                       key={item.name}
-                      className="px-4 py-1.5 text-text-muted/40 cursor-not-allowed text-[11px] font-medium tracking-wide flex items-center justify-between group"
+                      className="px-4 py-1.5 text-gray-400/50 cursor-not-allowed text-[11px] font-medium tracking-wide flex items-center justify-between group"
                     >
                       <span>{item.name}</span>
-                      <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[8px] bg-surface text-text-muted px-1.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                      <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[8px] bg-surface text-gray-300 px-1.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
                         Soon
                       </span>
                     </div>
@@ -129,8 +129,8 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
                     href={item.href || "#"}
                     className={`px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all cursor-pointer block ${
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-text-sub hover:text-text-main hover:bg-surface"
+                        ? "bg-primary/20 text-[#FF6B57] font-bold drop-shadow-sm"
+                        : "text-gray-200 hover:text-white hover:bg-white/10"
                     }`}
                   >
                     {item.name}

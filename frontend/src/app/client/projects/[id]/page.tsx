@@ -165,7 +165,7 @@ export default function ClientProjectDetailPage() {
 
   if (errorMsg && !project) {
     return (
-      <div className="min-h-screen bg-background text-text-sub py-10 px-4 md:px-8 font-sans">
+      <div className="min-h-full bg-transparent text-text-sub py-10 px-4 md:px-8 font-sans">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="bg-rose-500/10 border border-rose-500/20 text-rose-300 p-4 rounded-xl text-xs font-semibold">
             {errorMsg}
@@ -199,7 +199,7 @@ export default function ClientProjectDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
+    <div className="min-h-full bg-transparent text-text-main py-10 px-4 md:px-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
         
         {/* Navigation Header */}

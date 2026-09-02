@@ -146,24 +146,22 @@ export default function FreelancerBookingsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background py-10 px-4 md:px-8 font-sans">
-        <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
-          <div className="bg-surface border border-border-custom rounded-3xl p-6 h-32 flex flex-col justify-between">
-            <div className="w-1/3 h-5 bg-surface-elevated rounded"></div>
-            <div className="w-1/2 h-3 bg-surface-elevated rounded"></div>
-          </div>
-          <div className="h-48 bg-surface rounded-3xl border border-border-custom"></div>
+      <div className="min-h-full bg-transparent py-10 px-4 md:px-8 font-sans">
+        <div className="max-w-5xl mx-auto space-y-6">
+          <div className="h-32 bg-surface/80 border border-white/10 rounded-3xl animate-pulse"></div>
+          <div className="h-12 bg-surface/80 border border-white/10 rounded-2xl animate-pulse"></div>
+          <div className="h-64 bg-surface/80 border border-white/10 rounded-3xl animate-pulse"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-full bg-transparent text-text-main py-10 px-4 md:px-8 font-sans">
+      <div className="max-w-5xl mx-auto space-y-8">
         
         {/* Header Block */}
-        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="bg-surface/80 border border-white/10 rounded-3xl p-6 shadow-xl backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-black text-text-main">Bookings</h1>
             <p className="text-text-sub text-xs mt-1">

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import AuthenticatedFluidBackground from "@/components/backgrounds/AuthenticatedFluidBackground";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -44,9 +45,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex bg-background text-text-main">
+    <div className="min-h-screen flex bg-transparent text-text-main relative">
+      <AuthenticatedFluidBackground />
       {/* LEFT SIDE: Editorial/Brand Block (Hidden on mobile) */}
-      <div className="hidden lg:flex lg:w-1/2 bg-dark text-text-on-dark flex-col justify-between p-16 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-1/2 bg-surface/80 backdrop-blur-xl border-r border-white/10 text-text-on-dark flex-col justify-between p-16 relative overflow-hidden z-10">
         {/* Abstract background accent */}
         <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
         
@@ -81,10 +83,10 @@ export default function LoginPage() {
       </div>
 
       {/* RIGHT SIDE: Minimal Form Block */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 bg-background">
-        <div className="w-full max-w-md space-y-8 cinematic-reveal">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-16 bg-transparent relative z-10">
+        <div className="w-full max-w-md space-y-8 cinematic-reveal bg-surface/80 backdrop-blur-xl border border-white/10 rounded-3xl p-8 sm:p-10 shadow-2xl">
           <div className="space-y-2">
-            <h2 className="text-3xl font-semibold tracking-tight text-text-main">
+            <h2 className="text-3xl font-extrabold tracking-tight text-white">
               Welcome Back
             </h2>
             <p className="text-sm text-text-sub">

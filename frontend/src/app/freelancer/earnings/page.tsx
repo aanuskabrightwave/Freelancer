@@ -51,7 +51,7 @@ export default function FreelancerEarningsSummaryPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-sub py-12">
+      <div className="min-h-full bg-transparent flex flex-col justify-center items-center text-text-sub py-20">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-xs uppercase tracking-widest font-black animate-pulse">Loading earnings data...</p>
       </div>
@@ -59,7 +59,7 @@ export default function FreelancerEarningsSummaryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main font-sans selection:bg-primary-hover selection:text-text-main">
+    <div className="min-h-full bg-transparent text-text-main font-sans selection:bg-primary-hover selection:text-text-main">
       <div className="max-w-6xl mx-auto px-4 py-12">
         
         {/* Header Section */}

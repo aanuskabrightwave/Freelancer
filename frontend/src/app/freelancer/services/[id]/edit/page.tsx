@@ -381,18 +381,18 @@ export default function EditServiceDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+      <div className="min-h-full bg-transparent flex flex-col justify-center items-center text-text-main py-20">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8">
+    <div className="min-h-full bg-transparent text-text-main py-10 px-4 md:px-8">
       <div className="max-w-5xl mx-auto">
 
         {/* Dashboard Header */}
-        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+        <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-surface/80 border border-white/10 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
           <div>
             <h1 className="text-xl md:text-2xl font-black text-text-main">Edit Service Listing</h1>
             <p className="text-text-sub text-xs mt-1">Configure packages, descriptions, requirements and media.</p>

@@ -4,36 +4,36 @@
 
 :root {
   --background: #12100F;
-  --surface: rgba(24, 21, 20, 0.80);
-  --surface-elevated: rgba(29, 25, 24, 0.80);
-  --text-primary: #F4F0EA;
-  --text-secondary: #B8AEA5;
-  --text-muted: #81776F;
-  --border: rgba(255, 255, 255, 0.08);
+  --surface: rgba(24, 21, 20, 0.75);
+  --surface-elevated: rgba(29, 25, 24, 0.75);
+  --text-primary: #FFFFFF;
+  --text-secondary: #E5E7EB;
+  --text-muted: #CBD5E1;
+  --border: rgba(255, 255, 255, 0.07);
   --accent: #F05A47;
   --accent-hover: #FF6B57;
   --dark: #12100F;
-  --dark-soft: rgba(24, 21, 20, 0.80);
-  --text-on-dark: #F4F0EA;
+  --dark-soft: rgba(24, 21, 20, 0.75);
+  --text-on-dark: #FFFFFF;
 
   /* Dark Surface System Hierarchy */
   --bg-level-0: #12100F;
-  --bg-level-1: rgba(24, 21, 20, 0.80);
-  --bg-level-2: rgba(29, 25, 24, 0.80);
-  --bg-level-3: rgba(36, 32, 30, 0.80);
+  --bg-level-1: rgba(24, 21, 20, 0.75);
+  --bg-level-2: rgba(29, 25, 24, 0.75);
+  --bg-level-3: rgba(36, 32, 30, 0.75);
   --bg-level-hover: rgba(45, 40, 37, 0.85);
-  --surface-media: rgba(24, 21, 20, 0.80);
+  --surface-media: rgba(24, 21, 20, 0.75);
 
   /* Muted & Primary Accents */
   --accent-coral: #F05A47;
   --accent-hover: #FF6B57;
-  --accent-cool: #B8AEA5;
+  --accent-cool: #E2E8F0;
 
   /* Text Hierarchy on Dark Surfaces */
-  --text-heading: #F4F0EA;
-  --text-body: #B8AEA5;
-  --text-sub: #81776F;
-  --text-muted-meta: #81776F;
+  --text-heading: #FFFFFF;
+  --text-body: #E2E8F0;
+  --text-sub: #D1D5DB;
+  --text-muted-meta: #CBD5E1;
 
   /* Borders System */
   --border-subtle: rgba(255, 255, 255, 0.08);
@@ -69,6 +69,46 @@ body {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Standalone typography contrast enhancements over animated background */
+.text-overline-accent {
+  color: #F05A47;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.text-title-prominent {
+  color: #FFFFFF;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.text-subtitle-prominent {
+  color: #D1D5DB;
+  font-weight: 500;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Standalone glassmorphic button */
+.btn-glass {
+  background-color: rgba(24, 21, 20, 0.80);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #F4F0EA;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.btn-glass:hover {
+  background-color: rgba(36, 32, 30, 0.90);
+  border-color: rgba(240, 90, 71, 0.40);
+  color: #FFFFFF;
 }
 
 /* Custom scroll reveal and micro-interaction base styles */

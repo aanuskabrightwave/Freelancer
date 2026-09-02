@@ -35,8 +35,8 @@ export default function PayoutAccountSetupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-main flex flex-col justify-center items-center py-12 px-4 font-sans selection:bg-primary-hover selection:text-text-main">
-      <div className="max-w-md w-full bg-surface border border-border-custom rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+    <div className="min-h-full bg-transparent text-text-main flex flex-col justify-center items-center py-12 px-4 font-sans selection:bg-primary-hover selection:text-text-main">
+      <div className="max-w-md w-full bg-surface/80 border border-white/10 rounded-3xl p-8 shadow-2xl relative overflow-hidden backdrop-blur-xl">
         {/* Navigation Breadcrumb */}
         <div className="mb-6 text-left">
           <Link href="/freelancer/earnings" className="text-xs uppercase tracking-widest font-black text-text-sub hover:text-primary flex items-center gap-2 group transition">

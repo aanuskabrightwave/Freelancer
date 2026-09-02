@@ -208,18 +208,18 @@ export default function FreelancerDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans space-y-8">
+    <div className="min-h-screen bg-transparent text-text-main py-10 px-4 md:px-8 font-sans space-y-8 animate-in fade-in duration-300">
       
       {/* Welcome Block */}
-      <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="bg-surface/80 border border-white/10 rounded-3xl p-6 shadow-lg backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <span className="text-[10px] font-black text-primary uppercase tracking-widest block mb-1">
+          <span className="text-overline-accent block mb-1">
             Professional Workspace
           </span>
-          <h1 className="text-xl md:text-2xl font-black text-text-main">
+          <h1 className="text-2xl md:text-3xl text-title-prominent">
             Welcome back, {user?.full_name?.split(" ")[0] || "Specialist"}
           </h1>
-          <p className="text-text-sub text-xs mt-1">
+          <p className="text-subtitle-prominent text-xs md:text-sm mt-1">
             Manage your assignments, view schedule balances, and complete coordination deliverables.
           </p>
         </div>
@@ -228,13 +228,13 @@ export default function FreelancerDashboardPage() {
         <div className="flex gap-2">
           <Link
             href="/freelancer/profile"
-            className="px-4 py-2 bg-surface-elevated hover:bg-surface border border-border-custom text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer"
+            className="px-4 py-2 btn-glass text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer"
           >
             Manage Profile
           </Link>
           <Link
             href="/freelancer/services"
-            className="px-4 py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer"
+            className="px-4 py-2 bg-primary hover:bg-primary-hover text-text-on-dark text-[10px] font-black uppercase tracking-wider rounded-xl transition cursor-pointer shadow-sm"
           >
             Manage Services
           </Link>
@@ -249,27 +249,27 @@ export default function FreelancerDashboardPage() {
 
       {/* Metrics Widgets Grid (Part 4, 19, 20, 21) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-surface border border-border-custom rounded-2xl p-5 flex items-center justify-between shadow-md">
+        <div className="bg-surface/80 border border-white/10 rounded-2xl p-5 flex items-center justify-between shadow-lg backdrop-blur-xl hover:border-primary/30 transition">
           <div>
             <span className="text-[10px] text-text-muted uppercase tracking-wider font-extrabold block">Awaiting Response</span>
-            <span className="text-2xl font-black mt-1 block">{assignments.filter(a => a.status === "OFFERED").length} Offers</span>
+            <span className="text-2xl font-black mt-1 block text-text-main">{assignments.filter(a => a.status === "OFFERED").length} Offers</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
             <Clock className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-surface border border-border-custom rounded-2xl p-5 flex items-center justify-between shadow-md">
+        <div className="bg-surface/80 border border-white/10 rounded-2xl p-5 flex items-center justify-between shadow-lg backdrop-blur-xl hover:border-primary/30 transition">
           <div>
             <span className="text-[10px] text-text-muted uppercase tracking-wider font-extrabold block">Active Jobs</span>
-            <span className="text-2xl font-black mt-1 block">{activeBookings.length} Bookings</span>
+            <span className="text-2xl font-black mt-1 block text-text-main">{activeBookings.length} Bookings</span>
           </div>
           <div className="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
             <Briefcase className="w-5 h-5" />
           </div>
         </div>
 
-        <div className="bg-surface border border-border-custom rounded-2xl p-5 flex items-center justify-between shadow-md">
+        <div className="bg-surface/80 border border-white/10 rounded-2xl p-5 flex items-center justify-between shadow-lg backdrop-blur-xl hover:border-primary/30 transition">
           <div>
             <span className="text-[10px] text-text-muted uppercase tracking-wider font-extrabold block">Locked Earnings (Escrow)</span>
             <span className="text-2xl font-black mt-1 block text-amber-450">₹{Number(earnings.pending).toLocaleString("en-IN")}</span>
@@ -279,7 +279,7 @@ export default function FreelancerDashboardPage() {
           </div>
         </div>
 
-        <div className="bg-surface border border-border-custom rounded-2xl p-5 flex items-center justify-between shadow-md">
+        <div className="bg-surface/80 border border-white/10 rounded-2xl p-5 flex items-center justify-between shadow-lg backdrop-blur-xl hover:border-primary/30 transition">
           <div>
             <span className="text-[10px] text-text-muted uppercase tracking-wider font-extrabold block">Available to Withdraw</span>
             <span className="text-2xl font-black mt-1 block text-emerald-450">₹{Number(earnings.available).toLocaleString("en-IN")}</span>
@@ -291,7 +291,7 @@ export default function FreelancerDashboardPage() {
       </div>
 
       {/* Needs Your Attention (Part 5) */}
-      <section className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl space-y-4">
+      <section className="bg-surface/80 border border-white/10 rounded-3xl p-6 shadow-lg backdrop-blur-xl space-y-4">
         <h3 className="text-xs font-black text-text-main uppercase tracking-wider">Needs Your Attention</h3>
         
         {attentionItems.length > 0 ? (
@@ -304,7 +304,7 @@ export default function FreelancerDashboardPage() {
                 </div>
                 <Link
                   href={item.link}
-                  className="px-3.5 py-1 bg-surface hover:bg-surface-elevated border border-border-custom text-[10px] font-bold rounded-xl transition cursor-pointer text-center shrink-0 self-start sm:self-auto"
+                  className="px-3.5 py-1 btn-glass text-[10px] font-bold rounded-xl transition cursor-pointer text-center shrink-0 self-start sm:self-auto"
                 >
                   {item.actionText}
                 </Link>

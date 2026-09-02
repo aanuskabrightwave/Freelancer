@@ -92,16 +92,23 @@ export default function ClientPaymentsDashboardPage() {
   };
 
   const getActionConfig = (b: any) => {
+    const payState = b.payment_completion_state;
     const depStatus = getDepositStatus(b).label;
     const balStatus = getBalanceStatus(b).label;
 
+    if (payState === "FULLY_PAID") {
+      return { label: "Settled", url: "", enabled: false, isSettled: true };
+    }
     if (depStatus === "Deposit Due") {
-      return { label: "Pay Deposit", url: `/client/bookings/${b.id}/payment`, enabled: true };
+      return { label: "Pay Deposit", url: `/client/bookings/${b.id}/payment`, enabled: true, isSettled: false };
     }
     if (balStatus === "Balance Due") {
-      return { label: "Pay Balance", url: `/client/bookings/${b.id}/payment`, enabled: true };
+      return { label: "Pay Balance", url: `/client/bookings/${b.id}/payment`, enabled: true, isSettled: false };
     }
-    return { label: "Paid", url: "", enabled: false };
+    if (payState === "DEPOSIT_PAID") {
+      return { label: "Balance Pending Delivery", url: "", enabled: false, isSettled: false };
+    }
+    return { label: "Not Yet Due", url: "", enabled: false, isSettled: false };
   };
 
   // Metrics (Part 3)
@@ -117,15 +124,15 @@ export default function ClientPaymentsDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background py-10 px-4 md:px-8 font-sans">
+      <div className="min-h-full bg-transparent py-10 px-4 md:px-8 font-sans">
         <div className="max-w-6xl mx-auto space-y-6 animate-pulse">
-          <div className="bg-surface border border-border-custom rounded-3xl p-6 h-32 flex flex-col justify-between">
-            <div className="w-1/3 h-5 bg-surface-elevated rounded"></div>
-            <div className="w-1/2 h-3 bg-surface-elevated rounded"></div>
+          <div className="bg-surface/80 border border-white/10 rounded-3xl p-6 h-32 flex flex-col justify-between">
+            <div className="w-1/3 h-5 bg-surface-elevated/80 rounded"></div>
+            <div className="w-1/2 h-3 bg-surface-elevated/80 rounded"></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="h-32 bg-surface rounded-2xl border border-border-custom"></div>
-            <div className="h-32 bg-surface rounded-2xl border border-border-custom"></div>
+            <div className="h-32 bg-surface/80 rounded-2xl border border-white/10"></div>
+            <div className="h-32 bg-surface/80 rounded-2xl border border-white/10"></div>
           </div>
         </div>
       </div>
@@ -133,11 +140,11 @@ export default function ClientPaymentsDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
+    <div className="min-h-full bg-transparent text-text-main py-10 px-4 md:px-8 font-sans">
       <div className="max-w-6xl mx-auto space-y-8">
         
         {/* Header Block */}
-        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="bg-surface/80 border border-white/10 rounded-3xl p-6 shadow-xl backdrop-blur-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-xl md:text-2xl font-black text-text-main">Payments Dashboard</h1>
             <p className="text-text-sub text-xs mt-1">
@@ -203,6 +210,12 @@ export default function ClientPaymentsDashboardPage() {
                 const overall = getOverallPaymentStatus(booking);
                 const action = getActionConfig(booking);
                 const assignedName = booking.freelancer?.full_name || booking.freelancer?.user?.full_name || "Matching In Progress";
+                const balanceAmount =
+                  booking.payment_completion_state === "FULLY_PAID"
+                    ? 0
+                    : booking.payment_completion_state === "DEPOSIT_PAID"
+                    ? Number(booking.remaining_balance)
+                    : Math.max(0, Number(booking.agreed_amount) - Number(booking.deposit_amount));
 
                 return (
                   <div
@@ -230,7 +243,7 @@ export default function ClientPaymentsDashboardPage() {
                       </div>
 
                       <div>
-                        <span className="text-text-muted uppercase tracking-wider text-[8px] block">Deposit (30%)</span>
+                        <span className="text-text-muted uppercase tracking-wider text-[8px] block">Deposit</span>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-text-main font-bold">₹{Number(booking.deposit_amount).toLocaleString("en-IN")}</span>
                           <span className={`px-1.5 py-0.2 rounded text-[7px] border font-bold uppercase ${dep.style}`}>{dep.label}</span>
@@ -238,9 +251,9 @@ export default function ClientPaymentsDashboardPage() {
                       </div>
 
                       <div>
-                        <span className="text-text-muted uppercase tracking-wider text-[8px] block">Balance (70%)</span>
+                        <span className="text-text-muted uppercase tracking-wider text-[8px] block">Balance</span>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-text-main font-bold">₹{Number(booking.remaining_balance).toLocaleString("en-IN")}</span>
+                          <span className="text-text-main font-bold">₹{balanceAmount.toLocaleString("en-IN")}</span>
                           <span className={`px-1.5 py-0.2 rounded text-[7px] border font-bold uppercase ${bal.style}`}>{bal.label}</span>
                         </div>
                       </div>
@@ -255,9 +268,13 @@ export default function ClientPaymentsDashboardPage() {
                         >
                           {action.label}
                         </Link>
-                      ) : (
-                        <span className="px-4 py-2 text-text-muted text-[10px] font-bold uppercase tracking-wider border border-border-custom bg-surface-elevated rounded-xl block text-center w-full lg:w-auto">
+                      ) : action.isSettled ? (
+                        <span className="px-4 py-2 text-emerald-400 text-[10px] font-bold uppercase tracking-wider border border-emerald-500/30 bg-emerald-500/10 rounded-xl block text-center w-full lg:w-auto">
                           Settled
+                        </span>
+                      ) : (
+                        <span className="px-4 py-2 text-text-muted text-[10px] font-bold uppercase tracking-wider border border-border-custom bg-surface-elevated/40 rounded-xl block text-center w-full lg:w-auto">
+                          {action.label}
                         </span>
                       )}
                     </div>

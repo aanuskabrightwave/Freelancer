@@ -154,18 +154,18 @@ export default function FreelancerAvailabilityPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center items-center text-text-main">
+      <div className="min-h-full bg-transparent flex flex-col justify-center items-center text-text-main py-20">
         <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-10 px-4 md:px-8 font-sans">
+    <div className="min-h-full bg-transparent text-text-main py-10 px-4 md:px-8 font-sans">
       <div className="max-w-5xl mx-auto space-y-8">
         
         {/* Header Block */}
-        <div className="bg-surface border border-border-custom rounded-3xl p-6 shadow-xl backdrop-blur-xl">
+        <div className="bg-surface/80 border border-white/10 rounded-3xl p-6 shadow-xl backdrop-blur-xl">
           <h1 className="text-xl md:text-2xl font-black text-text-main">Fulfillment & Availability Settings</h1>
           <p className="text-text-sub text-xs mt-1">Configure your weekly standard availability hours and add override holidays or custom working slots.</p>
         </div>

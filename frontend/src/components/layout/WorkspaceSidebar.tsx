@@ -161,7 +161,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
 
   return (
     <aside 
-      className={`border-r border-border-custom bg-surface flex flex-col h-full transition-all duration-300 font-sans relative ${
+      className={`border-r border-white/[0.06] bg-surface/75 backdrop-blur-xl flex flex-col h-full transition-all duration-300 font-sans relative z-20 shrink-0 ${
         isCollapsed ? "w-20" : "w-64"
       }`}
     >
@@ -176,13 +176,13 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
             {idx === 0 ? (
               <div className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between px-3"} mb-1.5`}>
                 {!isCollapsed && (
-                  <span className="text-[10px] font-extrabold text-text-muted uppercase tracking-widest block">
+                  <span className="text-[11px] font-black text-gray-300 uppercase tracking-widest block drop-shadow-sm">
                     {group.group}
                   </span>
                 )}
                 <button
                   onClick={onToggleCollapse}
-                  className="p-1 rounded-lg border border-border-custom hover:bg-surface-elevated text-text-muted hover:text-text-main transition cursor-pointer"
+                  className="p-1 rounded-lg border border-white/10 hover:bg-white/10 text-gray-300 hover:text-white transition cursor-pointer"
                   title={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 >
                   {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronLeft className="w-3.5 h-3.5" />}
@@ -190,7 +190,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
               </div>
             ) : (
               !isCollapsed && (
-                <span className="text-[10px] font-extrabold text-text-muted uppercase tracking-widest px-3 block mb-1">
+                <span className="text-[11px] font-black text-gray-300 uppercase tracking-widest px-3 block mb-1 drop-shadow-sm">
                   {group.group}
                 </span>
               )
@@ -219,16 +219,16 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
                   <div
                     className={`group relative flex items-center gap-3 px-3 py-2 rounded-xl text-xs min-w-0 transition duration-200 cursor-pointer ${
                       isActive 
-                        ? "bg-primary/5 text-primary font-bold border-l-2 border-primary rounded-l-none" 
-                        : "text-text-sub hover:text-text-main hover:bg-surface-elevated font-medium"
+                        ? "bg-primary/20 text-[#FF6B57] font-bold border-l-2 border-primary rounded-l-none drop-shadow-sm" 
+                        : "text-gray-200 hover:text-white hover:bg-white/10 font-medium"
                     }`}
                   >
-                    <IconComponent className={`w-4.5 h-4.5 flex-shrink-0 ${isActive ? "text-primary" : "text-text-sub group-hover:text-text-main"}`} />
+                    <IconComponent className={`w-4.5 h-4.5 flex-shrink-0 ${isActive ? "text-[#FF6B57]" : "text-gray-300 group-hover:text-white"}`} />
                     {!isCollapsed && <span className="truncate">{item.name}</span>}
                     
                     {/* Tooltip for collapsed state */}
                     {isCollapsed && (
-                      <span className="hidden group-hover:block absolute left-full ml-3 px-2.5 py-1.5 bg-dark text-text-on-dark text-[10px] rounded-lg shadow-md z-[100] whitespace-nowrap">
+                      <span className="hidden group-hover:block absolute left-full ml-3 px-2.5 py-1.5 !bg-[#1A1615] text-white text-[10px] rounded-lg shadow-md z-[100] whitespace-nowrap border border-white/10">
                         {item.name}
                       </span>
                     )}

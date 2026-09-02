@@ -138,7 +138,7 @@ export default function ServiceDetailClient({ id }: { id: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center items-center">
+      <div className="min-h-full bg-transparent flex flex-col justify-center items-center py-20">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -146,8 +146,8 @@ export default function ServiceDetailClient({ id }: { id: string }) {
 
   if (errorMsg || !service) {
     return (
-      <div className="min-h-screen bg-background text-text-main flex flex-col justify-center items-center px-6">
-        <div className="bg-surface-elevated border border-border-custom rounded-3xl p-8 text-center max-w-md shadow-sm">
+      <div className="min-h-full bg-transparent text-text-main flex flex-col justify-center items-center px-6 py-20">
+        <div className="bg-surface-elevated/80 border border-white/10 rounded-3xl p-8 text-center max-w-md shadow-sm backdrop-blur-xl">
           <h2 className="text-xl font-semibold text-text-main mb-2">Service Not Accessible</h2>
           <p className="text-text-sub text-sm mb-6">{errorMsg || "Could not retrieve details."}</p>
           <button
@@ -182,7 +182,7 @@ export default function ServiceDetailClient({ id }: { id: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-main font-sans pb-24">
+    <div className="min-h-full bg-transparent text-text-main font-sans pb-24">
       
       {/* Cover Banner */}
       <div className="h-48 md:h-64 w-full bg-dark relative overflow-hidden">

@@ -91,9 +91,9 @@ export default function AdminDashboardPage() {
 
   if (loading) {
     return (
-      <div className="p-8 space-y-8 bg-background min-h-screen text-text-main animate-pulse">
+      <div className="p-8 space-y-8 bg-transparent min-h-screen text-text-main animate-pulse">
         {/* Page Header skeleton */}
-        <div className="h-10 bg-surface-elevated rounded-xl w-1/4"></div>
+        <div className="h-10 bg-surface-elevated/80 rounded-xl w-1/4"></div>
         {/* Grid skeleton */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(8)].map((_, i) => (
@@ -111,7 +111,7 @@ export default function AdminDashboardPage() {
 
   if (error) {
     return (
-      <div className="p-8 bg-background min-h-screen text-text-main flex flex-col justify-center items-center gap-4">
+      <div className="p-8 bg-transparent min-h-screen text-text-main flex flex-col justify-center items-center gap-4">
         <div className="bg-rose-950/30 border border-rose-900/50 text-rose-200 p-6 rounded-3xl max-w-md text-center">
           <p className="text-sm font-semibold">{error}</p>
         </div>
@@ -193,7 +193,7 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="p-8 space-y-8 bg-background min-h-screen text-text-main font-sans">
+    <div className="p-8 space-y-8 bg-transparent min-h-screen text-text-main font-sans">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-border-custom pb-6 gap-4">
         <div>

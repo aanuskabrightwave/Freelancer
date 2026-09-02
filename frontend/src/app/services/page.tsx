@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { marketplaceService } from "@/services/service.service";
 import Container from "@/components/ui/Container";
+import AuthenticatedFluidBackground from "@/components/backgrounds/AuthenticatedFluidBackground";
 
 const SERVICE_TYPE_LABELS = {
   ON_SITE: "On-Site",
@@ -14,6 +16,7 @@ const SERVICE_TYPE_LABELS = {
 function PublicServicesDirectoryContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuth();
 
   const [services, setServices] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -28,6 +31,7 @@ function PublicServicesDirectoryContent() {
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [freelancerId, setFreelancerId] = useState("");
 
   useEffect(() => {
@@ -90,16 +94,17 @@ function PublicServicesDirectoryContent() {
   const selectedParentCategory = categories.find(c => String(c.id) === selectedParentId);
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-16 px-6 font-sans">
-      <Container>
+    <div className="min-h-screen bg-transparent text-text-main py-16 px-6 font-sans relative">
+      {!isAuthenticated && <AuthenticatedFluidBackground />}
+      <Container className="relative z-10">
         
         {/* Title Header */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-4 cinematic-reveal">
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary">Marketplace Packages</span>
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-text-main">
+          <span className="text-overline-accent block">Marketplace Packages</span>
+          <h1 className="text-4xl md:text-6xl text-title-prominent">
             Explore Services
           </h1>
-          <p className="text-text-sub text-base max-w-md mx-auto leading-relaxed">
+          <p className="text-subtitle-prominent text-base max-w-md mx-auto leading-relaxed">
             Book professional creative packages directly with expert digital freelancers.
           </p>
         </div>

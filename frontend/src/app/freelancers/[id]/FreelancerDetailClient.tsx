@@ -121,7 +121,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center items-center">
+      <div className="min-h-full bg-transparent flex flex-col justify-center items-center py-20">
         <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
@@ -129,8 +129,8 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
 
   if (errorMsg || !profile) {
     return (
-      <div className="min-h-screen bg-background text-text-main flex flex-col justify-center items-center px-6">
-        <div className="bg-surface-elevated border border-border-custom rounded-3xl p-8 text-center max-w-md shadow-sm">
+      <div className="min-h-full bg-transparent text-text-main flex flex-col justify-center items-center px-6 py-20">
+        <div className="bg-surface-elevated/80 border border-white/10 rounded-3xl p-8 text-center max-w-md shadow-sm backdrop-blur-xl">
           <h2 className="text-xl font-semibold text-text-main mb-2">Profile Not Accessible</h2>
           <p className="text-text-sub text-sm mb-6">{errorMsg || "Could not retrieve details."}</p>
           <button 
@@ -148,7 +148,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
   const standardPortfolio = profile.portfolio?.filter((p: any) => !p.is_featured) || [];
 
   return (
-    <div className="min-h-screen bg-background text-text-main font-sans pb-24">
+    <div className="min-h-full bg-transparent text-text-main font-sans pb-24">
       
       {/* Cover Banner Image */}
       <div className="h-64 md:h-80 w-full bg-dark relative overflow-hidden">
@@ -222,24 +222,17 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
             </div>
           </div>
 
-          <div className="w-full md:w-auto flex flex-col items-center md:items-end gap-1.5 border-t md:border-t-0 pt-4 md:pt-0 border-border-custom/50">
-            <span className="text-[10px] text-text-muted font-semibold uppercase tracking-wider">Starting Price</span>
-            <span className="text-3xl font-bold text-text-main">
-              {profile.starting_price ? `₹${parseInt(profile.starting_price).toLocaleString()}` : "On Quote"}
-            </span>
-            <div className="mt-2 w-full flex flex-col gap-2">
-              {isOwnProfile ? (
-                <button
-                  onClick={() => router.push("/freelancer/profile/edit")}
-                  className="w-full px-6 py-2.5 bg-primary hover:bg-primary-hover text-text-on-dark text-xs font-bold rounded-xl transition text-center"
-                >
-                  Edit Profile
-                </button>
-              ) : (
+          {!isOwnProfile && (
+            <div className="w-full md:w-auto flex flex-col items-center md:items-end gap-1.5 border-t md:border-t-0 pt-4 md:pt-0 border-border-custom/50">
+              <span className="text-[10px] text-text-muted font-semibold uppercase tracking-wider">Starting Price</span>
+              <span className="text-3xl font-bold text-text-main">
+                {profile.starting_price ? `₹${parseInt(profile.starting_price).toLocaleString()}` : "On Quote"}
+              </span>
+              <div className="mt-2 w-full flex flex-col gap-2">
                 <FavouriteButton targetId={profile.id} type="freelancer" label="Save Creator" />
-              )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Two Column details layout */}
@@ -308,63 +301,6 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
                 {(!profile.equipment || profile.equipment.length === 0) && (
                   <span className="text-xs text-text-muted col-span-full">No equipment gear listed.</span>
                 )}
-              </div>
-            </div>
-
-            {/* Portfolio Grid Card */}
-            <div className="bg-surface-elevated border border-border-custom/60 rounded-3xl p-6 md:p-8 shadow-sm">
-              <h2 className="text-base font-semibold text-text-main mb-6 uppercase tracking-wider text-[11px]">Portfolio Showcase</h2>
-              
-              {featuredPortfolio.length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-4">Featured Work</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {featuredPortfolio.map((item: any) => (
-                      <div key={item.id} className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden shadow-sm group">
-                        <div className="aspect-video relative overflow-hidden flex items-center justify-center bg-background">
-                          {item.media_type === "IMAGE" ? (
-                            <img src={getMediaUrl(item.media_url)} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-350" />
-                          ) : (
-                            <div className="text-center p-4">
-                              <span className="text-[9px] bg-primary/10 border border-primary/20 px-2 py-0.5 rounded text-primary font-bold">
-                                {item.media_type}
-                              </span>
-                              <p className="text-xs text-text-sub truncate mt-2 max-w-xs">{item.media_url}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <h4 className="text-sm font-semibold text-text-main truncate">{item.title}</h4>
-                          <span className="text-[9px] text-text-muted uppercase font-bold tracking-wider mt-1 block">{item.category}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-4">All Projects</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {standardPortfolio.map((item: any) => (
-                    <div key={item.id} className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden flex flex-col justify-between">
-                      <div className="aspect-video bg-background flex items-center justify-center overflow-hidden">
-                        {item.media_type === "IMAGE" ? (
-                          <img src={getMediaUrl(item.media_url)} alt={item.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-[9px] bg-surface-elevated border border-border-custom px-2 py-0.5 rounded text-text-muted font-bold uppercase">{item.media_type}</span>
-                        )}
-                      </div>
-                      <div className="p-3">
-                        <h4 className="text-xs font-semibold text-text-main truncate">{item.title}</h4>
-                        <span className="text-[9px] text-text-muted uppercase tracking-wider block mt-1">{item.category}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {(!profile.portfolio || profile.portfolio.length === 0) && (
-                    <span className="text-xs text-text-muted col-span-full">No portfolio projects uploaded.</span>
-                  )}
-                </div>
               </div>
             </div>
 
@@ -454,6 +390,63 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
                     {loadingReviews ? "Loading more..." : "Load More Reviews"}
                   </button>
                 )}
+              </div>
+            </div>
+
+            {/* Portfolio Grid Card */}
+            <div className="bg-surface-elevated border border-border-custom/60 rounded-3xl p-6 md:p-8 shadow-sm">
+              <h2 className="text-base font-semibold text-text-main mb-6 uppercase tracking-wider text-[11px]">Portfolio Showcase</h2>
+              
+              {featuredPortfolio.length > 0 && (
+                <div className="mb-8">
+                  <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-4">Featured Work</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {featuredPortfolio.map((item: any) => (
+                      <div key={item.id} className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden shadow-sm group">
+                        <div className="aspect-video relative overflow-hidden flex items-center justify-center bg-background">
+                          {item.media_type === "IMAGE" ? (
+                            <img src={getMediaUrl(item.media_url)} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-350" />
+                          ) : (
+                            <div className="text-center p-4">
+                              <span className="text-[9px] bg-primary/10 border border-primary/20 px-2 py-0.5 rounded text-primary font-bold">
+                                {item.media_type}
+                              </span>
+                              <p className="text-xs text-text-sub truncate mt-2 max-w-xs">{item.media_url}</p>
+                            </div>
+                          )}
+                        </div>
+                        <div className="p-4">
+                          <h4 className="text-sm font-semibold text-text-main truncate">{item.title}</h4>
+                          <span className="text-[9px] text-text-muted uppercase font-bold tracking-wider mt-1 block">{item.category}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div>
+                <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-4">All Projects</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {standardPortfolio.map((item: any) => (
+                    <div key={item.id} className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden flex flex-col justify-between">
+                      <div className="aspect-video bg-background flex items-center justify-center overflow-hidden">
+                        {item.media_type === "IMAGE" ? (
+                          <img src={getMediaUrl(item.media_url)} alt={item.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-[9px] bg-surface-elevated border border-border-custom px-2 py-0.5 rounded text-text-muted font-bold uppercase">{item.media_type}</span>
+                        )}
+                      </div>
+                      <div className="p-3">
+                        <h4 className="text-xs font-semibold text-text-main truncate">{item.title}</h4>
+                        <span className="text-[9px] text-text-muted uppercase tracking-wider block mt-1">{item.category}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {(!profile.portfolio || profile.portfolio.length === 0) && (
+                    <span className="text-xs text-text-muted col-span-full">No portfolio projects uploaded.</span>
+                  )}
+                </div>
               </div>
             </div>
 

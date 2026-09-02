@@ -2,9 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 import { getMediaUrl } from "@/lib/api";
 import { freelancerService } from "@/services/freelancer.service";
 import Container from "@/components/ui/Container";
+import AuthenticatedFluidBackground from "@/components/backgrounds/AuthenticatedFluidBackground";
 
 const PROFESSION_LABELS: Record<string, string> = {
   PHOTOGRAPHER: "Photographer",
@@ -21,6 +23,7 @@ const PROFESSION_LABELS: Record<string, string> = {
 
 export default function PublicFreelancerDirectory() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   const [freelancers, setFreelancers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,15 +66,16 @@ export default function PublicFreelancerDirectory() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-text-main py-16 px-6 font-sans">
-      <Container>
+    <div className="min-h-screen bg-transparent text-text-main py-16 px-6 font-sans relative">
+      {!isAuthenticated && <AuthenticatedFluidBackground />}
+      <Container className="relative z-10">
         {/* Directory Title */}
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-4 cinematic-reveal">
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary">Discover Talent</span>
-          <h1 className="text-4xl md:text-6xl font-semibold tracking-tight text-text-main">
+          <span className="text-overline-accent block">Discover Talent</span>
+          <h1 className="text-4xl md:text-6xl text-title-prominent">
             Explore Creative Talent
           </h1>
-          <p className="text-text-sub text-base max-w-md mx-auto leading-relaxed">
+          <p className="text-subtitle-prominent text-base max-w-md mx-auto leading-relaxed">
             Discover top-tier photographers, videographers, editors, and production specialists.
           </p>
         </div>

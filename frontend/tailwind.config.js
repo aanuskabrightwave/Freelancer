@@ -21,13 +21,13 @@ module.exports = {
         'dark-soft': 'var(--dark-soft)',
         'text-on-dark': 'var(--text-on-dark)',
 
-        // Dark Surface System Hierarchy Fallback Map
-        'bg-level-0': '#12100F',
-        'bg-level-1': '#181514',
-        'bg-level-2': '#1D1918',
-        'bg-level-3': '#24201E',
-        'bg-level-hover': '#2D2825',
-        'surface-media': '#181514',
+        // Dark Surface System Hierarchy Variables
+        'bg-level-0': 'var(--bg-level-0)',
+        'bg-level-1': 'var(--bg-level-1)',
+        'bg-level-2': 'var(--bg-level-2)',
+        'bg-level-3': 'var(--bg-level-3)',
+        'bg-level-hover': 'var(--bg-level-hover)',
+        'surface-media': 'var(--surface-media)',
         'accent-coral': '#F05A47',
         'accent-hover': '#FF6B57',
         'accent-cool': '#B8AEA5',
