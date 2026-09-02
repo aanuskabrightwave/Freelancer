@@ -123,8 +123,7 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
       group: "Work",
       items: [
         { name: "Bookings", href: "/freelancer/bookings", icon: Calendar },
-        { name: "Messages", href: "/freelancer/messages", icon: MessageSquare },
-        { name: "Deliveries", href: "/freelancer/bookings", icon: FileText }
+        { name: "Deliveries", href: "/freelancer/deliveries", icon: FileText }
       ]
     },
     {

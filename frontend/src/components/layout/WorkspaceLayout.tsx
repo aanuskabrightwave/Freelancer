@@ -50,8 +50,8 @@ export default function WorkspaceLayout({ children, role }: WorkspaceLayoutProps
         
       </div>
 
-      {/* Bottom right message widget (Freelancer only) */}
-      {role === "freelancer" && <MessageWidget />}
+      {/* Bottom right message widget (Freelancer and Client) */}
+      {(role === "freelancer" || role === "client") && <MessageWidget />}
 
       {/* Shared Help center modal */}
       <HelpModal isOpen={isHelpOpen} onClose={() => setIsHelpOpen(false)} />
