@@ -149,7 +149,7 @@ export default function RegisterPage() {
               &ldquo;Being listed on CreativeMarket has connected me directly with agency clients looking for local videographers. No middleman, clear briefs, fast payout.&rdquo;
             </p>
             <p className="text-xs font-bold uppercase tracking-widest text-primary">
-              — Demo Freelancer, Photographer
+              — Elena Vance, Visual Artist
             </p>
           </div>
         </div>

@@ -46,6 +46,7 @@ class Settings(BaseSettings):
     RAZORPAY_KEY_ID: str = "rzp_test_mockkeyid123"
     RAZORPAY_KEY_SECRET: str = "mocksecret123"
     RAZORPAY_WEBHOOK_SECRET: str = "mockwebhooksecret123"
+    PAYOUT_PROVIDER_MODE: str = "SIMULATED"  # "SIMULATED" or "LIVE"
 
     # Uploads Limits (MB)
     MAX_IMAGE_UPLOAD_MB: int = 10

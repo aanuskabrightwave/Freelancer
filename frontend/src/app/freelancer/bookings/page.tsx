@@ -84,12 +84,13 @@ export default function FreelancerBookingsPage() {
     switch (status) {
       case "OFFERED":
         return { label: "Awaiting Your Response", style: "bg-amber-500/10 border-amber-500/30 text-amber-400 font-bold animate-pulse" };
+      case "DECLINED":
       case "REJECTED":
         return hasCounter
           ? { label: "Counter Sent", style: "bg-blue-500/10 border-blue-500/30 text-blue-400" }
           : { label: "Declined", style: "bg-rose-500/10 border-rose-500/30 text-rose-400" };
       case "ACCEPTED":
-        return { label: "Waiting for Client Approval", style: "bg-purple-500/10 border-purple-500/30 text-purple-400" };
+        return { label: "Assignment Accepted", style: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 font-bold" };
       case "CONFIRMED":
         return { label: "Confirmed", style: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400" };
       default:

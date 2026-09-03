@@ -1390,7 +1390,7 @@ def list_deliveries(
     from app.models.delivery import Delivery
     from app.models.booking import Booking
     from app.models.revision import RevisionRequest
-    from app.models.freelancer import FreelancerProfile
+    from app.models.freelancer_profile import FreelancerProfile
     
     deliveries = db.query(Delivery).join(Booking, Booking.id == Delivery.booking_id).order_by(Delivery.submitted_at.desc()).all()
     

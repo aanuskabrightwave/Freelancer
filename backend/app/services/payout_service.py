@@ -108,6 +108,13 @@ class PayoutService:
 
     @staticmethod
     def initiate_payout(db: Session, user: User, amount_requested: Optional[Decimal] = None) -> Payout:
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        if user_role_str != "FREELANCER" and user_role_str != "ADMIN":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only freelancers can request payout releases."
+            )
+
         # Pre-process pending ledger maturation
         PayoutService.process_available_payouts(db)
 

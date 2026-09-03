@@ -89,7 +89,27 @@ class WorkspaceService:
     @staticmethod
     def get_files(db: Session, user: User, booking_id: int, category: Optional[str] = None) -> List[WorkspaceFile]:
         workspace = WorkspaceService.get_or_create_workspace(db, user, booking_id)
-        return WorkspaceRepository.get_files(db, workspace.id, category)
+        files = WorkspaceRepository.get_files(db, workspace.id, category)
+        
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        if user_role_str == "CLIENT":
+            from app.models.delivery import Delivery, DeliveryFile, DeliveryStatus
+            approved_delivery_file_ids = set(
+                row[0] for row in db.query(DeliveryFile.workspace_file_id)
+                .join(Delivery, Delivery.id == DeliveryFile.delivery_id)
+                .filter(
+                    Delivery.booking_id == booking_id,
+                    Delivery.status == DeliveryStatus.APPROVED,
+                    Delivery.shared_with_client_at.isnot(None)
+                ).all()
+            )
+            return [
+                f for f in files 
+                if f.file_category not in [FileCategory.PREVIEW, FileCategory.FINAL_DELIVERY] 
+                or f.id in approved_delivery_file_ids
+            ]
+        
+        return files
 
     @staticmethod
     def upload_file(db: Session, user: User, booking_id: int, file: UploadFile, category_str: str, description: Optional[str] = None) -> WorkspaceFile:

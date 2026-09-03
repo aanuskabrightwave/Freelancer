@@ -35,7 +35,7 @@ class LedgerRepository:
         # 3. Total Earned (net credit: sum of PAYMENT_CREDIT (+) and PLATFORM_COMMISSION (-))
         total_earned = db.query(func.sum(LedgerEntry.amount)).filter(
             LedgerEntry.freelancer_profile_id == freelancer_id,
-            LedgerEntry.entry_type.in_(["PAYMENT_CREDIT", "PLATFORM_COMMISSION", "ADJUSTMENT"]),
+            LedgerEntry.entry_type.in_(["PAYMENT_CREDIT", "ADVANCE_CREDIT", "FINAL_CREDIT", "PLATFORM_COMMISSION", "ADJUSTMENT"]),
             LedgerEntry.status.in_(["PENDING", "AVAILABLE"])
         ).scalar() or Decimal("0.00")
 

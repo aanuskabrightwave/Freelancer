@@ -120,6 +120,22 @@ def download_workspace_file_by_id(
     if not is_client and not is_freelancer and not is_admin:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied.")
 
+    # Client can only download PREVIEW or FINAL_DELIVERY if approved by Admin
+    if is_client and not is_admin:
+        from app.models.workspace_file import FileCategory
+        from app.models.delivery import Delivery, DeliveryFile, DeliveryStatus
+        if workspace_file.file_category in [FileCategory.PREVIEW, FileCategory.FINAL_DELIVERY]:
+            is_approved = db.query(DeliveryFile).join(Delivery, Delivery.id == DeliveryFile.delivery_id).filter(
+                DeliveryFile.workspace_file_id == workspace_file.id,
+                Delivery.status == DeliveryStatus.APPROVED,
+                Delivery.shared_with_client_at.isnot(None)
+            ).first() is not None
+            if not is_approved:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Raw freelancer deliverables are pending Admin review and curation."
+                )
+
     local_path = os.path.normpath(os.path.join(settings.UPLOAD_STORAGE_PATH, workspace_file.file_url.lstrip("/uploads/")))
     if not os.path.exists(local_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found on disk.")

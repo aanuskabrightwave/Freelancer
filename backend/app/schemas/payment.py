@@ -53,6 +53,7 @@ class PaymentResponse(BaseModel):
     tax_amount: Optional[Decimal] = None
     commission_percent_snapshot: Decimal
     status: str
+    payment_type: Optional[str] = None
     payment_method: Optional[str] = None
     failure_code: Optional[str] = None
     failure_description: Optional[str] = None

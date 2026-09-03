@@ -22,6 +22,7 @@ class FreelancerMiniOut(BaseModel):
     professional_title: Optional[str] = None
     primary_profession: Optional[str] = None
     city: Optional[str] = None
+    full_name: Optional[str] = None
     user: Optional[UserMiniOut] = None
 
     model_config = ConfigDict(from_attributes=True)
@@ -155,6 +156,7 @@ class AdminBookingDetail(BaseModel):
     source_type: BookingSourceType
     booking_type: str
     status: BookingStatus
+    agreed_amount: Decimal
     scheduled_date: Optional[date] = None
     start_time: Optional[time] = None
     end_time: Optional[time] = None
@@ -169,8 +171,11 @@ class AdminBookingDetail(BaseModel):
     is_admin_managed: bool
     service_id: Optional[int] = None
     service_package_id: Optional[int] = None
+    selected_freelancer_profile_id: Optional[int] = None
+    freelancer_profile_id: Optional[int] = None
     project_id: Optional[int] = None
     proposal_id: Optional[int] = None
+    requirements_answers: Optional[dict[str, Any]] = None
     confirmed_at: Optional[datetime] = None
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None

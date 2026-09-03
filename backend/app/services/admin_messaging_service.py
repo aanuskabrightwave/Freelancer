@@ -419,10 +419,30 @@ class AdminMessagingService:
     # PART 11: CONVERSATION DETAIL
     # -------------------------------------------------------------------------
     @staticmethod
-    def get_conversation_detail(db: Session, current_user: User, conversation_id: int) -> ManagedConversationDetail:
+    def _validate_access(db: Session, current_user: User, conversation_id: int) -> Conversation:
         convo = db.query(Conversation).filter(Conversation.id == conversation_id).first()
         if not convo:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Conversation not found.")
+
+        user_role_str = current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role)
+
+        if user_role_str == "CLIENT":
+            if convo.conversation_type not in [ConversationType.CLIENT_ADMIN.value, ConversationType.DIRECT_LEGACY.value] or convo.client_id != current_user.id:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to access this conversation.")
+        elif user_role_str == "FREELANCER":
+            if convo.conversation_type not in [ConversationType.FREELANCER_ADMIN.value, ConversationType.DIRECT_LEGACY.value] or convo.freelancer_id != current_user.id:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You do not have permission to access this conversation.")
+        elif user_role_str == "ADMIN":
+            pass
+        else:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Unauthorized role.")
+
+        return convo
+
+    # -------------------------------------------------------------------------
+    @staticmethod
+    def get_conversation_detail(db: Session, current_user: User, conversation_id: int) -> ManagedConversationDetail:
+        convo = AdminMessagingService._validate_access(db, current_user, conversation_id)
 
         user_role_str = current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role)
 

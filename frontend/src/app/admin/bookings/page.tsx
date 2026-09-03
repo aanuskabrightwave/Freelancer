@@ -13,8 +13,9 @@ interface UserMiniOut {
 interface FreelancerMiniOut {
   id: number;
   user_id: number;
-  professional_title: string;
-  full_name: string;
+  professional_title?: string;
+  full_name?: string;
+  user?: UserMiniOut;
 }
 
 interface BookingAssignmentOut {
@@ -25,7 +26,9 @@ interface BookingAssignmentOut {
   counter_offer_amount: string | null;
   is_replacement: boolean;
   client_approval_required: boolean;
+  assignment_round?: number;
   client_approval_status: string;
+  freelancer_profile?: FreelancerMiniOut;
 }
 
 interface BookingListItem {
@@ -251,13 +254,22 @@ export default function AdminBookingInboxPage() {
                       </td>
                       <td className="py-4 px-5 text-text-main">{booking.client?.full_name || "N/A"}</td>
                       <td className="py-4 px-5 text-text-sub">
-                        {booking.selected_freelancer?.full_name || (
+                        {booking.selected_freelancer?.full_name || booking.selected_freelancer?.user?.full_name || (
                           <span className="italic text-text-muted">Not specified</span>
                         )}
                       </td>
                       <td className="py-4 px-5">
-                        {booking.freelancer?.full_name ? (
-                          <span className="text-text-main">{booking.freelancer.full_name}</span>
+                        {booking.freelancer?.full_name || booking.freelancer?.user?.full_name ? (
+                          <span className="text-text-main font-semibold">{booking.freelancer?.full_name || booking.freelancer?.user?.full_name}</span>
+                        ) : booking.active_assignment?.freelancer_profile?.full_name || booking.active_assignment?.freelancer_profile?.user?.full_name ? (
+                          <div>
+                            <span className="text-text-main font-semibold">
+                              {booking.active_assignment?.freelancer_profile?.full_name || booking.active_assignment?.freelancer_profile?.user?.full_name}
+                            </span>
+                            <span className="block text-amber-400 font-bold text-[9px] uppercase tracking-wider">
+                              Offered (R#{booking.active_assignment.assignment_round})
+                            </span>
+                          </div>
                         ) : (
                           <span className="text-amber-500 font-bold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md text-[9px] uppercase tracking-wider">
                             Not assigned
@@ -290,7 +302,7 @@ export default function AdminBookingInboxPage() {
         </div>
       ) : (
         <div className="py-16 text-center text-text-sub text-xs bg-surface-elevated border border-dashed border-border-custom rounded-3xl">
-          No booking requests waiting for review.
+          No bookings are currently awaiting review.
         </div>
       )}
     </div>

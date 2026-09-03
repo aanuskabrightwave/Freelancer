@@ -6,7 +6,7 @@ from datetime import datetime
 
 from app.models.booking import Booking, BookingStatus
 from app.models.user import User, UserRole
-from app.models.delivery import Delivery, DeliveryFile, DeliveryType, DeliveryStatus
+from app.models.delivery import Delivery, DeliveryFile, DeliveryType, DeliveryStatus, AdminReviewStatus
 from app.models.revision import RevisionRequest, RevisionComment, RevisionStatus
 from app.models.workspace_file import WorkspaceFile, FileCategory
 from app.models.workspace_event import WorkspaceEventType
@@ -32,12 +32,32 @@ class DeliveryService:
         if not booking:
             raise HTTPException(status_code=404, detail="Booking not found")
 
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        if user_role_str != "FREELANCER" and user_role_str != "ADMIN":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only freelancers can submit project deliverables."
+            )
+
         # Freelancer permission check
         freelancer_profile = FreelancerRepository.get_profile_by_id(db, booking.freelancer_profile_id)
-        if not freelancer_profile or freelancer_profile.user_id != user.id:
+        if not freelancer_profile or (freelancer_profile.user_id != user.id and user_role_str != "ADMIN"):
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Only the assigned freelancer can submit project deliverables."
+            )
+
+        # Booking Status & Deposit Validation
+        if booking.status in [BookingStatus.REQUESTED, BookingStatus.MATCHING_IN_PROGRESS, BookingStatus.CANCELLED, BookingStatus.REJECTED]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Cannot submit deliverables for a booking in {booking.status.value} state."
+            )
+
+        if booking.agreed_amount > 0 and booking.payment_completion_state not in ["DEPOSIT_PAID", "FULLY_PAID"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Deliverables cannot be submitted before deposit payment is complete."
             )
 
         # Confirm workspace is active (auto-initialize if needed)
@@ -115,6 +135,9 @@ class DeliveryService:
             title_notif = "Final Delivery Ready"
             msg_notif = f"Your final Wedding Photography delivery is ready for review."
         else:
+            booking.status = BookingStatus.DELIVERY_PENDING
+            db.commit()
+
             event_t = WorkspaceEventType.PREVIEW_SUBMITTED
             WorkspaceService.log_workspace_event(
                 db,
@@ -141,7 +164,7 @@ class DeliveryService:
 
         db.commit()
 
-        # Trigger notification
+        # Trigger notification to Admin & Client
         try:
             from app.services.notification_service import NotificationService
             NotificationService.dispatch(
@@ -169,6 +192,13 @@ class DeliveryService:
         booking = BookingRepository.get_by_id(db, booking_id)
         if not booking:
             raise HTTPException(status_code=404, detail="Booking not found")
+
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        if user_role_str == "CLIENT":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Direct raw freelancer submissions are pending Admin review and curation."
+            )
 
         WorkspaceService.validate_membership(db, user, booking)
         workspace = WorkspaceRepository.get_by_booking_id(db, booking.id)
@@ -315,3 +345,170 @@ class DeliveryService:
         booking = BookingRepository.get_by_id(db, rev_req.booking_id)
         WorkspaceService.validate_membership(db, user, booking)
         return DeliveryRepository.get_revision_comments(db, revision_id)
+
+    @staticmethod
+    def admin_approve_delivery(db: Session, user: User, delivery_id: int) -> Delivery:
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        if user_role_str != "ADMIN":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only administrators can approve project deliveries."
+            )
+
+        delivery = db.query(Delivery).filter(Delivery.id == delivery_id).first()
+        if not delivery:
+            raise HTTPException(status_code=404, detail="Delivery record not found.")
+
+        if delivery.status == DeliveryStatus.APPROVED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="This delivery has already been approved."
+            )
+
+        delivery.status = DeliveryStatus.APPROVED
+        delivery.admin_review_status = AdminReviewStatus.APPROVED.value
+        delivery.admin_reviewed_by_id = user.id
+        delivery.admin_reviewed_at = datetime.now()
+        delivery.approved_at = datetime.now()
+        delivery.shared_with_client_at = datetime.now()
+
+        db.commit()
+        db.refresh(delivery)
+
+        # Log workspace event
+        try:
+            WorkspaceService.log_workspace_event(
+                db,
+                workspace_id=delivery.workspace_id,
+                event_type=WorkspaceEventType.FINAL_DELIVERY,
+                actor_user_id=user.id,
+                title=f"Delivery Version {delivery.version} Approved by Admin",
+                description="Platform Admin approved the delivery submission. Curated delivery files are now available to the Client."
+            )
+        except Exception:
+            pass
+
+        # Trigger notification to Client
+        try:
+            from app.services.notification_service import NotificationService
+            NotificationService.dispatch(
+                db=db,
+                recipient_id=delivery.booking.client_id,
+                event_code="DELIVERY_APPROVED",
+                title="Delivery Curated & Ready",
+                message=f"Your delivery for booking '{delivery.booking.booking_number}' has been reviewed and approved by Platform Concierge.",
+                action_url=f"/client/bookings/{delivery.booking_id}/workspace",
+                entity_type="delivery",
+                entity_id=delivery.id
+            )
+        except Exception:
+            pass
+
+        return delivery
+
+    @staticmethod
+    def admin_request_changes(db: Session, user: User, delivery_id: int, feedback: str) -> Delivery:
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        if user_role_str != "ADMIN":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only administrators can request delivery changes."
+            )
+
+        delivery = db.query(Delivery).filter(Delivery.id == delivery_id).first()
+        if not delivery:
+            raise HTTPException(status_code=404, detail="Delivery record not found.")
+
+        if delivery.status == DeliveryStatus.APPROVED:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot request changes on an already approved delivery."
+            )
+
+        if not feedback or not feedback.strip():
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="A detailed change request message is required."
+            )
+
+        delivery.status = DeliveryStatus.REVISION_REQUESTED
+        delivery.admin_review_status = AdminReviewStatus.REVISION_REQUIRED.value
+        delivery.admin_feedback_to_freelancer = feedback.strip()
+        delivery.admin_reviewed_by_id = user.id
+        delivery.admin_reviewed_at = datetime.now()
+
+        # Update booking status back to IN_PROGRESS so freelancer can upload revised work
+        booking = delivery.booking
+        booking.status = BookingStatus.IN_PROGRESS
+
+        db.commit()
+        db.refresh(delivery)
+
+        # Log workspace event
+        try:
+            WorkspaceService.log_workspace_event(
+                db,
+                workspace_id=delivery.workspace_id,
+                event_type=WorkspaceEventType.REVISION_REQUESTED,
+                actor_user_id=user.id,
+                title=f"Admin Requested Changes on Version {delivery.version}",
+                description=f"Admin Feedback: {feedback.strip()}"
+            )
+        except Exception:
+            pass
+
+        # Trigger notification to Freelancer
+        try:
+            from app.services.notification_service import NotificationService
+            freelancer_profile = FreelancerRepository.get_profile_by_id(db, booking.freelancer_profile_id)
+            if freelancer_profile and freelancer_profile.user_id:
+                NotificationService.dispatch(
+                    db=db,
+                    recipient_id=freelancer_profile.user_id,
+                    event_code="REVISION_REQUESTED",
+                    title="Change Request Received from Admin",
+                    message=f"Admin requested changes on Version {delivery.version}: {feedback[:100]}",
+                    action_url=f"/freelancer/bookings/{booking.id}/workspace",
+                    entity_type="delivery",
+                    entity_id=delivery.id
+                )
+        except Exception:
+            pass
+
+        return delivery
+
+    @staticmethod
+    def get_client_approved_deliveries(db: Session, user: User, booking_id: int) -> List[Delivery]:
+        booking = BookingRepository.get_by_id(db, booking_id)
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        if booking.client_id != user.id and user_role_str != "ADMIN":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to access deliveries for this booking."
+            )
+
+        # Query approved deliveries that have been shared with client
+        return db.query(Delivery).filter(
+            Delivery.booking_id == booking_id,
+            Delivery.status == DeliveryStatus.APPROVED,
+            Delivery.shared_with_client_at.isnot(None)
+        ).order_by(Delivery.version.desc()).all()
+
+    @staticmethod
+    def get_freelancer_deliveries(db: Session, user: User, booking_id: int) -> List[Delivery]:
+        booking = BookingRepository.get_by_id(db, booking_id)
+        if not booking:
+            raise HTTPException(status_code=404, detail="Booking not found")
+
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        freelancer_profile = FreelancerRepository.get_profile_by_id(db, booking.freelancer_profile_id)
+        if not freelancer_profile or (freelancer_profile.user_id != user.id and user_role_str != "ADMIN"):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to view deliveries for this booking."
+            )
+
+        return db.query(Delivery).filter(Delivery.booking_id == booking_id).order_by(Delivery.version.asc()).all()

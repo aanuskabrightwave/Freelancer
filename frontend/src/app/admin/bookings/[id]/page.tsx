@@ -14,8 +14,9 @@ interface UserMiniOut {
 interface FreelancerMiniOut {
   id: number;
   user_id: number;
-  professional_title: string;
-  full_name: string;
+  professional_title?: string;
+  full_name?: string;
+  user?: UserMiniOut;
 }
 
 interface BookingAssignmentOut {
@@ -32,10 +33,7 @@ interface BookingAssignmentOut {
   client_approval_notes: string | null;
   created_at: string;
   responded_at: string | null;
-  freelancer_profile?: {
-    id: number;
-    full_name: string;
-  };
+  freelancer_profile?: FreelancerMiniOut;
 }
 
 interface PaymentSummaryOut {
@@ -368,7 +366,7 @@ export default function AdminBookingDetailPage() {
               <div className="space-y-1">
                 <span className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Selected Professional</span>
                 <p className="text-text-main font-semibold">
-                  {booking.selected_freelancer?.full_name || <span className="italic text-text-muted">Not specified</span>}
+                  {booking.selected_freelancer?.full_name || booking.selected_freelancer?.user?.full_name || <span className="italic text-text-muted">Not specified</span>}
                 </p>
                 {booking.selected_freelancer && (
                   <p className="text-text-sub font-medium">{booking.selected_freelancer.professional_title}</p>
@@ -377,11 +375,20 @@ export default function AdminBookingDetailPage() {
 
               <div className="space-y-1">
                 <span className="text-text-muted text-[10px] font-bold uppercase tracking-wider">Assigned Professional</span>
-                {booking.freelancer?.full_name ? (
+                {booking.freelancer?.full_name || booking.freelancer?.user?.full_name ? (
                   <>
-                    <p className="text-text-main font-semibold">{booking.freelancer.full_name}</p>
-                    <p className="text-text-sub font-medium">{booking.freelancer.professional_title}</p>
+                    <p className="text-text-main font-semibold">{booking.freelancer?.full_name || booking.freelancer?.user?.full_name}</p>
+                    <p className="text-text-sub font-medium">{booking.freelancer?.professional_title}</p>
                   </>
+                ) : activeAssignment ? (
+                  <div>
+                    <p className="text-text-main font-semibold">
+                      {activeAssignment.freelancer_profile?.full_name || activeAssignment.freelancer_profile?.user?.full_name || "Offered Creator Candidate"}
+                    </p>
+                    <span className="text-amber-400 font-bold bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-md text-[9px] uppercase tracking-wider inline-block mt-1">
+                      Offer Sent (Round #{activeAssignment.assignment_round})
+                    </span>
+                  </div>
                 ) : (
                   <div>
                     <span className="text-amber-500 font-bold bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-md text-[9px] uppercase tracking-wider inline-block">

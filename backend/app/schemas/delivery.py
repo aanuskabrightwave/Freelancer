@@ -22,6 +22,10 @@ class DeliveryResponse(BaseModel):
     title: str
     message: Optional[str] = None
     status: str
+    admin_review_status: Optional[str] = "PENDING"
+    admin_feedback_to_freelancer: Optional[str] = None
+    admin_reviewed_at: Optional[datetime] = None
+    shared_with_client_at: Optional[datetime] = None
     submitted_by_user_id: int
     submitted_at: datetime
     approved_at: Optional[datetime] = None
@@ -38,6 +42,10 @@ class DeliveryCreatePayload(BaseModel):
     title: str = Field(..., min_length=2, max_length=255)
     message: Optional[str] = None
     file_ids: List[int] = Field(default_factory=list)
+
+
+class AdminRequestChangesPayload(BaseModel):
+    feedback: str = Field(..., min_length=3, max_length=2000)
 
 
 class AdminDeliveryListItem(BaseModel):

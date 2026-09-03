@@ -55,8 +55,9 @@ class AssignmentService:
             id=profile.id,
             user_id=profile.user_id,
             professional_title=profile.professional_title,
-            primary_profession=profile.primary_profession.value if hasattr(profile.primary_profession, "value") else str(profile.primary_profession),
+            primary_profession=profile.primary_profession.value if hasattr(profile.primary_profession, "value") else str(profile.primary_profession) if profile.primary_profession else None,
             city=profile.city,
+            full_name=profile.user.full_name if profile.user else None,
             user=AssignmentService._build_user_mini(profile.user) if profile.user else None
         )
 
@@ -211,6 +212,7 @@ class AssignmentService:
             source_type=booking.source_type,
             booking_type=booking.booking_type,
             status=booking.status,
+            agreed_amount=booking.agreed_amount,
             scheduled_date=booking.scheduled_date,
             start_time=booking.start_time,
             end_time=booking.end_time,
@@ -225,8 +227,11 @@ class AssignmentService:
             is_admin_managed=booking.is_admin_managed,
             service_id=booking.service_id,
             service_package_id=booking.service_package_id,
+            selected_freelancer_profile_id=booking.selected_freelancer_profile_id,
+            freelancer_profile_id=booking.freelancer_profile_id,
             project_id=booking.project_id,
             proposal_id=booking.proposal_id,
+            requirements_answers=booking.requirements_answers,
             confirmed_at=booking.confirmed_at,
             started_at=booking.started_at,
             completed_at=booking.completed_at,
@@ -346,7 +351,21 @@ class AssignmentService:
                 detail="Cannot assign client as the freelancer on their own booking."
             )
 
-        # 6. Check existing open offer for concurrency / duplicate protection
+        # 6. Check existing assignment status for concurrency / duplicate protection
+        existing_accepted_offer = (
+            db.query(BookingAssignment)
+            .filter(
+                BookingAssignment.booking_id == booking_id,
+                BookingAssignment.status == AssignmentStatus.ACCEPTED.value
+            )
+            .first()
+        )
+        if existing_accepted_offer:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"An assignment offer has already been ACCEPTED for this booking (Round {existing_accepted_offer.assignment_round})."
+            )
+
         existing_open_offer = (
             db.query(BookingAssignment)
             .filter(

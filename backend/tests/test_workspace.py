@@ -68,7 +68,8 @@ def test_project_workspace_collaboration_pipeline(client, db):
         booking_date=datetime.now(),
         timezone="Asia/Kolkata",
         agreed_amount=package.price,
-        price=package.price
+        price=package.price,
+        payment_completion_state="DEPOSIT_PAID"
     )
     db.add(booking)
     db.commit()

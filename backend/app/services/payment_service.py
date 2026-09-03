@@ -29,6 +29,13 @@ class PaymentService:
         if not booking:
             raise HTTPException(status_code=404, detail="Booking not found")
 
+        user_role_str = user.role.value if hasattr(user.role, "value") else str(user.role)
+        if user_role_str != "CLIENT":
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only client accounts can initiate booking payments."
+            )
+
         # Security check: only booking client owner can pay
         if booking.client_id != user.id:
             raise HTTPException(
@@ -36,7 +43,7 @@ class PaymentService:
                 detail="Only the client owner of this booking can initiate payment."
             )
 
-        if booking.status == BookingStatus.CANCELLED:
+        if booking.status in [BookingStatus.CANCELLED, BookingStatus.REJECTED]:
             return {
                 "booking_id": booking.id,
                 "total_amount": float(booking.agreed_amount),
@@ -44,8 +51,14 @@ class PaymentService:
                 "remaining_amount": float(booking.remaining_balance),
                 "payment_stage": "UNKNOWN",
                 "can_pay": False,
-                "blocking_reason": "Cannot pay for a cancelled booking."
+                "blocking_reason": f"Cannot pay for a {booking.status.value.lower()} booking."
             }
+
+        # Calculate deposit amount if unset
+        if (not booking.deposit_amount or booking.deposit_amount <= 0) and booking.agreed_amount > 0:
+            from decimal import Decimal
+            booking.deposit_amount = (booking.agreed_amount * Decimal("0.30")).quantize(Decimal("0.01"))
+            db.commit()
 
         charge_amount = booking.remaining_balance
         payment_type_val = "UNKNOWN"
@@ -53,23 +66,33 @@ class PaymentService:
         blocking_reason = None
 
         if booking.payment_completion_state == "UNPAID":
-            charge_amount = booking.deposit_amount
             payment_type_val = "DEPOSIT"
-            can_pay = True
+            charge_amount = booking.deposit_amount
+            # Enforce that DEPOSIT can only be paid when Freelancer has accepted and booking status is CONFIRMED
+            if booking.status not in [BookingStatus.CONFIRMED, BookingStatus.IN_PROGRESS]:
+                can_pay = False
+                if booking.status == BookingStatus.REQUESTED:
+                    blocking_reason = "Payment deposit is not available while booking request is pending admin review."
+                elif booking.status == BookingStatus.MATCHING_IN_PROGRESS:
+                    blocking_reason = "Payment deposit is available only after freelancer accepts assignment and booking is confirmed."
+                else:
+                    blocking_reason = f"Payment deposit is not available for current booking status ({booking.status.value})."
+            else:
+                can_pay = True
         elif booking.payment_completion_state == "DEPOSIT_PAID":
-            # Client pays remaining balance only after preview/draft has been submitted (or if it's already approved)
-            from app.models.delivery import Delivery, DeliveryType
-            preview_approved = db.query(Delivery).filter(
-                Delivery.booking_id == booking.id,
-                Delivery.delivery_type.in_([DeliveryType.PREVIEW, DeliveryType.REVISION])
-            ).first()
-            
             payment_type_val = "FINAL_BALANCE"
             charge_amount = booking.remaining_balance
 
-            if not preview_approved:
+            from app.models.delivery import Delivery, DeliveryStatus
+            approved_delivery = db.query(Delivery).filter(
+                Delivery.booking_id == booking.id,
+                Delivery.status == DeliveryStatus.APPROVED,
+                Delivery.shared_with_client_at.isnot(None)
+            ).first()
+
+            if not approved_delivery:
                 can_pay = False
-                blocking_reason = "You must receive a preview draft before paying the remaining balance."
+                blocking_reason = "Final balance payment is available only after Admin reviews and approves the project delivery."
             else:
                 can_pay = True
         else:
@@ -258,6 +281,8 @@ class PaymentService:
             booking.total_paid = booking.agreed_amount
             booking.remaining_balance = Decimal("0.00")
             booking.payment_completion_state = "FULLY_PAID"
+            booking.status = BookingStatus.COMPLETED
+            booking.completed_at = datetime.now()
 
         client_user = payment.client
         if not client_user:
@@ -278,16 +303,17 @@ class PaymentService:
 
         # 2. Setup Ledger audit entries (freelancer credit & platform commission debit)
         # Payment Credit Entry
+        credit_entry_type = "ADVANCE_CREDIT" if payment.payment_type == "DEPOSIT" else "FINAL_CREDIT"
         credit_data = {
             "user_id": payment.client_id,
             "freelancer_profile_id": payment.freelancer_profile_id,
             "booking_id": payment.booking_id,
             "payment_id": payment.id,
-            "entry_type": "PAYMENT_CREDIT",
+            "entry_type": credit_entry_type,
             "amount": payment.gross_amount,
             "currency": payment.currency,
             "status": "PENDING",
-            "description": f"Credit gross amount for booking: {payment.booking.booking_number}"
+            "description": f"Advance deposit credit for booking: {payment.booking.booking_number}" if payment.payment_type == "DEPOSIT" else f"Final balance credit for booking: {payment.booking.booking_number}"
         }
         LedgerRepository.create(db, credit_data)
 
@@ -304,6 +330,16 @@ class PaymentService:
             "description": f"Deduct platform commission snapshot {payment.commission_percent_snapshot}%"
         }
         LedgerRepository.create(db, debit_data)
+
+        # If booking is fully paid, transition all pending ledger entries for this booking to AVAILABLE for payout
+        if booking.payment_completion_state == "FULLY_PAID":
+            from app.models.ledger import LedgerEntry
+            pending_entries = db.query(LedgerEntry).filter(
+                LedgerEntry.booking_id == booking.id,
+                LedgerEntry.status == "PENDING"
+            ).all()
+            for entry in pending_entries:
+                entry.status = "AVAILABLE"
 
         # Add successful attempt log
         attempt_data = {

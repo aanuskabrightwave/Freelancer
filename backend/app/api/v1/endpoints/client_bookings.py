@@ -36,7 +36,8 @@ def create_direct_booking(
     current_user: User = Depends(get_current_active_user),
     db: Session = Depends(get_db)
 ):
-    if current_user.role != UserRole.CLIENT:
+    user_role_str = current_user.role.value if hasattr(current_user.role, "value") else str(current_user.role)
+    if user_role_str != "CLIENT":
         raise HTTPException(status_code=403, detail="Only CLIENT users can submit booking requests.")
     return BookingService.create_booking(db, current_user.id, booking_in.model_dump())
 
