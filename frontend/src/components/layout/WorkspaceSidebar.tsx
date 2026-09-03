@@ -136,7 +136,6 @@ export default function WorkspaceSidebar({ role, isCollapsed, onToggleCollapse, 
     {
       group: "Reputation",
       items: [
-        { name: "Reviews", href: "/freelancer/reviews", icon: Star },
         { name: "Verification", href: "/freelancer/verification", icon: ShieldCheck }
       ]
     },
