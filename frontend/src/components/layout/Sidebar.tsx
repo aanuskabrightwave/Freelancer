@@ -25,7 +25,7 @@ export default function Sidebar({ role, activeItem }: SidebarProps) {
       { name: "Portfolio", href: "/freelancer/portfolio" },
       { name: "Services", href: "/freelancer/services" },
       { name: "Bookings", href: "/freelancer/bookings" },
-      { name: "Messages", href: "/freelancer/messages" },
+      { name: "Deliveries", href: "/freelancer/deliveries" },
       { name: "Earnings", href: "/freelancer/earnings" },
       { name: "Availability", href: "/freelancer/availability" },
       { name: "Reviews", href: "/freelancer/reviews" },

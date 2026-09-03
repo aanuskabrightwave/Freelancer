@@ -144,8 +144,11 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
     );
   }
 
-  const featuredPortfolio = profile.portfolio?.filter((p: any) => p.is_featured) || [];
-  const standardPortfolio = profile.portfolio?.filter((p: any) => !p.is_featured) || [];
+  const sortedPortfolio = [...(profile.portfolio || [])].sort((a: any, b: any) => {
+    const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+    const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+    return dateB - dateA || b.id - a.id;
+  });
 
   return (
     <div className="min-h-full bg-transparent text-text-main font-sans pb-24">
@@ -163,10 +166,10 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
         )}
       </div>
 
-      <Container className="-mt-24 relative z-10">
+      <Container className="-mt-24 relative z-10 space-y-8">
         
         {/* Profile Overlay Card */}
-        <div className="bg-surface-elevated border border-border-custom rounded-3xl p-6 md:p-8 shadow-sm mb-8 flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
+        <div className="bg-surface-elevated border border-border-custom rounded-3xl p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-end justify-between gap-6">
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6 w-full md:w-auto">
             
             {/* Profile Avatar Overlay */}
@@ -235,7 +238,7 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
           )}
         </div>
 
-        {/* Two Column details layout */}
+        {/* Top Two Column details layout: Bio/Skills/Equipment + Rates/Notice */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Main profile contents */}
@@ -301,152 +304,6 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
                 {(!profile.equipment || profile.equipment.length === 0) && (
                   <span className="text-xs text-text-muted col-span-full">No equipment gear listed.</span>
                 )}
-              </div>
-            </div>
-
-            {/* Reviews & Ratings Section */}
-            <div className="space-y-6">
-              <h2 className="text-base font-semibold text-text-main uppercase tracking-wider text-[11px]">Client Feedback & Reviews</h2>
-              
-              <div className="flex flex-col md:flex-row gap-6">
-                {/* Overall Score Card */}
-                <div className="flex-1 bg-surface-elevated border border-border-custom rounded-3xl p-6 shadow-sm flex flex-col items-center justify-center text-center">
-                  <span className="text-[10px] text-primary font-bold uppercase tracking-wider mb-2">Reputation Score</span>
-                  <div className="text-4xl font-black text-text-main">
-                    {profile.average_rating ? profile.average_rating.toFixed(1) : "0.0"}
-                  </div>
-                  <div className="mt-2">
-                    <StarRating rating={profile.average_rating || 0} size="sm" />
-                  </div>
-                  <span className="text-xs text-text-muted mt-2 block">
-                    Based on {profile.review_count} verified reviews
-                  </span>
-                </div>
-
-                {/* Star breakdowns progress bars */}
-                <div className="flex-grow">
-                  <RatingDistribution reviews={allReviewsForDistribution} />
-                </div>
-              </div>
-
-              {/* Filters Header */}
-              <div className="bg-surface-elevated border border-border-custom rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-text-sub uppercase">Filter rating:</span>
-                  <select
-                    value={reviewsRating || ""}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setReviewsRating(val ? parseInt(val) : undefined);
-                      setReviewsPage(1);
-                    }}
-                    className="bg-surface border border-border-custom rounded-xl px-3 py-1.5 text-xs text-text-main focus:outline-none"
-                  >
-                    <option value="">All Star Ratings</option>
-                    <option value="5">5 Stars only</option>
-                    <option value="4">4 Stars</option>
-                    <option value="3">3 Stars</option>
-                    <option value="2">2 Stars</option>
-                    <option value="1">1 Star</option>
-                  </select>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-[10px] font-bold text-text-sub uppercase">Sort by:</span>
-                  <select
-                    value={reviewsSort}
-                    onChange={(e) => {
-                      setReviewsSort(e.target.value);
-                      setReviewsPage(1);
-                    }}
-                    className="bg-surface border border-border-custom rounded-xl px-3 py-1.5 text-xs text-text-main focus:outline-none"
-                  >
-                    <option value="newest">Newest first</option>
-                    <option value="oldest">Oldest first</option>
-                    <option value="highest">Highest Rating</option>
-                    <option value="lowest">Lowest Rating</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Review Cards list */}
-              <div className="space-y-4">
-                {reviews.map((r) => (
-                  <ReviewCard key={r.id} review={r} />
-                ))}
-
-                {reviews.length === 0 && (
-                  <div className="bg-surface-elevated/40 border border-border-custom rounded-3xl p-8 text-center text-text-muted text-xs">
-                    No reviews matching the criteria were found.
-                  </div>
-                )}
-
-                {hasMoreReviews && reviews.length >= 10 && (
-                  <button
-                    onClick={() => setReviewsPage((p) => p + 1)}
-                    disabled={loadingReviews}
-                    className="w-full py-3 bg-surface hover:bg-surface-elevated border border-border-custom text-xs font-bold text-text-main rounded-xl transition uppercase tracking-wider cursor-pointer"
-                  >
-                    {loadingReviews ? "Loading more..." : "Load More Reviews"}
-                  </button>
-                )}
-              </div>
-            </div>
-
-            {/* Portfolio Grid Card */}
-            <div className="bg-surface-elevated border border-border-custom/60 rounded-3xl p-6 md:p-8 shadow-sm">
-              <h2 className="text-base font-semibold text-text-main mb-6 uppercase tracking-wider text-[11px]">Portfolio Showcase</h2>
-              
-              {featuredPortfolio.length > 0 && (
-                <div className="mb-8">
-                  <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-4">Featured Work</h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {featuredPortfolio.map((item: any) => (
-                      <div key={item.id} className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden shadow-sm group">
-                        <div className="aspect-video relative overflow-hidden flex items-center justify-center bg-background">
-                          {item.media_type === "IMAGE" ? (
-                            <img src={getMediaUrl(item.media_url)} alt="" className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-350" />
-                          ) : (
-                            <div className="text-center p-4">
-                              <span className="text-[9px] bg-primary/10 border border-primary/20 px-2 py-0.5 rounded text-primary font-bold">
-                                {item.media_type}
-                              </span>
-                              <p className="text-xs text-text-sub truncate mt-2 max-w-xs">{item.media_url}</p>
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <h4 className="text-sm font-semibold text-text-main truncate">{item.title}</h4>
-                          <span className="text-[9px] text-text-muted uppercase font-bold tracking-wider mt-1 block">{item.category}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div>
-                <h3 className="text-xs font-bold text-primary uppercase tracking-widest mb-4">All Projects</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  {standardPortfolio.map((item: any) => (
-                    <div key={item.id} className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden flex flex-col justify-between">
-                      <div className="aspect-video bg-background flex items-center justify-center overflow-hidden">
-                        {item.media_type === "IMAGE" ? (
-                          <img src={getMediaUrl(item.media_url)} alt={item.title} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-[9px] bg-surface-elevated border border-border-custom px-2 py-0.5 rounded text-text-muted font-bold uppercase">{item.media_type}</span>
-                        )}
-                      </div>
-                      <div className="p-3">
-                        <h4 className="text-xs font-semibold text-text-main truncate">{item.title}</h4>
-                        <span className="text-[9px] text-text-muted uppercase tracking-wider block mt-1">{item.category}</span>
-                      </div>
-                    </div>
-                  ))}
-                  {(!profile.portfolio || profile.portfolio.length === 0) && (
-                    <span className="text-xs text-text-muted col-span-full">No portfolio projects uploaded.</span>
-                  )}
-                </div>
               </div>
             </div>
 
@@ -518,6 +375,185 @@ export default function FreelancerDetailClient({ id }: { id: string }) {
 
           </div>
 
+        </div>
+
+        {/* Client Feedback & Reviews Section (Full Width) */}
+        <div className="space-y-4">
+          <h2 className="text-base font-semibold text-text-main uppercase tracking-wider text-[11px]">
+            Client Feedback & Reviews
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            
+            {/* Left Card: Combined Reputation Score & Rating Breakdown (5/12 cols, taller with min-h and generous padding) */}
+            <div className="lg:col-span-5 bg-surface-elevated border border-border-custom/60 rounded-3xl p-7 md:p-8 shadow-sm flex flex-col justify-between space-y-6 min-h-[350px]">
+              {/* Header row: Left side has Reputation Score title & "Based on x verified reviews" below it. Right side has Score number & Stars below it */}
+              <div className="flex items-center justify-between gap-4 pb-5 border-b border-border-custom/50">
+                <div>
+                  <span className="text-[11px] font-bold text-primary uppercase tracking-wider block">
+                    Reputation Score
+                  </span>
+                  <span className="text-xs text-text-muted font-medium block mt-1">
+                    Based on {profile.review_count} {profile.review_count === 1 ? "verified review" : "verified reviews"}
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-end shrink-0">
+                  <span className="text-3xl font-black text-text-main leading-none">
+                    {profile.average_rating ? profile.average_rating.toFixed(1) : "0.0"}
+                  </span>
+                  <div className="mt-1.5">
+                    <StarRating rating={profile.average_rating || 0} size="xs" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Rating Distributions below (without title) */}
+              <div className="flex-grow flex flex-col justify-center py-1">
+                <RatingDistribution reviews={allReviewsForDistribution} clean={true} />
+              </div>
+            </div>
+
+            {/* Right Card: Comments Card with Sort By: Newest First (7/12 cols, taller with min-h and generous padding) */}
+            <div className="lg:col-span-7 bg-surface-elevated border border-border-custom/60 rounded-3xl p-7 md:p-8 shadow-sm flex flex-col justify-between space-y-5 min-h-[350px]">
+              {/* Card Header: "Comments" title + Sort By Dropdown */}
+              <div className="flex items-center justify-between gap-3 pb-5 border-b border-border-custom/50">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-[11px] font-bold text-primary uppercase tracking-wider">
+                    Comments
+                  </h3>
+                  <span className="text-[10px] text-text-muted font-bold">
+                    ({reviews.length})
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-text-muted uppercase">Sort by:</span>
+                  <select
+                    value={reviewsSort}
+                    onChange={(e) => {
+                      setReviewsSort(e.target.value);
+                      setReviewsPage(1);
+                    }}
+                    className="bg-surface border border-border-custom rounded-xl px-3 py-1 text-xs text-text-main focus:outline-none cursor-pointer"
+                  >
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="highest">Highest Rating</option>
+                    <option value="lowest">Lowest Rating</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Comments window / Empty state */}
+              {reviews.length > 0 ? (
+                <div className="space-y-3 overflow-y-auto max-h-[280px] pr-1 flex-1">
+                  {reviews.map((r) => (
+                    <div key={r.id} className="bg-surface border border-border-custom/80 rounded-2xl p-4 space-y-2">
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-7 h-7 rounded-full bg-primary/20 border border-indigo-900/30 flex items-center justify-center text-primary font-bold text-xs uppercase">
+                            {r.client_name ? r.client_name[0] : "C"}
+                          </div>
+                          <div>
+                            <h5 className="text-xs font-bold text-text-main">{r.client_name || "Verified Client"}</h5>
+                            <span className="text-[9px] text-text-muted block">
+                              {new Date(r.created_at).toLocaleDateString("en-IN", { year: "numeric", month: "short", day: "numeric" })}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <StarRating rating={r.overall_rating} size="xs" />
+                          <span className="text-xs font-bold text-text-main">{r.overall_rating.toFixed(1)}</span>
+                        </div>
+                      </div>
+
+                      {r.title && (
+                        <h6 className="text-xs font-bold text-text-main uppercase tracking-wider">{r.title}</h6>
+                      )}
+                      <p className="text-xs text-text-sub leading-relaxed whitespace-pre-line">{r.comment}</p>
+
+                      {r.response_obj && (
+                        <div className="bg-primary/10 border-l-2 border-primary p-2.5 rounded-r-xl text-[11px] space-y-0.5 mt-2">
+                          <span className="text-[9px] text-primary font-bold uppercase tracking-wider block">
+                            Response from professional
+                          </span>
+                          <p className="text-text-sub leading-relaxed">{r.response_obj.response}</p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+
+                  {hasMoreReviews && reviews.length >= 10 && (
+                    <button
+                      onClick={() => setReviewsPage((p) => p + 1)}
+                      disabled={loadingReviews}
+                      className="w-full py-2 bg-surface hover:bg-surface-elevated border border-border-custom text-xs font-bold text-text-main rounded-xl transition uppercase tracking-wider cursor-pointer mt-2"
+                    >
+                      {loadingReviews ? "Loading more..." : "Load More Comments"}
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className="flex-1 w-full flex items-center justify-center text-center text-text-muted text-xs bg-surface/40 border border-border-custom/50 rounded-2xl min-h-[220px]">
+                  No client comments yet.
+                </div>
+              )}
+            </div>
+
+          </div>
+        </div>
+
+        {/* Portfolio Showcase Section (Extended Full Width, 3xN Grid, Latest First) */}
+        <div className="bg-surface-elevated border border-border-custom/60 rounded-3xl p-6 md:p-8 shadow-sm space-y-6">
+          <h2 className="text-base font-semibold text-text-main uppercase tracking-wider text-[11px]">
+            Portfolio Showcase
+          </h2>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {sortedPortfolio.map((item: any) => (
+              <div
+                key={item.id}
+                className="bg-surface border border-border-custom/80 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between group hover:border-primary/40 transition"
+              >
+                <div className="aspect-video relative overflow-hidden flex items-center justify-center bg-background">
+                  {item.media_type === "IMAGE" ? (
+                    <img
+                      src={getMediaUrl(item.media_url)}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-350"
+                    />
+                  ) : (
+                    <div className="text-center p-4">
+                      <span className="text-[9px] bg-primary/10 border border-primary/20 px-2 py-0.5 rounded text-primary font-bold uppercase">
+                        {item.media_type}
+                      </span>
+                      <p className="text-xs text-text-sub truncate mt-2 max-w-xs">{item.media_url}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 flex items-center justify-between gap-2">
+                  <div className="min-w-0">
+                    <h4 className="text-sm font-semibold text-text-main truncate">{item.title}</h4>
+                    <span className="text-[9px] text-text-muted uppercase font-bold tracking-wider mt-1 block">
+                      {item.category}
+                    </span>
+                  </div>
+                  {item.is_featured && (
+                    <span className="px-2 py-0.5 bg-primary/10 border border-primary/20 text-primary text-[8px] font-extrabold uppercase rounded-full shrink-0">
+                      Featured
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+
+            {(!profile.portfolio || profile.portfolio.length === 0) && (
+              <div className="col-span-full py-12 text-center text-xs text-text-muted bg-surface/40 border border-border-custom/50 rounded-2xl italic">
+                No portfolio projects uploaded.
+              </div>
+            )}
+          </div>
         </div>
 
       </Container>

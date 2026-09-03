@@ -13,6 +13,7 @@ import {
   Search, 
   ExternalLink 
 } from "lucide-react";
+import MessagesModal from "./MessagesModal";
 
 export default function MessageWidget() {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ export default function MessageWidget() {
 
   // Widget view states
   const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeConvoId, setActiveConvoId] = useState<number | null>(null);
   
   // Search & Filter state
@@ -147,11 +149,7 @@ export default function MessageWidget() {
 
   const handleViewAllMessages = () => {
     setIsOpen(false);
-    if (role === "CLIENT") {
-      router.push("/client/messages");
-    } else {
-      router.push("/freelancer/messages");
-    }
+    setIsModalOpen(true);
   };
 
   const activeConvo = conversations.find(c => c.id === activeConvoId);
@@ -338,6 +336,13 @@ export default function MessageWidget() {
 
         </div>
       )}
+
+      {/* Pop-up In-Page Messages Modal Window (matching Help & Support dialog) */}
+      <MessagesModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        initialConvoId={activeConvoId || undefined}
+      />
 
     </div>
   );

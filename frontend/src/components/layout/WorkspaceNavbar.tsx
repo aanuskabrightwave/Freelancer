@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { notificationService, NotificationItemData } from "@/services/notification.service";
 import HelpModal from "@/components/common/HelpModal";
+import MessagesModal from "@/components/messaging/MessagesModal";
 
 export default function WorkspaceNavbar() {
   const { user, logout } = useAuth();
@@ -30,6 +31,7 @@ export default function WorkspaceNavbar() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [createOpen, setCreateOpen] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [messagesModalOpen, setMessagesModalOpen] = useState(false);
 
   // Notifications state
   const [unreadCount, setUnreadCount] = useState(0);
@@ -220,15 +222,15 @@ export default function WorkspaceNavbar() {
             )}
           </div>
 
-          {/* Messages Link (Freelancers only) */}
-          {role === "FREELANCER" && (
-            <Link
-              href="/freelancer/messages"
-              className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-surface-elevated transition"
+          {/* Messages Link (Freelancers & Clients) */}
+          {(role === "FREELANCER" || role === "CLIENT") && (
+            <button
+              onClick={() => setMessagesModalOpen(true)}
+              className="p-2 text-text-muted hover:text-text-main rounded-full hover:bg-surface-elevated transition cursor-pointer"
               title="Messages"
             >
               <MessageSquare className="w-4.5 h-4.5" />
-            </Link>
+            </button>
           )}
 
           {/* Notifications Bell */}
@@ -364,6 +366,9 @@ export default function WorkspaceNavbar() {
 
       {/* Embedded Help Modal */}
       <HelpModal isOpen={helpOpen} onClose={() => setHelpOpen(false)} />
+
+      {/* Embedded Messages Modal */}
+      <MessagesModal isOpen={messagesModalOpen} onClose={() => setMessagesModalOpen(false)} />
     </>
   );
 }
